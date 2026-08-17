@@ -19,7 +19,7 @@ import {
   AlertTriangleIcon,
 } from "@/components/ui/Icons";
 
-export default function LiveSessionPage() {
+function LiveSessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id") || "sess-live-01";
@@ -424,5 +424,13 @@ export default function LiveSessionPage() {
         onSuccess={handleOverrideSuccess}
       />
     </DashboardLayout>
+  );
+}
+
+export default function LiveSessionPage() {
+  return (
+    <React.Suspense fallback={<div style={{ padding: "40px", color: "var(--text-muted)", textAlign: "center" }}>Connecting to live session stream...</div>}>
+      <LiveSessionContent />
+    </React.Suspense>
   );
 }

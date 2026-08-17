@@ -7,7 +7,7 @@ import { schedulingApi, attendanceApi } from "@/lib/api/services";
 import { CourseOffering, Venue, VerificationMethod } from "@/types";
 import { PlayIcon } from "@/components/ui/Icons";
 
-export default function StartSessionPage() {
+function StartSessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const defaultOfferingId = searchParams.get("offering_id") || "";
@@ -216,7 +216,7 @@ export default function StartSessionPage() {
               </h4>
               <ul style={{ paddingLeft: "20px", fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
                 <li><strong>First Check-in Window:</strong> Opens automatically upon launch for 15 minutes (GPS Geofence).</li>
-                {currentOffering?.random_check_enabled && (
+                {Boolean(currentOffering?.random_check_enabled) && (
                   <li><strong>Random AI Face Check:</strong> Will automatically trigger during the second half of the class.</li>
                 )}
                 <li><strong>Security:</strong> All check-ins undergo background proxy anomaly detection.</li>
@@ -238,5 +238,13 @@ export default function StartSessionPage() {
         )}
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function StartSessionPage() {
+  return (
+    <React.Suspense fallback={<div style={{ padding: "40px", color: "var(--text-muted)", textAlign: "center" }}>Loading session configuration...</div>}>
+      <StartSessionContent />
+    </React.Suspense>
   );
 }

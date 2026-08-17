@@ -153,7 +153,7 @@ export default function AlertsPage() {
 
                   {/* Actions */}
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    {alert.details?.session_id && (
+                    {alert.details?.session_id ? (
                       <Link
                         href={`/attendance?session_id=${alert.details.session_id}`}
                         className="btn-secondary"
@@ -161,7 +161,7 @@ export default function AlertsPage() {
                       >
                         Inspect Attempt <ChevronRightIcon size={12} />
                       </Link>
-                    )}
+                    ) : null}
 
                     {!alert.is_read && (
                       <button

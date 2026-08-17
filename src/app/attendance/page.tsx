@@ -14,7 +14,7 @@ import {
   EditIcon,
 } from "@/components/ui/Icons";
 
-export default function AttendanceHubPage() {
+function AttendanceHubContent() {
   const searchParams = useSearchParams();
   const initialSessionId = searchParams.get("session_id") || "sess-live-01";
 
@@ -315,5 +315,13 @@ export default function AttendanceHubPage() {
         onSuccess={handleOverrideSuccess}
       />
     </DashboardLayout>
+  );
+}
+
+export default function AttendanceHubPage() {
+  return (
+    <React.Suspense fallback={<div style={{ padding: "40px", color: "var(--text-muted)", textAlign: "center" }}>Loading attendance hub...</div>}>
+      <AttendanceHubContent />
+    </React.Suspense>
   );
 }
