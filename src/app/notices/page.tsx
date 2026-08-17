@@ -5,7 +5,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Badge } from "@/components/ui/Badge";
 import { noticesApi, schedulingApi } from "@/lib/api/services";
 import { Notice, CourseOffering, NoticeUrgency } from "@/types";
-import { BellIcon, SendIcon, UsersIcon, ClockIcon } from "@/components/ui/Icons";
+import { BellIcon, SendIcon, UsersIcon } from "@/components/ui/Icons";
 
 export default function NoticesPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -183,7 +183,16 @@ export default function NoticesPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {notices.map((n) => (
+            {loading ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "var(--text-muted)" }}>
+                Loading announcements...
+              </div>
+            ) : notices.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "var(--text-muted)" }}>
+                No published announcements.
+              </div>
+            ) : (
+              notices.map((n) => (
               <div
                 key={n.id}
                 style={{
@@ -219,7 +228,7 @@ export default function NoticesPage() {
                   <span>Published by {n.creator_name || "You"}</span>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       </div>

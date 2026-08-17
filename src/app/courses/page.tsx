@@ -5,7 +5,7 @@ import Link from "next/link";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { schedulingApi } from "@/lib/api/services";
 import { CourseOffering } from "@/types";
-import { BookOpenIcon, ClockIcon, MapPinIcon, UsersIcon, PlayIcon, ChevronRightIcon } from "@/components/ui/Icons";
+import { ClockIcon, MapPinIcon, UsersIcon, PlayIcon, ChevronRightIcon } from "@/components/ui/Icons";
 
 export default function CoursesPage() {
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
@@ -30,7 +30,12 @@ export default function CoursesPage() {
       title="Courses & Offerings"
       subtitle="Manage your assigned lecture offerings, student rosters, and verification rules."
     >
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "24px" }}>
+      {loading ? (
+        <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+          Loading course offerings...
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "24px" }}>
         {offerings.map((offering) => (
           <div
             key={offering.id}
@@ -135,6 +140,7 @@ export default function CoursesPage() {
           </div>
         ))}
       </div>
+      )}
     </DashboardLayout>
   );
 }

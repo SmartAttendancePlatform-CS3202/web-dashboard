@@ -64,6 +64,19 @@ export default function HomePage() {
   const totalEnrolledStudents = offerings.reduce((sum, o) => sum + (o.enrolled_count || 0), 0);
   const averageAttendance = report?.attendance_percentage || 87.4;
 
+  if (loading) {
+    return (
+      <DashboardLayout
+        title="Lecturer Faculty Command Center"
+        subtitle="Loading faculty dashboard..."
+      >
+        <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+          Loading dashboard metrics and active sessions...
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout
       title={`Welcome back, ${lecturerProfile?.display_name || "Doctor"}`}

@@ -8,7 +8,6 @@ import { SystemAlert } from "@/types";
 import {
   ShieldAlertIcon,
   AlertTriangleIcon,
-  CheckCircleIcon,
   ClockIcon,
   ChevronRightIcon,
 } from "@/components/ui/Icons";
@@ -75,14 +74,17 @@ export default function AlertsPage() {
 
         {/* Alerts List */}
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-          {filteredAlerts.length === 0 ? (
+          {loading ? (
+            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+              Loading security alerts...
+            </div>
+          ) : filteredAlerts.length === 0 ? (
             <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
               ✓ No security alerts found matching this filter.
             </div>
           ) : (
             filteredAlerts.map((alert) => {
               const isProxy = alert.type === "proxy_flagged";
-              const isSpike = alert.type === "verification_failure_spike";
 
               return (
                 <div

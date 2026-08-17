@@ -5,7 +5,7 @@ import Link from "next/link";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { schedulingApi } from "@/lib/api/services";
 import { CourseOffering } from "@/types";
-import { CalendarIcon, ClockIcon, MapPinIcon, PlayIcon, UsersIcon } from "@/components/ui/Icons";
+import { ClockIcon, MapPinIcon, PlayIcon, UsersIcon } from "@/components/ui/Icons";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -32,15 +32,20 @@ export default function TimetablePage() {
       title="Teaching Timetable"
       subtitle="Your scheduled lecture periods and assigned classroom venues for this semester."
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-        {/* Timetable Weekly Columns */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "16px",
-          }}
-        >
+      {loading ? (
+        <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+          Loading weekly teaching timetable...
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          {/* Timetable Weekly Columns */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "16px",
+            }}
+          >
           {DAYS.map((day) => {
             const dayOfferings = offerings.filter((o) => o.day?.toLowerCase() === day.toLowerCase());
 
@@ -167,6 +172,7 @@ export default function TimetablePage() {
           })}
         </div>
       </div>
+      )}
     </DashboardLayout>
   );
 }

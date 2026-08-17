@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const authUser: User = {
             id: session.user.id,
             email: session.user.email || "lecturer@university.ac.lk",
-            role: (session.user.user_metadata?.role as any) || "lecturer",
+            role: (session.user.user_metadata?.role as User["role"]) || "lecturer",
             status: "active",
             created_at: session.user.created_at,
           };
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser({
             id: session.user.id,
             email: session.user.email || "lecturer@university.ac.lk",
-            role: (session.user.user_metadata?.role as any) || "lecturer",
+            role: (session.user.user_metadata?.role as User["role"]) || "lecturer",
             status: "active",
             created_at: session.user.created_at,
           });
@@ -119,9 +119,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setIsLoading(false);
       return { error: null };
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsLoading(false);
-      return { error: err.message || "Failed to log in" };
+      const message = err instanceof Error ? err.message : "Failed to log in";
+      return { error: message };
     }
   };
 

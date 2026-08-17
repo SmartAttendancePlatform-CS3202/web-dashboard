@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase/client";
 /**
  * Attaches the current Supabase session's JWT to a backend API call.
  */
-export async function apiFetch<T = any>(
+export async function apiFetch<T = unknown>(
   url: string,
   options: RequestInit = {}
 ): Promise<{ data: T | null; error: string | null; status: number }> {
@@ -49,7 +49,8 @@ export async function apiFetch<T = any>(
 
     const data = await response.json();
     return { data, error: null, status: response.status };
-  } catch (err: any) {
-    return { data: null, error: err.message || "Network request failed", status: 500 };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Network request failed";
+    return { data: null, error: errorMsg, status: 500 };
   }
 }

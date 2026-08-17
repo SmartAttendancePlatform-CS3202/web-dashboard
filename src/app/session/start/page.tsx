@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { schedulingApi, attendanceApi } from "@/lib/api/services";
 import { CourseOffering, Venue, VerificationMethod } from "@/types";
-import { PlayIcon, MapPinIcon, ClockIcon, BookOpenIcon, ShieldAlertIcon } from "@/components/ui/Icons";
+import { PlayIcon } from "@/components/ui/Icons";
 
 export default function StartSessionPage() {
   const router = useRouter();
@@ -32,11 +32,12 @@ export default function StartSessionPage() {
         setOfferings(offs);
         setVenues(vens);
 
-        if (!selectedOfferingId && offs.length > 0) {
-          setSelectedOfferingId(offs[0].id);
-        }
-        if (offs.length > 0 && offs[0].venue_id) {
-          setSelectedVenueId(offs[0].venue_id);
+        const initialOfferingId = defaultOfferingId || (offs.length > 0 ? offs[0].id : "");
+        setSelectedOfferingId(initialOfferingId);
+
+        const chosenOffering = offs.find((o) => o.id === initialOfferingId);
+        if (chosenOffering && chosenOffering.venue_id) {
+          setSelectedVenueId(chosenOffering.venue_id);
         } else if (vens.length > 0) {
           setSelectedVenueId(vens[0].id);
         }
@@ -47,7 +48,7 @@ export default function StartSessionPage() {
       }
     }
     loadFormSpecs();
-  }, []);
+  }, [defaultOfferingId]);
 
   // Update venue default when offering changes
   const handleOfferingChange = (offId: string) => {
@@ -88,8 +89,13 @@ export default function StartSessionPage() {
       subtitle="Initialize geofenced attendance windows and AI face verification for today's lecture."
     >
       <div style={{ maxWidth: "780px", margin: "0 auto" }}>
-        <div className="glass-card" style={{ padding: "32px" }}>
-          <form onSubmit={handleLaunch} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        {loading ? (
+          <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+            Loading course schedule and classroom venues...
+          </div>
+        ) : (
+          <div className="glass-card" style={{ padding: "32px" }}>
+            <form onSubmit={handleLaunch} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {/* Step 1: Course Selection */}
             <div>
               <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "8px" }}>
@@ -227,8 +233,9 @@ export default function StartSessionPage() {
               <PlayIcon size={18} />
               <span>{isLaunching ? "Initializing Live Attendance Server..." : "Launch Live Session & Open Window"}</span>
             </button>
-          </form>
-        </div>
+            </form>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

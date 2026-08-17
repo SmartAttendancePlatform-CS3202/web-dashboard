@@ -6,14 +6,12 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Badge } from "@/components/ui/Badge";
 import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
-import { attendanceApi, schedulingApi } from "@/lib/api/services";
+import { attendanceApi } from "@/lib/api/services";
 import { LectureSession, AttendanceRecord } from "@/types";
 import {
   RadioIcon,
   StopCircleIcon,
   RefreshCwIcon,
-  UserCheckIcon,
-  ShieldAlertIcon,
   ClockIcon,
   MapPinIcon,
   ScanFaceIcon,
@@ -290,40 +288,54 @@ export default function LiveSessionPage() {
               </tr>
             </thead>
             <tbody>
-              {records.map((record) => {
-                const isFlagged = record.status === "flagged_proxy";
-                return (
-                  <tr
-                    key={record.id}
-                    style={{
-                      backgroundColor: isFlagged ? "rgba(236, 72, 153, 0.05)" : undefined,
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setSelectedRecordForDrawer(record)}
-                  >
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <div
-                          style={{
-                            width: "34px",
-                            height: "34px",
-                            borderRadius: "50%",
-                            backgroundColor: "#1E293B",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.75rem",
-                            fontWeight: 700,
-                            color: "#818CF8",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {record.student_photo ? (
-                            <img src={record.student_photo} alt={record.student_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : (
-                            record.student_name?.charAt(0) || "S"
-                          )}
-                        </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
+                    Connecting to live classroom stream...
+                  </td>
+                </tr>
+              ) : records.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
+                    No check-in records recorded for this session yet.
+                  </td>
+                </tr>
+              ) : (
+                records.map((record) => {
+                  const isFlagged = record.status === "flagged_proxy";
+                  return (
+                    <tr
+                      key={record.id}
+                      style={{
+                        backgroundColor: isFlagged ? "rgba(236, 72, 153, 0.05)" : undefined,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setSelectedRecordForDrawer(record)}
+                    >
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div
+                            style={{
+                              width: "34px",
+                              height: "34px",
+                              borderRadius: "50%",
+                              backgroundColor: "#1E293B",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              color: "#818CF8",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {record.student_photo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={record.student_photo} alt={record.student_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : (
+                              record.student_name?.charAt(0) || "S"
+                            )}
+                          </div>
                         <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                           {record.student_name}
                         </span>
@@ -390,7 +402,7 @@ export default function LiveSessionPage() {
                     </td>
                   </tr>
                 );
-              })}
+              }))}
             </tbody>
           </table>
         </div>

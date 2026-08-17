@@ -128,7 +128,7 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
               key={idx}
               style={{ cursor: "pointer" }}
               onMouseEnter={(e) => {
-                const rect = (e.currentTarget.parentElement as any)?.getBoundingClientRect();
+                const rect = e.currentTarget.ownerSVGElement?.getBoundingClientRect();
                 setHoveredPoint(p.data);
                 if (rect) {
                   setHoverCoords({

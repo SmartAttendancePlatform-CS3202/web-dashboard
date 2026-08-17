@@ -251,7 +251,7 @@ export interface SystemAlert {
   title?: string;
   type: AlertType;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   is_read: boolean;
   created_at: string;
 }

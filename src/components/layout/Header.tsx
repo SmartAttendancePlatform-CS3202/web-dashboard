@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { BellIcon, PlayIcon, RadioIcon, WifiIcon } from "@/components/ui/Icons";
+import { BellIcon, PlayIcon } from "@/components/ui/Icons";
 import { useAuth } from "@/lib/context/AuthContext";
 
 interface HeaderProps {
