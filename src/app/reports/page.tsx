@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { TrendChart } from "@/components/charts/TrendChart";
 import { StatCard } from "@/components/ui/StatCard";
-import { Badge } from "@/components/ui/Badge";
 import { reportsApi, schedulingApi } from "@/lib/api/services";
 import { CourseOffering, OfferingReport, TrendData } from "@/types";
 import {
@@ -115,7 +114,12 @@ export default function ReportsPage() {
       </div>
 
       {/* Official Printable Report Container */}
-      <div id="printable-report" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {loading ? (
+        <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
+          Loading attendance reports and compliance metrics...
+        </div>
+      ) : (
+        <div id="printable-report" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
         {/* KPI Cards */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
           <StatCard
@@ -286,6 +290,7 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
+      )}
     </DashboardLayout>
   );
 }

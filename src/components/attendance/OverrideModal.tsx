@@ -63,8 +63,9 @@ export function OverrideModal({
       } else {
         setError("Failed to submit override. Please check connection.");
       }
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }

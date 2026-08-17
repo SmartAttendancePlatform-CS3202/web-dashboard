@@ -7,21 +7,16 @@ import { Badge } from "@/components/ui/Badge";
 import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
 import { attendanceApi, schedulingApi } from "@/lib/api/services";
-import { CourseOffering, AttendanceRecord, AttendanceStatus, LectureSession } from "@/types";
+import { CourseOffering, AttendanceRecord, LectureSession } from "@/types";
 import {
   SearchIcon,
-  FilterIcon,
   DownloadIcon,
-  UserCheckIcon,
-  CheckCircleIcon,
-  AlertTriangleIcon,
   EditIcon,
 } from "@/components/ui/Icons";
 
-export default function AttendanceHubPage() {
+function AttendanceHubContent() {
   const searchParams = useSearchParams();
   const initialSessionId = searchParams.get("session_id") || "sess-live-01";
-  const initialStudentId = searchParams.get("student_id") || "";
 
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [sessions, setSessions] = useState<LectureSession[]>([]);
@@ -191,99 +186,114 @@ export default function AttendanceHubPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredRecords.map((record) => {
-                const isFlagged = record.status === "flagged_proxy";
-                return (
-                  <tr
-                    key={record.id}
-                    style={{
-                      backgroundColor: isFlagged ? "rgba(236, 72, 153, 0.05)" : undefined,
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setSelectedRecordForDrawer(record)}
-                  >
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <div
-                          style={{
-                            width: "34px",
-                            height: "34px",
-                            borderRadius: "50%",
-                            backgroundColor: "#1E293B",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.75rem",
-                            fontWeight: 700,
-                            color: "#818CF8",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {record.student_photo ? (
-                            <img src={record.student_photo} alt={record.student_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : (
-                            record.student_name?.charAt(0) || "S"
-                          )}
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
+                    Loading attendance records...
+                  </td>
+                </tr>
+              ) : filteredRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
+                    No attendance records found.
+                  </td>
+                </tr>
+              ) : (
+                filteredRecords.map((record) => {
+                  const isFlagged = record.status === "flagged_proxy";
+                  return (
+                    <tr
+                      key={record.id}
+                      style={{
+                        backgroundColor: isFlagged ? "rgba(236, 72, 153, 0.05)" : undefined,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setSelectedRecordForDrawer(record)}
+                    >
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div
+                            style={{
+                              width: "34px",
+                              height: "34px",
+                              borderRadius: "50%",
+                              backgroundColor: "#1E293B",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              color: "#818CF8",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {record.student_photo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={record.student_photo} alt={record.student_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : (
+                              record.student_name?.charAt(0) || "S"
+                            )}
+                          </div>
+                          <div>
+                            <p style={{ fontWeight: 600, color: "var(--text-primary)" }}>{record.student_name}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p style={{ fontWeight: 600, color: "var(--text-primary)" }}>{record.student_name}</p>
+                      </td>
+
+                      <td>
+                        <code style={{ fontSize: "0.85rem", color: "#818CF8", fontWeight: 700 }}>
+                          {record.student_index}
+                        </code>
+                      </td>
+
+                      <td>
+                        <Badge type="attendance" value={record.status} size="sm" />
+                      </td>
+
+                      <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                        {record.first_check_in_at
+                          ? new Date(record.first_check_in_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                          : "—"}
+                      </td>
+
+                      <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                        {record.random_check_completed_at
+                          ? new Date(record.random_check_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                          : "—"}
+                      </td>
+
+                      <td>
+                        {record.is_manually_overridden ? (
+                          <div style={{ fontSize: "0.75rem", color: "#818CF8" }}>
+                            <span style={{ fontWeight: 600 }}>🛡️ By {record.override_by_name || "Lecturer"}</span>
+                            <p style={{ color: "var(--text-muted)", fontSize: "0.7rem", marginTop: "2px" }}>
+                              &quot;{record.override_reason}&quot;
+                            </p>
+                          </div>
+                        ) : (
+                          <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Direct Mobile Check-in</span>
+                        )}
+                      </td>
+
+                      <td>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            style={{ padding: "4px 10px", fontSize: "0.75rem" }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedRecordForOverride(record);
+                            }}
+                          >
+                            <EditIcon size={12} /> Override
+                          </button>
                         </div>
-                      </div>
-                    </td>
-
-                    <td>
-                      <code style={{ fontSize: "0.85rem", color: "#818CF8", fontWeight: 700 }}>
-                        {record.student_index}
-                      </code>
-                    </td>
-
-                    <td>
-                      <Badge type="attendance" value={record.status} size="sm" />
-                    </td>
-
-                    <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                      {record.first_check_in_at
-                        ? new Date(record.first_check_in_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                        : "—"}
-                    </td>
-
-                    <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                      {record.random_check_completed_at
-                        ? new Date(record.random_check_completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                        : "—"}
-                    </td>
-
-                    <td>
-                      {record.is_manually_overridden ? (
-                        <div style={{ fontSize: "0.75rem", color: "#818CF8" }}>
-                          <span style={{ fontWeight: 600 }}>🛡️ By {record.override_by_name || "Lecturer"}</span>
-                          <p style={{ color: "var(--text-muted)", fontSize: "0.7rem", marginTop: "2px" }}>
-                            "{record.override_reason}"
-                          </p>
-                        </div>
-                      ) : (
-                        <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Direct Mobile Check-in</span>
-                      )}
-                    </td>
-
-                    <td>
-                      <div style={{ display: "flex", gap: "6px" }}>
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          style={{ padding: "4px 10px", fontSize: "0.75rem" }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedRecordForOverride(record);
-                          }}
-                        >
-                          <EditIcon size={12} /> Override
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -305,5 +315,13 @@ export default function AttendanceHubPage() {
         onSuccess={handleOverrideSuccess}
       />
     </DashboardLayout>
+  );
+}
+
+export default function AttendanceHubPage() {
+  return (
+    <React.Suspense fallback={<div style={{ padding: "40px", color: "var(--text-muted)", textAlign: "center" }}>Loading attendance hub...</div>}>
+      <AttendanceHubContent />
+    </React.Suspense>
   );
 }

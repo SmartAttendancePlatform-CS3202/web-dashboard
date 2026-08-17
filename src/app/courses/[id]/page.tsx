@@ -7,14 +7,11 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { schedulingApi } from "@/lib/api/services";
 import { CourseOffering, Student } from "@/types";
 import {
-  BookOpenIcon,
   UsersIcon,
   SearchIcon,
   PlayIcon,
   MapPinIcon,
   ClockIcon,
-  CheckCircleIcon,
-  AlertTriangleIcon,
 } from "@/components/ui/Icons";
 
 export default function CourseDetailPage() {
@@ -153,36 +150,50 @@ export default function CourseDetailPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.map((student) => {
-                const rate = student.attendance_rate || 88;
-                const isAtRisk = rate < 80;
+              {loading ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
+                    Loading student directory...
+                  </td>
+                </tr>
+              ) : filteredStudents.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
+                    No students found.
+                  </td>
+                </tr>
+              ) : (
+                filteredStudents.map((student) => {
+                  const rate = student.attendance_rate || 88;
+                  const isAtRisk = rate < 80;
 
-                return (
-                  <tr key={student.id}>
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <div
-                          style={{
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "50%",
-                            backgroundColor: "#1E293B",
-                            border: "1px solid var(--border-subtle)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.8rem",
-                            fontWeight: 700,
-                            color: "#818CF8",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {student.photo_url ? (
-                            <img src={student.photo_url} alt={student.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : (
-                            student.full_name.charAt(0)
-                          )}
-                        </div>
+                  return (
+                    <tr key={student.id}>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                          <div
+                            style={{
+                              width: "36px",
+                              height: "36px",
+                              borderRadius: "50%",
+                              backgroundColor: "#1E293B",
+                              border: "1px solid var(--border-subtle)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "0.8rem",
+                              fontWeight: 700,
+                              color: "#818CF8",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {student.photo_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={student.photo_url} alt={student.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : (
+                              student.full_name.charAt(0)
+                            )}
+                          </div>
                         <div>
                           <p style={{ fontWeight: 600, color: "var(--text-primary)" }}>{student.full_name}</p>
                           <p style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{student.department_name}</p>
@@ -251,7 +262,7 @@ export default function CourseDetailPage() {
                     </td>
                   </tr>
                 );
-              })}
+              }))}
             </tbody>
           </table>
         </div>

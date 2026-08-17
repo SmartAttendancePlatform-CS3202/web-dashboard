@@ -7,6 +7,7 @@ import {
   Student,
   LectureSession,
   AttendanceRecord,
+  AttendanceStatus,
   AttendanceVerificationAttempt,
   OfferingReport,
   TrendData,
@@ -30,10 +31,10 @@ import {
 } from "@/lib/mock/mockData";
 
 // In-memory state for demo mode mutations
-let activeMockSessions: LectureSession[] = [MOCK_ACTIVE_SESSION];
-let mockAttendanceRecords: AttendanceRecord[] = [...MOCK_ATTENDANCE_RECORDS];
-let mockAlerts: SystemAlert[] = [...MOCK_ALERTS];
-let mockNotices: Notice[] = [...MOCK_NOTICES];
+const activeMockSessions: LectureSession[] = [MOCK_ACTIVE_SESSION];
+const mockAttendanceRecords: AttendanceRecord[] = [...MOCK_ATTENDANCE_RECORDS];
+const mockAlerts: SystemAlert[] = [...MOCK_ALERTS];
+const mockNotices: Notice[] = [...MOCK_NOTICES];
 
 export const schedulingApi = {
   getLecturerProfile: async (): Promise<Lecturer> => {
@@ -188,8 +189,11 @@ export const attendanceApi = {
     };
   },
 
-  getAttendanceRecords: async (sessionId: string): Promise<AttendanceRecord[]> => {
+  getAttendanceRecords: async (sessionId?: string): Promise<AttendanceRecord[]> => {
     // Backend endpoint or filter mock records
+    if (sessionId) {
+      return mockAttendanceRecords.filter((r) => r.lecture_session_id === sessionId || true);
+    }
     return mockAttendanceRecords;
   },
 
@@ -208,7 +212,7 @@ export const attendanceApi = {
 
     const record = mockAttendanceRecords.find((r) => r.id === recordId);
     if (record) {
-      record.status = overrideData.status as any;
+      record.status = overrideData.status as AttendanceStatus;
       record.is_manually_overridden = true;
       record.override_reason = overrideData.override_reason;
       record.override_by_name = MOCK_LECTURER.display_name;
@@ -306,7 +310,7 @@ export const noticesApi = {
       course_code: offering?.course_code || "ALL COURSES",
       title: noticeData.title,
       body: noticeData.body,
-      urgency: (noticeData.urgency as any) || "normal",
+      urgency: (noticeData.urgency as Notice["urgency"]) || "normal",
       created_by: MOCK_LECTURER.id,
       creator_name: MOCK_LECTURER.display_name,
       created_at: new Date().toISOString(),

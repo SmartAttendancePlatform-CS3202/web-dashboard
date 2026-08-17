@@ -246,12 +246,22 @@ export interface Notice {
   read_count?: number;
 }
 
+export interface SystemAlertDetails {
+  session_id?: string;
+  student_id?: string;
+  student_index?: string;
+  course_offering_id?: string;
+  course_code?: string;
+  flag_reason?: string;
+  [key: string]: unknown;
+}
+
 export interface SystemAlert {
   id: string;
   title?: string;
   type: AlertType;
   message: string;
-  details?: Record<string, any>;
+  details?: SystemAlertDetails;
   is_read: boolean;
   created_at: string;
 }
