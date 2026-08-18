@@ -168,6 +168,43 @@ export function Sidebar() {
         })}
       </nav>
 
+        {/* Admin Console Switcher Card */}
+        <div style={{ marginTop: "auto", padding: "12px 12px 16px 12px" }}>
+          <div
+            style={{
+              padding: "12px",
+              borderRadius: "var(--radius-md)",
+              backgroundColor: "rgba(6, 182, 212, 0.08)",
+              border: "1px solid rgba(6, 182, 212, 0.25)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#22D3EE", fontSize: "0.75rem", fontWeight: 700 }}>
+              <ShieldAlertIcon size={14} />
+              <span>CENTRAL ADMIN CONSOLE</span>
+            </div>
+            <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
+              Manage users, RBAC roles, geofenced venues, and institution analytics.
+            </p>
+            <Link
+              href="/admin"
+              className="btn-secondary"
+              style={{
+                fontSize: "0.75rem",
+                padding: "6px 10px",
+                justifyContent: "center",
+                borderColor: "rgba(6, 182, 212, 0.4)",
+                color: "#22D3EE",
+                textDecoration: "none",
+              }}
+            >
+              Go to Admin Portal →
+            </Link>
+          </div>
+        </div>
+
       {/* Lecturer Profile Footer */}
       <div
         style={{
