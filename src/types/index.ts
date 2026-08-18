@@ -74,10 +74,13 @@ export interface Venue {
 export interface Course {
   id: string;
   course_code: string;
+  code?: string;
   name: string;
   department_id?: string;
   department_name?: string;
   credits?: number;
+  description?: string;
+  is_active?: boolean;
   created_at: string;
 }
 
@@ -87,6 +90,7 @@ export interface CourseOffering {
   course_id: string;
   course_code?: string;
   course_name?: string;
+  credits?: number;
   academic_year_id: string;
   academic_year_name?: string;
   lecturer_id: string;
@@ -124,6 +128,8 @@ export interface LectureSession {
   course_name?: string;
   venue_id?: string;
   venue_name?: string;
+  lecturer_id?: string;
+  lecturer_name?: string;
   verification_method_override?: VerificationMethod;
   scheduled_at: string;
   duration_mins: number;
@@ -135,6 +141,7 @@ export interface LectureSession {
   first_check_in_window?: VerificationWindow;
   random_check_window?: VerificationWindow;
   present_count?: number;
+  verified_count?: number;
   late_count?: number;
   absent_count?: number;
   flagged_count?: number;
@@ -174,9 +181,11 @@ export interface AttendanceVerificationAttempt {
   latitude?: number;
   longitude?: number;
   distance_from_venue_meters?: number;
+  distance_from_venue_m?: number;
   wifi_ssid_detected?: string;
   face_match_confidence?: number;
   status: AttemptStatus;
+  is_flagged?: boolean;
   failure_reason?: string;
   device_info?: {
     platform?: string;
@@ -185,6 +194,7 @@ export interface AttendanceVerificationAttempt {
     ip?: string;
   };
   attempted_at: string;
+  attempt_timestamp?: string;
 }
 
 export interface StudentAttendanceDetail {
@@ -220,6 +230,12 @@ export interface TrendDataPoint {
 export interface TrendData {
   course_offering_id: string;
   trends: TrendDataPoint[];
+}
+
+export interface WeeklyTrendItem {
+  week: string;
+  attendance_rate: number;
+  total_students: number;
 }
 
 export interface StudentSummary {
@@ -265,3 +281,78 @@ export interface SystemAlert {
   is_read: boolean;
   created_at: string;
 }
+
+export interface Department {
+  id: string;
+  name: string;
+  code: string;
+  faculty_head?: string;
+  description?: string;
+  course_count?: number;
+  lecturer_count?: number;
+  student_count?: number;
+  created_at: string;
+}
+
+export interface AcademicYear {
+  id: string;
+  name: string;
+  year_code: string;
+  semester: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Enrollment {
+  id: string;
+  student_id: string;
+  course_offering_id: string;
+  created_at: string;
+  student_name?: string;
+  student_index?: string;
+  student_photo?: string;
+  department_name?: string;
+}
+
+export interface AdminDashboardStats {
+  total_students: number;
+  total_lecturers: number;
+  total_courses: number;
+  total_offerings: number;
+  total_venues: number;
+  active_sessions_count: number;
+  today_attendance_rate: number;
+  flagged_proxies_today: number;
+  system_health_score: number;
+}
+
+export interface SystemAuditLog {
+  id: string;
+  action: string;
+  category: "security" | "user" | "course" | "session" | "system";
+  performed_by_name: string;
+  performed_by_role: string;
+  details: string;
+  timestamp: string;
+  severity: "info" | "warning" | "critical";
+}
+
+export interface MicroserviceStatus {
+  name: string;
+  port: number;
+  status: "healthy" | "degraded" | "down";
+  latency_ms: number;
+  endpoint: string;
+  version: string;
+}
+
+export interface UserWithProfile extends User {
+  display_name?: string;
+  full_name?: string;
+  identifier?: string; // Student Index or Employee ID
+  department_id?: string;
+  department_name?: string;
+  has_face_enrolled?: boolean;
+  attendance_rate?: number;
+}
+
