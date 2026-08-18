@@ -330,6 +330,7 @@ export interface SystemAuditLog {
   id: string;
   action: string;
   category: "security" | "user" | "course" | "session" | "system";
+  performed_by_id?: string;
   performed_by_name: string;
   performed_by_role: string;
   details: string;

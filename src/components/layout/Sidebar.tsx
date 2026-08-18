@@ -59,7 +59,7 @@ export function Sidebar() {
       {/* Brand Header */}
       <div
         style={{
-          padding: "24px 20px",
+          padding: "18px 20px",
           borderBottom: "1px solid var(--border-subtle)",
           display: "flex",
           alignItems: "center",
@@ -68,14 +68,15 @@ export function Sidebar() {
       >
         <div
           style={{
-            width: "36px",
-            height: "36px",
+            width: "38px",
+            height: "38px",
             borderRadius: "10px",
-            background: "linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)",
+            background: "linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 0 16px rgba(99, 102, 241, 0.4)",
+            boxShadow: "0 2px 8px rgba(79, 70, 229, 0.25)",
+            flexShrink: 0,
           }}
         >
           <RadioIcon size={20} className="text-white" />
@@ -84,31 +85,27 @@ export function Sidebar() {
           <h1
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "1.1rem",
+              fontSize: "0.98rem",
               fontWeight: 800,
-              color: "#FFFFFF",
+              color: "var(--text-primary)",
               letterSpacing: "-0.02em",
               lineHeight: 1.1,
             }}
           >
-            SMART<span style={{ color: "#818CF8" }}>ATTEND</span>
+            SMART<span style={{ color: "var(--accent-primary)" }}>ATTEND</span>
           </h1>
-          <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 500, letterSpacing: "0.04em" }}>
-            FACULTY COMMAND CENTER
+          <p style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 600, letterSpacing: "0.04em", marginTop: "2px" }}>
+            FACULTY COMMAND
           </p>
         </div>
       </div>
 
       {/* Navigation Links */}
-      <nav style={{ padding: "16px 12px", flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "4px" }}>
+      <nav style={{ padding: "16px 12px", flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "3px" }}>
         <p
+          className="micro-label"
           style={{
-            fontSize: "0.7rem",
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            color: "var(--text-muted)",
-            padding: "8px 12px 4px 12px",
+            padding: "4px 12px 8px 12px",
           }}
         >
           Operations
@@ -126,20 +123,20 @@ export function Sidebar() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "10px 14px",
+                padding: "9px 12px",
                 borderRadius: "var(--radius-md)",
-                fontSize: "0.875rem",
-                fontWeight: isActive ? 600 : 500,
-                color: isActive ? "#FFFFFF" : "var(--text-secondary)",
-                backgroundColor: isActive ? "rgba(99, 102, 241, 0.15)" : "transparent",
-                border: isActive ? "1px solid rgba(99, 102, 241, 0.3)" : "1px solid transparent",
+                fontSize: "0.85rem",
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                backgroundColor: isActive ? "var(--bg-surface)" : "transparent",
+                border: isActive ? "1px solid var(--border-medium)" : "1px solid transparent",
                 textDecoration: "none",
                 transition: "all 0.15s ease",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ color: isActive ? "#818CF8" : "var(--text-muted)" }}>
-                  <Icon size={18} />
+                <span style={{ color: isActive ? "var(--accent-primary)" : "var(--text-muted)" }}>
+                  <Icon size={17} />
                 </span>
                 <span>{item.name}</span>
               </div>
@@ -148,55 +145,56 @@ export function Sidebar() {
                 {item.isLive && <span className="pulse-dot-live" />}
                 {item.badge && (
                   <span
+                    className="font-mono tabular-nums"
                     style={{
-                      fontSize: "0.7rem",
+                      fontSize: "0.68rem",
                       fontWeight: 700,
-                      backgroundColor: "rgba(239, 68, 68, 0.2)",
-                      color: "#F87171",
-                      border: "1px solid rgba(239, 68, 68, 0.4)",
-                      padding: "1px 6px",
-                      borderRadius: "9999px",
+                      backgroundColor: "rgba(225, 29, 72, 0.08)",
+                      color: "#E11D48",
+                      border: "1px solid rgba(225, 29, 72, 0.25)",
+                      padding: "2px 6px",
+                      borderRadius: "var(--radius-full)",
                     }}
                   >
                     {item.badge}
                   </span>
                 )}
-                {isActive && <ChevronRightIcon size={14} className="text-indigo-400" />}
+                {isActive && <ChevronRightIcon size={14} className="text-indigo-600" />}
               </div>
             </Link>
           );
         })}
-      </nav>
 
         {/* Admin Console Switcher Card */}
-        <div style={{ marginTop: "auto", padding: "12px 12px 16px 12px" }}>
+        <div style={{ marginTop: "auto", paddingTop: "14px" }}>
           <div
             style={{
               padding: "12px",
               borderRadius: "var(--radius-md)",
-              backgroundColor: "rgba(6, 182, 212, 0.08)",
-              border: "1px solid rgba(6, 182, 212, 0.25)",
+              backgroundColor: "var(--bg-surface)",
+              border: "1px solid var(--border-subtle)",
               display: "flex",
               flexDirection: "column",
-              gap: "8px",
+              gap: "6px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#22D3EE", fontSize: "0.75rem", fontWeight: 700 }}>
-              <ShieldAlertIcon size={14} />
-              <span>CENTRAL ADMIN CONSOLE</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--accent-cyan)", fontSize: "0.72rem", fontWeight: 700 }}>
+              <ShieldAlertIcon size={13} />
+              <span className="micro-label" style={{ color: "var(--accent-cyan)" }}>CENTRAL ADMIN CONSOLE</span>
             </div>
-            <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
+            <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: 1.35 }}>
               Manage users, RBAC roles, geofenced venues, and institution analytics.
             </p>
             <Link
               href="/admin"
               className="btn-secondary"
               style={{
-                fontSize: "0.75rem",
-                padding: "6px 10px",
+                fontSize: "0.74rem",
+                padding: "5px 8px",
                 justifyContent: "center",
-                borderColor: "rgba(6, 182, 212, 0.4)",
-                color: "#22D3EE",
+                borderColor: "rgba(8, 145, 178, 0.25)",
+                color: "var(--accent-cyan)",
+                backgroundColor: "#FFFFFF",
                 textDecoration: "none",
               }}
             >
@@ -204,38 +202,40 @@ export function Sidebar() {
             </Link>
           </div>
         </div>
+      </nav>
 
       {/* Lecturer Profile Footer */}
       <div
         style={{
-          padding: "16px",
+          padding: "12px 16px",
           borderTop: "1px solid var(--border-subtle)",
-          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          backgroundColor: "var(--bg-surface)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
             <div
               style={{
-                width: "38px",
-                height: "38px",
-                borderRadius: "50%",
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
                 background: "linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: 700,
-                fontSize: "0.85rem",
+                fontWeight: 800,
+                fontSize: "0.75rem",
                 color: "#FFFFFF",
+                flexShrink: 0,
               }}
             >
               {lecturerProfile?.full_name ? lecturerProfile.full_name.charAt(0) : "L"}
             </div>
-            <div style={{ overflow: "hidden" }}>
+            <div style={{ minWidth: 0 }}>
               <p
                 style={{
-                  fontSize: "0.85rem",
-                  fontWeight: 600,
+                  fontSize: "0.78rem",
+                  fontWeight: 700,
                   color: "var(--text-primary)",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
@@ -244,7 +244,7 @@ export function Sidebar() {
               >
                 {lecturerProfile?.display_name || "Dr. Arthur Vance"}
               </p>
-              <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
+              <p className="font-mono" style={{ fontSize: "0.68rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {lecturerProfile?.employee_id || "LEC-ENG-4092"}
               </p>
             </div>
@@ -259,9 +259,19 @@ export function Sidebar() {
               color: "var(--text-muted)",
               cursor: "pointer",
               padding: "6px",
+              borderRadius: "6px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#E11D48";
+              e.currentTarget.style.backgroundColor = "rgba(225, 29, 72, 0.1)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--text-muted)";
+              e.currentTarget.style.backgroundColor = "transparent";
             }}
           >
             <LogOutIcon size={16} />

@@ -18,8 +18,9 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
       className="no-print"
       style={{
         height: "70px",
-        backgroundColor: "rgba(11, 15, 25, 0.7)",
-        backdropFilter: "blur(12px)",
+        backgroundColor: "var(--bg-header)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         borderBottom: "1px solid var(--border-subtle)",
         display: "flex",
         alignItems: "center",
@@ -50,14 +51,14 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
               alignItems: "center",
               gap: "4px",
               padding: "2px 8px",
-              borderRadius: "999px",
+              borderRadius: "var(--radius-full)",
               fontSize: "0.68rem",
-              fontWeight: 800,
-              letterSpacing: "0.05em",
+              fontWeight: 700,
+              letterSpacing: "0.06em",
               textTransform: "uppercase",
-              backgroundColor: "rgba(99, 102, 241, 0.15)",
-              border: "1px solid rgba(99, 102, 241, 0.35)",
-              color: "#818CF8",
+              backgroundColor: "rgba(79, 70, 229, 0.08)",
+              border: "1px solid rgba(79, 70, 229, 0.2)",
+              color: "var(--accent-primary)",
             }}
           >
             Lecturer Mode
@@ -80,8 +81,8 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
             style={{
               padding: "6px 12px",
               fontSize: "0.75rem",
-              borderColor: "rgba(6, 182, 212, 0.4)",
-              color: "#22D3EE",
+              borderColor: "rgba(8, 145, 178, 0.3)",
+              color: "var(--accent-cyan)",
             }}
           >
             <ShieldAlertIcon size={14} />
@@ -94,8 +95,8 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
             style={{
               padding: "6px 12px",
               fontSize: "0.75rem",
-              borderColor: "rgba(6, 182, 212, 0.4)",
-              color: "#22D3EE",
+              borderColor: "rgba(8, 145, 178, 0.3)",
+              color: "var(--accent-cyan)",
               textDecoration: "none",
             }}
           >
@@ -107,15 +108,16 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
         {/* Demo / Live Microservices Mode Toggle */}
         <button
           onClick={() => toggleDemoMode()}
+          className="btn-secondary"
           style={{
             display: "flex",
             alignItems: "center",
             gap: "8px",
             padding: "6px 12px",
-            borderRadius: "9999px",
-            backgroundColor: isDemoMode ? "rgba(245, 158, 11, 0.15)" : "rgba(16, 185, 129, 0.15)",
-            border: isDemoMode ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid rgba(16, 185, 129, 0.4)",
-            color: isDemoMode ? "#FBBF24" : "#34D399",
+            borderRadius: "var(--radius-md)",
+            backgroundColor: isDemoMode ? "rgba(217, 119, 6, 0.08)" : "rgba(5, 150, 105, 0.08)",
+            border: isDemoMode ? "1px solid rgba(217, 119, 6, 0.25)" : "1px solid rgba(5, 150, 105, 0.25)",
+            color: isDemoMode ? "#D97706" : "#059669",
             fontSize: "0.75rem",
             fontWeight: 600,
             cursor: "pointer",
@@ -136,16 +138,16 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
         {/* Alert Bell */}
         <Link
           href="/alerts"
+          className="btn-secondary"
           style={{
             position: "relative",
             width: "38px",
             height: "38px",
-            borderRadius: "10px",
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius-md)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            padding: 0,
             color: "var(--text-secondary)",
             textDecoration: "none",
           }}
@@ -159,7 +161,7 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
               width: "14px",
               height: "14px",
               borderRadius: "50%",
-              backgroundColor: "#EF4444",
+              backgroundColor: "#E11D48",
               color: "#FFFFFF",
               fontSize: "0.65rem",
               fontWeight: 800,

@@ -9,8 +9,10 @@ interface StatCardProps {
     positive: boolean;
   };
   icon?: React.ReactNode;
-  accentColor?: "indigo" | "emerald" | "amber" | "rose" | "cyan";
+  accentColor?: "indigo" | "emerald" | "amber" | "rose" | "cyan" | "blue";
   className?: string;
+  badge?: string;
+  progressPercent?: number;
 }
 
 export function StatCard({
@@ -21,108 +23,137 @@ export function StatCard({
   icon,
   accentColor = "indigo",
   className = "",
+  badge,
+  progressPercent,
 }: StatCardProps) {
-  let glowColor = "rgba(99, 102, 241, 0.15)";
-  let iconBg = "rgba(99, 102, 241, 0.15)";
-  let iconColor = "#818CF8";
+  let iconBg = "rgba(79, 70, 229, 0.08)";
+  let iconColor = "#4F46E5";
+  let borderAccent = "rgba(79, 70, 229, 0.2)";
+  let progressColor = "#4F46E5";
 
   if (accentColor === "emerald") {
-    glowColor = "rgba(16, 185, 129, 0.15)";
-    iconBg = "rgba(16, 185, 129, 0.15)";
-    iconColor = "#34D399";
+    iconBg = "rgba(5, 150, 105, 0.08)";
+    iconColor = "#059669";
+    borderAccent = "rgba(5, 150, 105, 0.2)";
+    progressColor = "#059669";
   } else if (accentColor === "amber") {
-    glowColor = "rgba(245, 158, 11, 0.15)";
-    iconBg = "rgba(245, 158, 11, 0.15)";
-    iconColor = "#FBBF24";
+    iconBg = "rgba(217, 119, 6, 0.08)";
+    iconColor = "#D97706";
+    borderAccent = "rgba(217, 119, 6, 0.2)";
+    progressColor = "#D97706";
   } else if (accentColor === "rose") {
-    glowColor = "rgba(239, 68, 68, 0.15)";
-    iconBg = "rgba(239, 68, 68, 0.15)";
-    iconColor = "#F87171";
-  } else if (accentColor === "cyan") {
-    glowColor = "rgba(6, 182, 212, 0.15)";
-    iconBg = "rgba(6, 182, 212, 0.15)";
-    iconColor = "#22D3EE";
+    iconBg = "rgba(225, 29, 72, 0.08)";
+    iconColor = "#E11D48";
+    borderAccent = "rgba(225, 29, 72, 0.2)";
+    progressColor = "#E11D48";
+  } else if (accentColor === "cyan" || accentColor === "blue") {
+    iconBg = "rgba(8, 145, 178, 0.08)";
+    iconColor = "#0891B2";
+    borderAccent = "rgba(8, 145, 178, 0.2)";
+    progressColor = "#0891B2";
   }
 
   return (
     <div
-      className={`glass-card ${className}`}
+      className={`command-card ${className}`}
       style={{
-        padding: "20px 24px",
-        position: "relative",
-        overflow: "hidden",
+        padding: "18px 20px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
       }}
     >
-      {/* Background Accent Glow */}
-      <div
-        style={{
-          position: "absolute",
-          top: "-20px",
-          right: "-20px",
-          width: "100px",
-          height: "100px",
-          background: glowColor,
-          borderRadius: "50%",
-          filter: "blur(30px)",
-          pointerEvents: "none",
-        }}
-      />
+      <div>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <p className="micro-label">{title}</p>
+              {badge && (
+                <span
+                  className="font-mono tabular-nums"
+                  style={{
+                    fontSize: "0.62rem",
+                    fontWeight: 700,
+                    padding: "1px 5px",
+                    borderRadius: "4px",
+                    backgroundColor: iconBg,
+                    color: iconColor,
+                    border: `1px solid ${borderAccent}`,
+                  }}
+                >
+                  {badge}
+                </span>
+              )}
+            </div>
 
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <div>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", fontWeight: 500, marginBottom: "8px" }}>
-            {title}
-          </p>
-          <h3
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.85rem",
-              fontWeight: 700,
-              color: "var(--text-primary)",
-              lineHeight: 1.1,
-            }}
-          >
-            {value}
-          </h3>
-        </div>
-
-        {icon && (
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "12px",
-              background: iconBg,
-              color: iconColor,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            {icon}
+            <h3
+              className="font-mono tabular-nums"
+              style={{
+                fontSize: "1.85rem",
+                fontWeight: 800,
+                color: "var(--text-primary)",
+                letterSpacing: "-0.03em",
+                lineHeight: 1.15,
+                marginTop: "6px",
+              }}
+            >
+              {value}
+            </h3>
           </div>
-        )}
+
+          {icon && (
+            <div
+              style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "var(--radius-md)",
+                backgroundColor: iconBg,
+                color: iconColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                border: `1px solid ${borderAccent}`,
+              }}
+            >
+              {icon}
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* Progress Bar if supplied */}
+      {typeof progressPercent === "number" && (
+        <div style={{ marginTop: "12px" }}>
+          <div className="capacity-track" style={{ height: "4px" }}>
+            <div
+              className="capacity-fill"
+              style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%`, backgroundColor: progressColor }}
+            />
+          </div>
+        </div>
+      )}
+
       {(subtitle || trend) && (
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "12px" }}>
           {trend && (
             <span
+              className="font-mono tabular-nums"
               style={{
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                color: trend.positive ? "#34D399" : "#F87171",
-                backgroundColor: trend.positive ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.12)",
-                padding: "2px 8px",
-                borderRadius: "9999px",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                color: trend.positive ? "#059669" : "#E11D48",
+                backgroundColor: trend.positive ? "rgba(5, 150, 105, 0.08)" : "rgba(225, 29, 72, 0.08)",
+                padding: "2px 7px",
+                borderRadius: "var(--radius-full)",
+                border: `1px solid ${trend.positive ? "rgba(5, 150, 105, 0.2)" : "rgba(225, 29, 72, 0.2)"}`,
               }}
             >
               {trend.positive ? "↑" : "↓"} {trend.value}
             </span>
           )}
           {subtitle && (
-            <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+            <span style={{ color: "var(--text-muted)", fontSize: "0.78rem", fontWeight: 500 }}>
               {subtitle}
             </span>
           )}

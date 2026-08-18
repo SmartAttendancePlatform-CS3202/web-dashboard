@@ -43,7 +43,7 @@ export function AdminSidebar() {
     <aside
       className="no-print"
       style={{
-        width: "268px",
+        width: "260px",
         height: "100vh",
         backgroundColor: "var(--bg-sidebar)",
         borderRight: "1px solid var(--border-subtle)",
@@ -58,7 +58,7 @@ export function AdminSidebar() {
       {/* Brand Header */}
       <div
         style={{
-          padding: "20px 20px 16px 20px",
+          padding: "18px 20px",
           borderBottom: "1px solid var(--border-subtle)",
           display: "flex",
           alignItems: "center",
@@ -67,48 +67,47 @@ export function AdminSidebar() {
       >
         <div
           style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "12px",
-            background: "linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%)",
+            width: "38px",
+            height: "38px",
+            borderRadius: "10px",
+            background: "linear-gradient(135deg, #4F46E5 0%, #2563EB 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 0 16px rgba(6, 182, 212, 0.4)",
+            boxShadow: "0 2px 8px rgba(79, 70, 229, 0.25)",
             flexShrink: 0,
           }}
         >
-          <ShieldAlertIcon size={22} className="text-white" />
+          <ShieldAlertIcon size={20} className="text-white" />
         </div>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <h2
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                color: "var(--text-primary)",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Smart Attendance
-            </h2>
-          </div>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "0.98rem",
+              fontWeight: 800,
+              color: "var(--text-primary)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Smart Attendance
+          </h2>
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
             <span
+              className="font-mono"
               style={{
-                fontSize: "0.68rem",
-                fontWeight: 800,
+                fontSize: "0.62rem",
+                fontWeight: 700,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "#22D3EE",
-                backgroundColor: "rgba(6, 182, 212, 0.15)",
+                color: "var(--accent-primary)",
+                backgroundColor: "rgba(79, 70, 229, 0.08)",
                 padding: "1px 6px",
                 borderRadius: "4px",
-                border: "1px solid rgba(6, 182, 212, 0.3)",
+                border: "1px solid rgba(79, 70, 229, 0.2)",
               }}
             >
-              Central Admin
+              Central Ops
             </span>
           </div>
         </div>
@@ -121,21 +120,17 @@ export function AdminSidebar() {
           padding: "16px 12px",
           display: "flex",
           flexDirection: "column",
-          gap: "4px",
+          gap: "3px",
           overflowY: "auto",
         }}
       >
         <div
+          className="micro-label"
           style={{
-            fontSize: "0.7rem",
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            color: "var(--text-muted)",
             padding: "4px 12px 8px 12px",
           }}
         >
-          Administration Hub
+          Operations Management
         </div>
 
         {navItems.map((item) => {
@@ -150,33 +145,35 @@ export function AdminSidebar() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "10px 14px",
+                padding: "9px 12px",
                 borderRadius: "var(--radius-md)",
                 textDecoration: "none",
-                fontSize: "0.875rem",
-                fontWeight: isActive ? 600 : 500,
-                color: isActive ? "#FFFFFF" : "var(--text-secondary)",
-                backgroundColor: isActive ? "rgba(6, 182, 212, 0.15)" : "transparent",
-                border: isActive ? "1px solid rgba(6, 182, 212, 0.35)" : "1px solid transparent",
-                transition: "all var(--transition-fast)",
+                fontSize: "0.85rem",
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
+                backgroundColor: isActive ? "var(--bg-surface)" : "transparent",
+                border: isActive ? "1px solid var(--border-medium)" : "1px solid transparent",
+                transition: "all 0.15s ease",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ color: isActive ? "#22D3EE" : "var(--text-muted)" }}>
-                  <Icon size={18} />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ color: isActive ? "var(--accent-primary)" : "var(--text-muted)" }}>
+                  <Icon size={17} />
                 </div>
                 <span>{item.name}</span>
               </div>
 
               {item.badge && (
                 <span
+                  className="font-mono tabular-nums"
                   style={{
-                    fontSize: "0.7rem",
+                    fontSize: "0.68rem",
                     fontWeight: 700,
-                    padding: "2px 7px",
-                    borderRadius: "999px",
-                    backgroundColor: isActive ? "rgba(6, 182, 212, 0.3)" : "rgba(255, 255, 255, 0.06)",
-                    color: isActive ? "#22D3EE" : "var(--text-muted)",
+                    padding: "2px 6px",
+                    borderRadius: "var(--radius-full)",
+                    backgroundColor: isActive ? "rgba(79, 70, 229, 0.12)" : "var(--bg-surface)",
+                    color: isActive ? "var(--accent-primary)" : "var(--text-muted)",
+                    border: "1px solid var(--border-subtle)",
                   }}
                 >
                   {item.badge}
@@ -187,35 +184,36 @@ export function AdminSidebar() {
         })}
 
         {/* Switch to Lecturer Portal Banner */}
-        <div style={{ marginTop: "auto", paddingTop: "16px" }}>
+        <div style={{ marginTop: "auto", paddingTop: "14px" }}>
           <div
             style={{
               padding: "12px",
               borderRadius: "var(--radius-md)",
-              backgroundColor: "rgba(99, 102, 241, 0.08)",
-              border: "1px solid rgba(99, 102, 241, 0.25)",
+              backgroundColor: "var(--bg-surface)",
+              border: "1px solid var(--border-subtle)",
               display: "flex",
               flexDirection: "column",
-              gap: "8px",
+              gap: "6px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#818CF8", fontSize: "0.75rem", fontWeight: 700 }}>
-              <SparklesIcon size={14} />
-              <span>FACULTY WORKSPACE</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--accent-primary)", fontSize: "0.72rem", fontWeight: 700 }}>
+              <SparklesIcon size={13} />
+              <span className="micro-label" style={{ color: "var(--accent-primary)" }}>FACULTY PORTAL</span>
             </div>
-            <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: 1.4 }}>
-              Preview live class sessions & timetable as a faculty member.
+            <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: 1.35 }}>
+              Preview live class sessions & timetable as Dr. Vance.
             </p>
             {isDemoMode ? (
               <button
                 onClick={() => switchPersona("lecturer")}
                 className="btn-secondary"
                 style={{
-                  fontSize: "0.75rem",
-                  padding: "6px 10px",
+                  fontSize: "0.74rem",
+                  padding: "5px 8px",
                   justifyContent: "center",
-                  borderColor: "rgba(99, 102, 241, 0.3)",
-                  color: "#818CF8",
+                  borderColor: "rgba(79, 70, 229, 0.25)",
+                  color: "var(--accent-primary)",
+                  backgroundColor: "#FFFFFF",
                 }}
               >
                 Switch to Lecturer (Dr. Vance)
@@ -225,12 +223,13 @@ export function AdminSidebar() {
                 href="/"
                 className="btn-secondary"
                 style={{
-                  fontSize: "0.75rem",
-                  padding: "6px 10px",
+                  fontSize: "0.74rem",
+                  padding: "5px 8px",
                   justifyContent: "center",
-                  borderColor: "rgba(99, 102, 241, 0.3)",
-                  color: "#818CF8",
+                  borderColor: "rgba(79, 70, 229, 0.25)",
+                  color: "var(--accent-primary)",
                   textDecoration: "none",
+                  backgroundColor: "#FFFFFF",
                 }}
               >
                 Go to Lecturer Portal →
@@ -243,9 +242,9 @@ export function AdminSidebar() {
       {/* User Profile / Logout Footer */}
       <div
         style={{
-          padding: "14px 16px",
+          padding: "12px 16px",
           borderTop: "1px solid var(--border-subtle)",
-          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          backgroundColor: "var(--bg-surface)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -253,17 +252,19 @@ export function AdminSidebar() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
           <div
+            className="font-mono"
             style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "10px",
-              backgroundColor: "rgba(6, 182, 212, 0.2)",
-              color: "#22D3EE",
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
+              backgroundColor: "rgba(79, 70, 229, 0.12)",
+              color: "var(--accent-primary)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontWeight: 700,
-              fontSize: "0.85rem",
+              fontWeight: 800,
+              fontSize: "0.75rem",
+              border: "1px solid rgba(79, 70, 229, 0.2)",
               flexShrink: 0,
             }}
           >
@@ -272,8 +273,8 @@ export function AdminSidebar() {
           <div style={{ minWidth: 0 }}>
             <h4
               style={{
-                fontSize: "0.8rem",
-                fontWeight: 600,
+                fontSize: "0.78rem",
+                fontWeight: 700,
                 color: "var(--text-primary)",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -283,8 +284,9 @@ export function AdminSidebar() {
               System Admin
             </h4>
             <p
+              className="font-mono"
               style={{
-                fontSize: "0.7rem",
+                fontSize: "0.68rem",
                 color: "var(--text-muted)",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -309,11 +311,11 @@ export function AdminSidebar() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            transition: "all var(--transition-fast)",
+            transition: "all 0.15s ease",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#F87171";
-            e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+            e.currentTarget.style.color = "#E11D48";
+            e.currentTarget.style.backgroundColor = "rgba(225, 29, 72, 0.1)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.color = "var(--text-muted)";
