@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { BellIcon, PlayIcon } from "@/components/ui/Icons";
+import { BellIcon, PlayIcon, ShieldAlertIcon } from "@/components/ui/Icons";
 import { useAuth } from "@/lib/context/AuthContext";
 
 interface HeaderProps {
@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 export function Header({ title = "Faculty Command Center", subtitle }: HeaderProps) {
-  const { isDemoMode, toggleDemoMode } = useAuth();
+  const { isDemoMode, toggleDemoMode, switchPersona, isAdmin } = useAuth();
 
   return (
     <header
@@ -32,17 +32,37 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
     >
       {/* Title & Context */}
       <div>
-        <h2
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1.25rem",
-            fontWeight: 700,
-            color: "var(--text-primary)",
-            lineHeight: 1.2,
-          }}
-        >
-          {title}
-        </h2>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "1.25rem",
+              fontWeight: 700,
+              color: "var(--text-primary)",
+              lineHeight: 1.2,
+            }}
+          >
+            {title}
+          </h2>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "2px 8px",
+              borderRadius: "999px",
+              fontSize: "0.68rem",
+              fontWeight: 800,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              backgroundColor: "rgba(99, 102, 241, 0.15)",
+              border: "1px solid rgba(99, 102, 241, 0.35)",
+              color: "#818CF8",
+            }}
+          >
+            Lecturer Mode
+          </span>
+        </div>
         {subtitle && (
           <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "2px" }}>
             {subtitle}
@@ -51,7 +71,39 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
       </div>
 
       {/* Header Actions */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        {/* Switch to Admin Portal (if demo mode or admin) */}
+        {isDemoMode ? (
+          <button
+            onClick={() => switchPersona("admin")}
+            className="btn-secondary"
+            style={{
+              padding: "6px 12px",
+              fontSize: "0.75rem",
+              borderColor: "rgba(6, 182, 212, 0.4)",
+              color: "#22D3EE",
+            }}
+          >
+            <ShieldAlertIcon size={14} />
+            <span>Admin Console</span>
+          </button>
+        ) : isAdmin ? (
+          <Link
+            href="/admin"
+            className="btn-secondary"
+            style={{
+              padding: "6px 12px",
+              fontSize: "0.75rem",
+              borderColor: "rgba(6, 182, 212, 0.4)",
+              color: "#22D3EE",
+              textDecoration: "none",
+            }}
+          >
+            <ShieldAlertIcon size={14} />
+            <span>Admin Console</span>
+          </Link>
+        ) : null}
+
         {/* Demo / Live Microservices Mode Toggle */}
         <button
           onClick={() => toggleDemoMode()}
