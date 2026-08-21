@@ -5,17 +5,13 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      logger.warn({ msg: "Unauthorized log submission attempt", ip: req.headers.get("x-forwarded-for") });
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || "anonymous";
 
     const body = await req.text();
     
     if (body.length > 2048) {
-      logger.warn({ msg: "Log payload too large", userId: user.id });
+      logger.warn({ msg: "Log payload too large", userId });
       return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }
 
@@ -23,14 +19,14 @@ export async function POST(req: NextRequest) {
     try {
       logData = JSON.parse(body);
     } catch {
-      logger.warn({ msg: "Invalid JSON log payload", userId: user.id });
+      logger.warn({ msg: "Invalid JSON log payload", userId });
       return NextResponse.json({ error: "Bad Request" }, { status: 400 });
     }
 
     const { level = "info", message, context = {} } = logData;
     
     const logContext = {
-      userId: user.id,
+      userId,
       ...context,
       source: "client"
     };

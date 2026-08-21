@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase/client";
+
 export const clientLogger = {
   info: (message: string, context?: Record<string, unknown>) => logToServer("info", message, context),
   warn: (message: string, context?: Record<string, unknown>) => logToServer("warn", message, context),
@@ -15,11 +17,19 @@ function logToServer(level: LogLevel, message: string, context?: Record<string, 
   }
 
   // Fire and forget to server
-  fetch("/api/logs", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ level, message, context }),
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+    fetch("/api/logs", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ level, message, context }),
+    }).catch(() => {
+      // Silently fail if we can't reach the log server to prevent infinite loops
+    });
   }).catch(() => {
-    // Silently fail if we can't reach the log server to prevent infinite loops
+    // Silently fail if session retrieval fails
   });
 }
