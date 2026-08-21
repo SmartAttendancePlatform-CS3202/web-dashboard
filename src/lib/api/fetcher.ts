@@ -18,8 +18,10 @@ export async function apiFetch<T = unknown>(
       // Supabase not configured or offline
     }
 
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
+      "X-Request-ID": crypto.randomUUID(),
       ...(options.headers as Record<string, string>),
     };
 

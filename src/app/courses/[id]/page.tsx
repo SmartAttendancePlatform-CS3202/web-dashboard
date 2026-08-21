@@ -16,7 +16,7 @@ import {
 
 export default function CourseDetailPage() {
   const params = useParams();
-  const offeringId = (params?.id as string) || "off-001";
+  const offeringId = params?.id as string;
 
   const [offering, setOffering] = useState<CourseOffering | null>(null);
   const [students, setStudents] = useState<Student[]>([]);

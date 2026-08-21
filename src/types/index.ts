@@ -16,6 +16,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   is_active?: boolean;
+  user_metadata?: Record<string, any>;
   created_at: string;
   updated_at?: string;
 }
