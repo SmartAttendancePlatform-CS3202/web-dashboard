@@ -9,9 +9,9 @@ export function getUserDisplayName(user: User | null, lecturerProfile: Lecturer 
   if (lecturerProfile?.full_name) return lecturerProfile.full_name;
 
   const metadata = user?.user_metadata;
-  if (metadata?.display_name) return metadata.display_name;
-  if (metadata?.full_name) return metadata.full_name;
-  if (metadata?.name) return metadata.name;
+  if (typeof metadata?.display_name === "string" && metadata.display_name) return metadata.display_name;
+  if (typeof metadata?.full_name === "string" && metadata.full_name) return metadata.full_name;
+  if (typeof metadata?.name === "string" && metadata.name) return metadata.name;
 
   if (user?.email) {
     const username = user.email.split("@")[0];

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
-import { RadioIcon, ShieldAlertIcon, UserCheckIcon, SparklesIcon } from "@/components/ui/Icons";
+import { RadioIcon, ShieldAlertIcon, UserCheckIcon } from "@/components/ui/Icons";
 
 export default function LoginPage() {
   const router = useRouter();
