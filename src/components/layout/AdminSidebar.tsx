@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   HomeIcon,
   CalendarIcon,
@@ -13,7 +13,7 @@ import {
   ShieldAlertIcon,
   MapPinIcon,
   LogOutIcon,
-  SparklesIcon,
+  LogInIcon,
 } from "@/components/ui/Icons";
 import { useAuth } from "@/lib/context/AuthContext";
 
@@ -27,7 +27,13 @@ interface NavItem {
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const { user, logout, isDemoMode, switchPersona } = useAuth();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   const navItems: NavItem[] = [
     { name: "Executive Overview", href: "/admin", icon: HomeIcon },
@@ -182,149 +188,123 @@ export function AdminSidebar() {
             </Link>
           );
         })}
-
-        {/* Switch to Lecturer Portal Banner */}
-        <div style={{ marginTop: "auto", paddingTop: "14px" }}>
-          <div
-            style={{
-              padding: "12px",
-              borderRadius: "var(--radius-md)",
-              backgroundColor: "var(--bg-surface)",
-              border: "1px solid var(--border-subtle)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--accent-primary)", fontSize: "0.72rem", fontWeight: 700 }}>
-              <SparklesIcon size={13} />
-              <span className="micro-label" style={{ color: "var(--accent-primary)" }}>FACULTY PORTAL</span>
-            </div>
-            <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: 1.35 }}>
-              Preview live class sessions & timetable as Dr. Vance.
-            </p>
-            {isDemoMode ? (
-              <button
-                onClick={() => switchPersona("lecturer")}
-                className="btn-secondary"
-                style={{
-                  fontSize: "0.74rem",
-                  padding: "5px 8px",
-                  justifyContent: "center",
-                  borderColor: "rgba(79, 70, 229, 0.25)",
-                  color: "var(--accent-primary)",
-                  backgroundColor: "#FFFFFF",
-                }}
-              >
-                Switch to Lecturer (Dr. Vance)
-              </button>
-            ) : (
-              <Link
-                href="/"
-                className="btn-secondary"
-                style={{
-                  fontSize: "0.74rem",
-                  padding: "5px 8px",
-                  justifyContent: "center",
-                  borderColor: "rgba(79, 70, 229, 0.25)",
-                  color: "var(--accent-primary)",
-                  textDecoration: "none",
-                  backgroundColor: "#FFFFFF",
-                }}
-              >
-                Go to Lecturer Portal →
-              </Link>
-            )}
-          </div>
-        </div>
       </nav>
 
-      {/* User Profile / Logout Footer */}
+      {/* Admin Profile / Auth Footer */}
       <div
         style={{
           padding: "12px 16px",
           borderTop: "1px solid var(--border-subtle)",
           backgroundColor: "var(--bg-surface)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-          <div
-            className="font-mono"
+        {user ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+              <div
+                className="font-mono"
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(79, 70, 229, 0.12)",
+                  color: "var(--accent-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
+                  border: "1px solid rgba(79, 70, 229, 0.2)",
+                  flexShrink: 0,
+                }}
+              >
+                AD
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <h4
+                  style={{
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  System Admin
+                </h4>
+                <p
+                  className="font-mono"
+                  style={{
+                    fontSize: "0.68rem",
+                    color: "var(--text-muted)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {user?.email || "admin@university.ac.lk"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              title="Sign Out"
+              style={{
+                background: "transparent",
+                border: "1px solid var(--border-subtle)",
+                color: "var(--text-secondary)",
+                cursor: "pointer",
+                padding: "6px 10px",
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#E11D48";
+                e.currentTarget.style.backgroundColor = "rgba(225, 29, 72, 0.1)";
+                e.currentTarget.style.borderColor = "rgba(225, 29, 72, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--text-secondary)";
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.borderColor = "var(--border-subtle)";
+              }}
+            >
+              <LogOutIcon size={15} />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
             style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "8px",
-              backgroundColor: "rgba(79, 70, 229, 0.12)",
-              color: "var(--accent-primary)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontWeight: 800,
-              fontSize: "0.75rem",
-              border: "1px solid rgba(79, 70, 229, 0.2)",
-              flexShrink: 0,
+              gap: "8px",
+              width: "100%",
+              padding: "9px 12px",
+              borderRadius: "var(--radius-md)",
+              backgroundColor: "var(--accent-cyan)",
+              color: "#FFFFFF",
+              fontWeight: 700,
+              fontSize: "0.82rem",
+              textDecoration: "none",
+              boxShadow: "0 2px 8px rgba(8, 145, 178, 0.25)",
             }}
           >
-            AD
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <h4
-              style={{
-                fontSize: "0.78rem",
-                fontWeight: 700,
-                color: "var(--text-primary)",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              System Admin
-            </h4>
-            <p
-              className="font-mono"
-              style={{
-                fontSize: "0.68rem",
-                color: "var(--text-muted)",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {user?.email || "admin@university.ac.lk"}
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={logout}
-          title="Sign Out"
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--text-muted)",
-            cursor: "pointer",
-            padding: "6px",
-            borderRadius: "6px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "all 0.15s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#E11D48";
-            e.currentTarget.style.backgroundColor = "rgba(225, 29, 72, 0.1)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "var(--text-muted)";
-            e.currentTarget.style.backgroundColor = "transparent";
-          }}
-        >
-          <LogOutIcon size={16} />
-        </button>
+            <LogInIcon size={16} />
+            <span>Sign In</span>
+          </Link>
+        )}
       </div>
     </aside>
   );
 }
+

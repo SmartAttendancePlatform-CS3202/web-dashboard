@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   HomeIcon,
   CalendarIcon,
@@ -14,8 +14,10 @@ import {
   ShieldAlertIcon,
   ChevronRightIcon,
   LogOutIcon,
+  LogInIcon,
 } from "@/components/ui/Icons";
 import { useAuth } from "@/lib/context/AuthContext";
+import { getUserDisplayName, getUserSubtitle, getUserAvatarInitial } from "@/lib/userUtils";
 
 interface NavItem {
   name: string;
@@ -27,7 +29,13 @@ interface NavItem {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { lecturerProfile, logout } = useAuth();
+  const router = useRouter();
+  const { user, lecturerProfile, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   const navItems: NavItem[] = [
     { name: "Overview", href: "/", icon: HomeIcon },
@@ -164,47 +172,9 @@ export function Sidebar() {
             </Link>
           );
         })}
-
-        {/* Admin Console Switcher Card */}
-        <div style={{ marginTop: "auto", paddingTop: "14px" }}>
-          <div
-            style={{
-              padding: "12px",
-              borderRadius: "var(--radius-md)",
-              backgroundColor: "var(--bg-surface)",
-              border: "1px solid var(--border-subtle)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "6px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--accent-cyan)", fontSize: "0.72rem", fontWeight: 700 }}>
-              <ShieldAlertIcon size={13} />
-              <span className="micro-label" style={{ color: "var(--accent-cyan)" }}>CENTRAL ADMIN CONSOLE</span>
-            </div>
-            <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: 1.35 }}>
-              Manage users, RBAC roles, geofenced venues, and institution analytics.
-            </p>
-            <Link
-              href="/admin"
-              className="btn-secondary"
-              style={{
-                fontSize: "0.74rem",
-                padding: "5px 8px",
-                justifyContent: "center",
-                borderColor: "rgba(8, 145, 178, 0.25)",
-                color: "var(--accent-cyan)",
-                backgroundColor: "#FFFFFF",
-                textDecoration: "none",
-              }}
-            >
-              Go to Admin Portal →
-            </Link>
-          </div>
-        </div>
       </nav>
 
-      {/* Lecturer Profile Footer */}
+      {/* Lecturer Profile / Auth Footer */}
       <div
         style={{
           padding: "12px 16px",
@@ -212,72 +182,102 @@ export function Sidebar() {
           backgroundColor: "var(--bg-surface)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "8px",
-                background: "linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 800,
-                fontSize: "0.75rem",
-                color: "#FFFFFF",
-                flexShrink: 0,
-              }}
-            >
-              {lecturerProfile?.full_name ? lecturerProfile.full_name.charAt(0) : "L"}
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <p
+        {user ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+              <div
                 style={{
-                  fontSize: "0.78rem",
-                  fontWeight: 700,
-                  color: "var(--text-primary)",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  background: "linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
+                  color: "#FFFFFF",
+                  flexShrink: 0,
                 }}
               >
-                {lecturerProfile?.display_name || "Dr. Arthur Vance"}
-              </p>
-              <p className="font-mono" style={{ fontSize: "0.68rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {lecturerProfile?.employee_id || "LEC-ENG-4092"}
-              </p>
+                {getUserAvatarInitial(user, lecturerProfile)}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p
+                  style={{
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {getUserDisplayName(user, lecturerProfile)}
+                </p>
+                <p className="font-mono" style={{ fontSize: "0.68rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {getUserSubtitle(user, lecturerProfile)}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <button
-            onClick={() => logout()}
-            title="Sign Out"
+            <button
+              onClick={handleLogout}
+              title="Sign Out"
+              style={{
+                background: "transparent",
+                border: "1px solid var(--border-subtle)",
+                color: "var(--text-secondary)",
+                cursor: "pointer",
+                padding: "6px 10px",
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                transition: "all 0.15s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#E11D48";
+                e.currentTarget.style.backgroundColor = "rgba(225, 29, 72, 0.1)";
+                e.currentTarget.style.borderColor = "rgba(225, 29, 72, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--text-secondary)";
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.borderColor = "var(--border-subtle)";
+              }}
+            >
+              <LogOutIcon size={15} />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
             style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              padding: "6px",
-              borderRadius: "6px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              transition: "all 0.15s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#E11D48";
-              e.currentTarget.style.backgroundColor = "rgba(225, 29, 72, 0.1)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--text-muted)";
-              e.currentTarget.style.backgroundColor = "transparent";
+              gap: "8px",
+              width: "100%",
+              padding: "9px 12px",
+              borderRadius: "var(--radius-md)",
+              backgroundColor: "var(--accent-primary)",
+              color: "#FFFFFF",
+              fontWeight: 700,
+              fontSize: "0.82rem",
+              textDecoration: "none",
+              boxShadow: "0 2px 8px rgba(79, 70, 229, 0.25)",
             }}
           >
-            <LogOutIcon size={16} />
-          </button>
-        </div>
+            <LogInIcon size={16} />
+            <span>Sign In</span>
+          </Link>
+        )}
       </div>
     </aside>
   );
 }
+
