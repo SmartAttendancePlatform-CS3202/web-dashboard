@@ -22,7 +22,7 @@ import {
 function LiveSessionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id") || "sess-live-01";
+  const sessionId = searchParams.get("session_id") || "";
 
   const [session, setSession] = useState<LectureSession | null>(null);
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
@@ -34,6 +34,11 @@ function LiveSessionContent() {
 
   // Poll for real-time live session updates every 3 seconds
   useEffect(() => {
+    if (!sessionId) {
+      setLoading(false);
+      return;
+    }
+    
     async function fetchLiveData() {
       try {
         const [sess, recs] = await Promise.all([

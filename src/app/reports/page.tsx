@@ -17,20 +17,40 @@ import {
 
 export default function ReportsPage() {
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
-  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("off-001");
+  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
   const [report, setReport] = useState<OfferingReport | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    async function initData() {
+      try {
+        setLoading(true);
+        const offs = await schedulingApi.getAllOfferings();
+        setOfferings(offs);
+        if (offs.length > 0 && !selectedOfferingId) {
+          setSelectedOfferingId(offs[0].id);
+        } else {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to load offerings:", err);
+        setLoading(false);
+      }
+    }
+    initData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!selectedOfferingId) return;
     async function loadReports() {
       try {
-        const [offs, rep, tr] = await Promise.all([
-          schedulingApi.getAllOfferings(),
+        setLoading(true);
+        const [rep, tr] = await Promise.all([
           reportsApi.getOfferingReport(selectedOfferingId),
           reportsApi.getOfferingTrends(selectedOfferingId),
         ]);
-        setOfferings(offs);
         setReport(rep);
         setTrends(tr);
       } catch (err) {

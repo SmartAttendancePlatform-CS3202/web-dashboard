@@ -40,6 +40,7 @@ interface RawLogPayload {
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
   const [services, setServices] = useState<MicroserviceStatus[]>([]);
+  const [supabaseEdgeStatus, setSupabaseEdgeStatus] = useState<{status: "online" | "offline" | "checking", latency_ms: number}>({status: "checking", latency_ms: 0});
   const [auditLogs, setAuditLogs] = useState<SystemAuditLog[]>([]);
   const [activeSessions, setActiveSessions] = useState<LectureSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,16 +65,18 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [statsData, servicesData, auditData, activeSessionsData] = await Promise.all([
+        const [statsData, servicesData, auditData, activeSessionsData, supabaseStatus] = await Promise.all([
           adminApi.getStats(),
           adminApi.getMicroservicesHealth(),
           adminApi.getAuditLogs(),
           sessionsApi.getActiveSessions(),
+          adminApi.testSupabaseEdgeConnection()
         ]);
         setStats(statsData);
         setServices(servicesData);
         setAuditLogs(auditData);
         setActiveSessions(activeSessionsData);
+        setSupabaseEdgeStatus(supabaseStatus);
       } catch (err) {
         console.error("Error loading admin dashboard data:", err);
       } finally {
@@ -100,13 +103,16 @@ export default function AdminDashboardPage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 900));
       const updatedServices = await adminApi.getMicroservicesHealth();
+      const updatedSupabase = await adminApi.testSupabaseEdgeConnection();
+      
       // randomize latency slightly to reflect live re-ping
       const freshServices = updatedServices.map((svc) => ({
         ...svc,
         latency_ms: Math.floor(Math.random() * 15) + (svc.port === 8003 ? 32 : 14),
       }));
       setServices(freshServices);
-      setSyncSuccessToast("Node Mesh Cache invalidation complete. 3/3 cluster nodes synced.");
+      setSupabaseEdgeStatus(updatedSupabase);
+      setSyncSuccessToast("Node Mesh Cache invalidation complete. Telemetry synced.");
       setTimeout(() => setSyncSuccessToast(null), 4500);
     } finally {
       setIsSyncingNodes(false);
@@ -266,6 +272,17 @@ export default function AdminDashboardPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginRight: "12px" }}>
+            <span style={{
+              width: "8px", height: "8px", borderRadius: "50%",
+              backgroundColor: supabaseEdgeStatus.status === "online" ? "#059669" : supabaseEdgeStatus.status === "checking" ? "#94A3B8" : "#E11D48",
+              boxShadow: `0 0 0 2px ${supabaseEdgeStatus.status === "online" ? "rgba(5, 150, 105, 0.2)" : supabaseEdgeStatus.status === "checking" ? "rgba(148, 163, 184, 0.2)" : "rgba(225, 29, 72, 0.2)"}`
+            }} />
+            <span className="micro-label font-mono" style={{ color: supabaseEdgeStatus.status === "online" ? "#059669" : supabaseEdgeStatus.status === "checking" ? "#64748B" : "#E11D48", fontSize: "0.68rem" }}>
+              SUPABASE EDGE: {supabaseEdgeStatus.status.toUpperCase()}
+            </span>
+          </div>
+
           <span className="micro-label font-mono" style={{ fontSize: "0.68rem" }}>
             FASTLOG STREAM: ACTIVE
           </span>
@@ -659,7 +676,11 @@ export default function AdminDashboardPage() {
                 >
                   <div style={{ minWidth: 0, flex: 1, marginRight: "16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span className="pulse-dot-emerald" />
+                      <span style={{
+                        width: "8px", height: "8px", borderRadius: "50%",
+                        backgroundColor: svc.status === 'healthy' ? "#059669" : svc.status === 'degraded' ? "#D97706" : "#E11D48",
+                        boxShadow: `0 0 0 2px ${svc.status === 'healthy' ? "rgba(5, 150, 105, 0.2)" : svc.status === 'degraded' ? "rgba(217, 119, 6, 0.2)" : "rgba(225, 29, 72, 0.2)"}`
+                      }} />
                       <h4
                         style={{
                           fontSize: "0.85rem",
@@ -686,7 +707,7 @@ export default function AdminDashboardPage() {
                           style={{
                             width: `${pingBarPercent}%`,
                             height: "100%",
-                            backgroundColor: svc.latency_ms < 30 ? "#059669" : "#D97706",
+                            backgroundColor: svc.status === 'healthy' ? "#059669" : svc.status === 'degraded' ? "#D97706" : "#E11D48",
                             borderRadius: "2px",
                           }}
                         />
@@ -696,10 +717,10 @@ export default function AdminDashboardPage() {
                         style={{
                           fontSize: "0.75rem",
                           fontWeight: 800,
-                          color: svc.latency_ms < 30 ? "#059669" : "#D97706",
+                          color: svc.status === 'healthy' ? "#059669" : svc.status === 'degraded' ? "#D97706" : "#E11D48",
                         }}
                       >
-                        {svc.latency_ms}ms
+                        {svc.status === 'degraded' ? 'DB-ERR' : svc.status === 'down' ? 'DOWN' : `${svc.latency_ms}ms`}
                       </span>
                     </div>
 

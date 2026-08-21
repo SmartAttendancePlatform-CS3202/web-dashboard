@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 export function Header({ title = "Faculty Command Center", subtitle }: HeaderProps) {
-  const { isDemoMode, toggleDemoMode, switchPersona, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
   return (
     <header
@@ -73,62 +73,6 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
 
       {/* Header Actions */}
       <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-        {/* Switch to Admin Portal (if demo mode or admin) */}
-        {isDemoMode ? (
-          <button
-            onClick={() => switchPersona("admin")}
-            className="btn-secondary"
-            style={{
-              padding: "6px 12px",
-              fontSize: "0.75rem",
-              borderColor: "rgba(8, 145, 178, 0.3)",
-              color: "var(--accent-cyan)",
-            }}
-          >
-            <ShieldAlertIcon size={14} />
-            <span>Admin Console</span>
-          </button>
-        ) : isAdmin ? (
-          <Link
-            href="/admin"
-            className="btn-secondary"
-            style={{
-              padding: "6px 12px",
-              fontSize: "0.75rem",
-              borderColor: "rgba(8, 145, 178, 0.3)",
-              color: "var(--accent-cyan)",
-              textDecoration: "none",
-            }}
-          >
-            <ShieldAlertIcon size={14} />
-            <span>Admin Console</span>
-          </Link>
-        ) : null}
-
-        {/* Demo / Live Microservices Mode Toggle */}
-        <button
-          onClick={() => toggleDemoMode()}
-          className="btn-secondary"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "6px 12px",
-            borderRadius: "var(--radius-md)",
-            backgroundColor: isDemoMode ? "rgba(217, 119, 6, 0.08)" : "rgba(5, 150, 105, 0.08)",
-            border: isDemoMode ? "1px solid rgba(217, 119, 6, 0.25)" : "1px solid rgba(5, 150, 105, 0.25)",
-            color: isDemoMode ? "#D97706" : "#059669",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-          }}
-          title="Toggle between Live FastAPI microservices and Standalone Mock Evaluation Mode"
-        >
-          <span className={isDemoMode ? "" : "pulse-dot-emerald"} style={{ width: 8, height: 8 }} />
-          <span>{isDemoMode ? "⚡ Demo Mode Active" : "🟢 Live Microservices"}</span>
-        </button>
-
         {/* Quick Launch Session Button */}
         <Link href="/session/start" className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
           <PlayIcon size={14} />

@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/lib/context/AuthContext";
+
 import { adminApi } from "@/lib/api/services";
 import { MicroserviceStatus } from "@/types";
-import { ShieldAlertIcon, RefreshIcon, ClockIcon } from "@/components/ui/Icons";
+import { ShieldAlertIcon, ClockIcon } from "@/components/ui/Icons";
 
 interface AdminHeaderProps {
   title: string;
@@ -13,7 +13,6 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ title, subtitle, actions }: AdminHeaderProps) {
-  const { isDemoMode, toggleDemoMode } = useAuth();
   const [services, setServices] = useState<MicroserviceStatus[]>([]);
   const [timeString, setTimeString] = useState<string>("");
 
@@ -133,21 +132,6 @@ export function AdminHeader({ title, subtitle, actions }: AdminHeaderProps) {
           </span>
         </div>
 
-        {/* Demo Mode Switcher */}
-        <button
-          onClick={() => toggleDemoMode()}
-          className="btn-secondary"
-          style={{
-            fontSize: "0.78rem",
-            padding: "6px 12px",
-            borderColor: isDemoMode ? "rgba(79, 70, 229, 0.3)" : "var(--border-subtle)",
-            color: isDemoMode ? "var(--accent-primary)" : "var(--text-secondary)",
-            backgroundColor: isDemoMode ? "rgba(79, 70, 229, 0.05)" : "#FFFFFF",
-          }}
-        >
-          <RefreshIcon size={13} />
-          <span>{isDemoMode ? "Demo Mode" : "Live Backend"}</span>
-        </button>
 
         {/* Extra Action Buttons */}
         {actions}

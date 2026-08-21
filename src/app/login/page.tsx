@@ -7,12 +7,25 @@ import { RadioIcon, ShieldAlertIcon, UserCheckIcon, SparklesIcon } from "@/compo
 
 export default function LoginPage() {
   const router = useRouter();
-  const { loginWithSupabase, loginWithLecturerDemo, loginWithAdminDemo } = useAuth();
+  const { loginWithSupabase } = useAuth();
 
+  const [selectedRole, setSelectedRole] = useState<"lecturer" | "admin">("lecturer");
   const [email, setEmail] = useState("arthur.vance@university.ac.lk");
   const [password, setPassword] = useState("password123");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleRoleSelect = (role: "lecturer" | "admin") => {
+    setSelectedRole(role);
+    setErrorMessage(null);
+    if (role === "lecturer") {
+      setEmail("arthur.vance@university.ac.lk");
+      setPassword("password123");
+    } else {
+      setEmail("admin@university.ac.lk");
+      setPassword("adminpass123");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,22 +37,12 @@ export default function LoginPage() {
       setErrorMessage(res.error);
       setLoading(false);
     } else {
-      if (res.role === "admin" || email.includes("admin")) {
+      if (selectedRole === "admin" || res.role === "admin" || email.includes("admin")) {
         router.push("/admin");
       } else {
         router.push("/");
       }
     }
-  };
-
-  const handleLecturerDemo = () => {
-    loginWithLecturerDemo();
-    router.push("/");
-  };
-
-  const handleAdminDemo = () => {
-    loginWithAdminDemo();
-    router.push("/admin");
   };
 
   return (
@@ -94,22 +97,31 @@ export default function LoginPage() {
           zIndex: 10,
         }}
       >
-        {/* Brand */}
-        <div style={{ textAlign: "center", marginBottom: "28px" }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <div
             style={{
               width: "52px",
               height: "52px",
               margin: "0 auto 16px auto",
               borderRadius: "14px",
-              background: "linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)",
+              background: selectedRole === "admin"
+                ? "linear-gradient(135deg, #06B6D4 0%, #2563EB 100%)"
+                : "linear-gradient(135deg, #6366F1 0%, #06B6D4 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 24px rgba(99, 102, 241, 0.5)",
+              boxShadow: selectedRole === "admin"
+                ? "0 0 24px rgba(6, 182, 212, 0.4)"
+                : "0 0 24px rgba(99, 102, 241, 0.5)",
+              transition: "all 0.3s ease",
             }}
           >
-            <RadioIcon size={28} className="text-white" />
+            {selectedRole === "admin" ? (
+              <ShieldAlertIcon size={28} className="text-white" />
+            ) : (
+              <RadioIcon size={28} className="text-white" />
+            )}
           </div>
           <h1
             style={{
@@ -123,59 +135,70 @@ export default function LoginPage() {
             Smart Attendance Portal
           </h1>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "4px" }}>
-            University AI Biometric & Faculty Command Center
+            Select your access role to proceed to the system
           </p>
         </div>
 
-        {/* Quick Role Fill Buttons */}
-        <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+        {/* Role Selector Tabs */}
+        <div
+          style={{
+            display: "flex",
+            padding: "4px",
+            backgroundColor: "rgba(255, 255, 255, 0.04)",
+            borderRadius: "12px",
+            border: "1px solid var(--border-subtle)",
+            marginBottom: "24px",
+            gap: "4px",
+          }}
+        >
           <button
             type="button"
-            onClick={() => {
-              setEmail("arthur.vance@university.ac.lk");
-              setPassword("password123");
-            }}
+            onClick={() => handleRoleSelect("lecturer")}
             style={{
               flex: 1,
-              padding: "8px 10px",
+              padding: "10px 14px",
               borderRadius: "8px",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              backgroundColor: email.includes("arthur") ? "rgba(99, 102, 241, 0.15)" : "rgba(255, 255, 255, 0.03)",
-              border: email.includes("arthur") ? "1px solid var(--accent-primary)" : "1px solid var(--border-subtle)",
-              color: email.includes("arthur") ? "#818CF8" : "var(--text-muted)",
+              fontSize: "0.85rem",
+              fontWeight: 700,
+              backgroundColor: selectedRole === "lecturer" ? "var(--accent-primary)" : "transparent",
+              color: selectedRole === "lecturer" ? "#FFFFFF" : "var(--text-secondary)",
+              border: "none",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "6px",
+              gap: "8px",
+              transition: "all 0.2s ease",
+              boxShadow: selectedRole === "lecturer" ? "0 2px 8px rgba(79, 70, 229, 0.3)" : "none",
             }}
           >
-            <UserCheckIcon size={14} /> Lecturer SSO
+            <UserCheckIcon size={16} />
+            <span>Lecturer</span>
           </button>
+
           <button
             type="button"
-            onClick={() => {
-              setEmail("admin@university.ac.lk");
-              setPassword("adminpass123");
-            }}
+            onClick={() => handleRoleSelect("admin")}
             style={{
               flex: 1,
-              padding: "8px 10px",
+              padding: "10px 14px",
               borderRadius: "8px",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              backgroundColor: email.includes("admin") ? "rgba(6, 182, 212, 0.15)" : "rgba(255, 255, 255, 0.03)",
-              border: email.includes("admin") ? "1px solid var(--accent-secondary)" : "1px solid var(--border-subtle)",
-              color: email.includes("admin") ? "#22D3EE" : "var(--text-muted)",
+              fontSize: "0.85rem",
+              fontWeight: 700,
+              backgroundColor: selectedRole === "admin" ? "var(--accent-cyan)" : "transparent",
+              color: selectedRole === "admin" ? "#FFFFFF" : "var(--text-secondary)",
+              border: "none",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "6px",
+              gap: "8px",
+              transition: "all 0.2s ease",
+              boxShadow: selectedRole === "admin" ? "0 2px 8px rgba(8, 145, 178, 0.3)" : "none",
             }}
           >
-            <ShieldAlertIcon size={14} /> Admin SSO
+            <ShieldAlertIcon size={16} />
+            <span>Admin</span>
           </button>
         </div>
 
@@ -183,12 +206,12 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div>
             <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "6px" }}>
-              University Email Address
+              {selectedRole === "admin" ? "Administrator Email" : "Lecturer Email Address"}
             </label>
             <input
               type="email"
               className="input-control"
-              placeholder="user@university.ac.lk"
+              placeholder={selectedRole === "admin" ? "admin@university.ac.lk" : "arthur.vance@university.ac.lk"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -224,48 +247,33 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button type="submit" className="btn-primary" style={{ width: "100%", marginTop: "6px", justifyContent: "center" }} disabled={loading}>
-            {loading ? "Authenticating with Supabase..." : "Sign In with University SSO"}
+          <button
+            type="submit"
+            className="btn-primary"
+            style={{
+              width: "100%",
+              marginTop: "6px",
+              justifyContent: "center",
+              padding: "12px",
+              backgroundColor: selectedRole === "admin" ? "var(--accent-cyan)" : "var(--accent-primary)",
+              borderColor: selectedRole === "admin" ? "var(--accent-cyan)" : "var(--accent-primary)",
+            }}
+            disabled={loading}
+          >
+            {loading
+              ? "Authenticating..."
+              : selectedRole === "admin"
+              ? "Sign In as Administrator"
+              : "Sign In as Lecturer"}
           </button>
         </form>
 
-        {/* Divider */}
-        <div style={{ display: "flex", alignItems: "center", margin: "22px 0", gap: "12px" }}>
-          <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border-subtle)" }} />
-          <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            Instant Demo Access
-          </span>
-          <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border-subtle)" }} />
-        </div>
-
-        {/* Dual Instant Demo Buttons */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleLecturerDemo}
-            style={{ width: "100%", justifyContent: "center", borderColor: "rgba(99, 102, 241, 0.4)", color: "#818CF8" }}
-          >
-            <SparklesIcon size={16} />
-            <span>Enter as Dr. Arthur Vance (Lecturer)</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleAdminDemo}
-            style={{ width: "100%", justifyContent: "center", borderColor: "rgba(6, 182, 212, 0.4)", color: "#22D3EE" }}
-          >
-            <ShieldAlertIcon size={16} />
-            <span>Enter as University Administrator</span>
-          </button>
-        </div>
-
         <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center", marginTop: "20px" }}>
-          Smart Attendance Enterprise System • Secured by Supabase JWT & FastApi RBAC
+          Smart Attendance Enterprise System • Secured by Supabase JWT & FastAPI RBAC
         </p>
       </div>
     </div>
   );
 }
+
 

@@ -21,7 +21,7 @@ export default function AdminReportsPage() {
         const [depts, trs, atts] = await Promise.all([
           adminApi.getDepartments(),
           reportsApi.getWeeklyTrends(),
-          reportsApi.getRecentAttempts("off-001"),
+          reportsApi.getRecentAttempts(),
         ]);
         setDepartments(depts);
         setTrends(trs);
