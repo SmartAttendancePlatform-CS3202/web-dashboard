@@ -2,8 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { BellIcon, PlayIcon, ShieldAlertIcon } from "@/components/ui/Icons";
-import { useAuth } from "@/lib/context/AuthContext";
+import { BellIcon, PlayIcon } from "@/components/ui/Icons";
 
 interface HeaderProps {
   title?: string;
@@ -11,7 +10,6 @@ interface HeaderProps {
 }
 
 export function Header({ title = "Faculty Command Center", subtitle }: HeaderProps) {
-  const { isAdmin } = useAuth();
 
   return (
     <header

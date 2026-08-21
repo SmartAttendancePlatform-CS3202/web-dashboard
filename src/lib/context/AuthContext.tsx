@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Lecturer, UserRole } from "@/types";
 import { supabase } from "@/lib/supabase/client";
-import { MOCK_LECTURER } from "@/lib/mock/mockData";
 import { schedulingApi } from "@/lib/api/services";
 
 interface AuthContextType {
@@ -91,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setLecturerProfile(null);
             }
           }
-        } else if (_event === ("SIGNED_OUT" as any)) {
+        } else if (_event === "SIGNED_OUT") {
           setUser(null);
           setLecturerProfile(null);
         }
