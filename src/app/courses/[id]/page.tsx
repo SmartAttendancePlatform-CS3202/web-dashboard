@@ -164,7 +164,7 @@ export default function CourseDetailPage() {
                 </tr>
               ) : (
                 filteredStudents.map((student) => {
-                  const rate = student.attendance_rate || 88;
+                  const rate = student.attendance_rate ?? 0;
                   const isAtRisk = rate < 80;
 
                   return (

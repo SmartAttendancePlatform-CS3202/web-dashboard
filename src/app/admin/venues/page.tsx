@@ -28,9 +28,10 @@ export default function AdminVenuesPage() {
   const [vLat, setVLat] = useState(6.9022);
   const [vLng, setVLng] = useState(79.8608);
   const [vRadius, setVRadius] = useState(35);
+  const [vShape, setVShape] = useState<"circle" | "square">("circle");
   const [vMethod, setVMethod] = useState("gps_geofence");
-  const [vWifiSsid, setVWifiSsid] = useState("UOC-SECURE-WIFI");
-  const [vWifiBssid, setVWifiBssid] = useState("00:14:22:01:23:45");
+  const [vWifiSsid, setVWifiSsid] = useState("");
+  const [vWifiBssid, setVWifiBssid] = useState("");
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -57,9 +58,10 @@ export default function AdminVenuesPage() {
     setVLat(6.9022);
     setVLng(79.8608);
     setVRadius(35);
+    setVShape("circle");
     setVMethod("gps_geofence");
-    setVWifiSsid("UOC-SECURE-WIFI");
-    setVWifiBssid("00:14:22:01:23:45");
+    setVWifiSsid("");
+    setVWifiBssid("");
     setShowModal(true);
   };
 
@@ -69,13 +71,14 @@ export default function AdminVenuesPage() {
     setVName(venue.name);
     setVBuilding(venue.building || "");
     setVFloor(venue.floor || "Level 1");
-    setVCapacity(venue.capacity || 100);
+    setVCapacity(venue.capacity ?? 0);
     setVLat(venue.boundary_data?.latitude ?? 6.9022);
     setVLng(venue.boundary_data?.longitude ?? 79.8608);
     setVRadius(venue.boundary_data?.radius_meters ?? 30);
+    setVShape(venue.shape_type === "polygon" || venue.shape_type === "square" ? "square" : "circle");
     setVMethod(venue.default_verification_method || "gps_geofence");
-    setVWifiSsid(venue.wifi_ssid || "UOC-SECURE-WIFI");
-    setVWifiBssid(venue.wifi_bssid || "00:14:22:01:23:45");
+    setVWifiSsid(venue.wifi_ssid || "");
+    setVWifiBssid(venue.wifi_bssid || "");
     setShowModal(true);
   };
 
@@ -87,11 +90,16 @@ export default function AdminVenuesPage() {
         building: vBuilding,
         floor: vFloor,
         capacity: vCapacity,
-        shape_type: "circle",
-        boundary_data: {
-          latitude: Number(vLat),
-          longitude: Number(vLng),
-          radius_meters: Number(vRadius),
+        shape_type: vShape,
+        boundary_data: vShape === "circle" ? {
+          latitude: Number(vLat), longitude: Number(vLng), radius_meters: Number(vRadius),
+        } : {
+          vertices: [
+            [Number(vLat) + Number(vRadius) / 111320, Number(vLng) - Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
+            [Number(vLat) + Number(vRadius) / 111320, Number(vLng) + Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
+            [Number(vLat) - Number(vRadius) / 111320, Number(vLng) + Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
+            [Number(vLat) - Number(vRadius) / 111320, Number(vLng) - Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
+          ],
         },
         default_verification_method: vMethod as Venue["default_verification_method"],
         wifi_ssid: vWifiSsid,
@@ -122,7 +130,7 @@ export default function AdminVenuesPage() {
   return (
     <AdminDashboardLayout
       title="Venues & Geofencing Command"
-      subtitle="Configure physical classroom coordinates, GPS boundary radiuses, and multi-factor WiFi/BLE verification policies"
+      subtitle="Configure classroom coordinates, circle or square GPS boundaries, and supported verification policies"
       actions={
         <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
           <PlusIcon size={14} />
@@ -345,7 +353,7 @@ export default function AdminVenuesPage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    {selectedVenue.boundary_data?.radius_meters ?? 0}m PERIMETER
+                    {selectedVenue.shape_type === "polygon" ? "SQUARE" : `${selectedVenue.boundary_data?.radius_meters ?? 0}m PERIMETER`}
                   </span>
                 </div>
               </div>
@@ -369,7 +377,7 @@ export default function AdminVenuesPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem" }}>
                   <span style={{ color: "var(--text-muted)" }}>Campus WiFi BSSID:</span>
                   <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
-                    {selectedVenue.wifi_bssid || "00:14:22:01:23:45"}
+                    {selectedVenue.wifi_bssid || "Not configured"}
                   </span>
                 </div>
 
@@ -480,44 +488,31 @@ export default function AdminVenuesPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    Latitude
-                  </label>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    className="input-control"
-                    value={vLat}
-                    onChange={(e) => setVLat(Number(e.target.value))}
-                    required
-                  />
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Geofence Shape</label>
+                  <select className="input-control" value={vShape} onChange={(e)=>setVShape(e.target.value as "circle"|"square")}>
+                    <option value="circle">Circle</option>
+                    <option value="square">Square</option>
+                  </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    Longitude
-                  </label>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    className="input-control"
-                    value={vLng}
-                    onChange={(e) => setVLng(Number(e.target.value))}
-                    required
-                  />
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Latitude</label>
+                  <input type="number" step="0.000001" className="input-control" value={vLat} onChange={(e)=>setVLat(Number(e.target.value))} required />
                 </div>
                 <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Longitude</label>
+                  <input type="number" step="0.000001" className="input-control" value={vLng} onChange={(e)=>setVLng(Number(e.target.value))} required />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
                   <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    Radius (Meters)
+                    {vShape === "circle" ? "Radius (Meters)" : "Half-size (Meters)"}
                   </label>
-                  <input
-                    type="number"
-                    min={5}
-                    max={200}
-                    className="input-control"
-                    value={vRadius}
-                    onChange={(e) => setVRadius(Number(e.target.value))}
-                    required
-                  />
+                  <input type="number" min={5} max={500} className="input-control" value={vRadius} onChange={(e)=>setVRadius(Number(e.target.value))} required />
+                </div>
+                <div style={{paddingTop:24,fontSize:"0.76rem",color:"var(--text-muted)"}}>
+                  {vShape === "square" ? "A square is stored as four GPS vertices in boundary_data." : "A circle is stored as center coordinates + radius."}
                 </div>
               </div>
 
@@ -532,8 +527,7 @@ export default function AdminVenuesPage() {
                     onChange={(e) => setVMethod(e.target.value)}
                   >
                     <option value="gps_geofence">GPS Geofence</option>
-                    <option value="ble_beacon">BLE Beacon Perimeter</option>
-                    <option value="wifi_bssid">Campus WiFi BSSID</option>
+                    <option value="wifi_ap">WiFi Access Point (future)</option>
                   </select>
                 </div>
                 <div>

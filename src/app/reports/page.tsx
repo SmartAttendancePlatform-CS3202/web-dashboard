@@ -144,28 +144,28 @@ export default function ReportsPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
           <StatCard
             title="Overall Attendance"
-            value={`${report?.attendance_percentage || 87.4}%`}
+            value={`${report?.attendance_percentage ?? 0}%`}
             subtitle="Semester average"
             accentColor={((report?.attendance_percentage || 0) >= 80) ? "emerald" : "rose"}
             icon={<BarChartIcon size={22} />}
           />
           <StatCard
             title="Total Lectures Held"
-            value={report?.total_sessions || 7}
+            value={report?.total_sessions ?? 0}
             subtitle="Completed sessions"
             accentColor="indigo"
             icon={<ClockIcon size={22} />}
           />
           <StatCard
             title="Total Registered Students"
-            value={report?.total_students || 58}
+            value={report?.total_students ?? 0}
             subtitle="Enrolled candidates"
             accentColor="cyan"
             icon={<UserCheckIcon size={22} />}
           />
           <StatCard
             title="At-Risk Students"
-            value={report?.absentee_list.length || 2}
+            value={report?.absentee_list.length ?? 0}
             subtitle="Below 80% attendance threshold"
             accentColor="rose"
             icon={<AlertTriangleIcon size={22} />}

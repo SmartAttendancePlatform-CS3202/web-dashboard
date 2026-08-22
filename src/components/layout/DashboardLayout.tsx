@@ -3,6 +3,7 @@
 import React from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { RoleGuard } from "./RoleGuard";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
   return (
+    <RoleGuard allowedRoles={["lecturer", "admin"]}>
     <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "var(--bg-main)" }}>
       {/* Sidebar */}
       <Sidebar />
@@ -24,5 +26,6 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
         </main>
       </div>
     </div>
+    </RoleGuard>
   );
 }

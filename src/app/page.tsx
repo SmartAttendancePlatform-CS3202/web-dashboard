@@ -64,7 +64,7 @@ export default function HomePage() {
 
   const liveSession = sessions.find((s) => s.status === "ongoing");
   const totalEnrolledStudents = offerings.reduce((sum, o) => sum + (o.enrolled_count || 0), 0);
-  const averageAttendance = report?.attendance_percentage || 87.4;
+  const averageAttendance = report?.attendance_percentage ?? 0;
 
   if (loading) {
     return (

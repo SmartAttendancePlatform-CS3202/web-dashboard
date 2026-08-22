@@ -7,24 +7,17 @@ import { RadioIcon, ShieldAlertIcon, UserCheckIcon } from "@/components/ui/Icons
 
 export default function LoginPage() {
   const router = useRouter();
-  const { loginWithSupabase } = useAuth();
+  const { loginWithSupabase, logout } = useAuth();
 
   const [selectedRole, setSelectedRole] = useState<"lecturer" | "admin">("lecturer");
-  const [email, setEmail] = useState("arthur.vance@university.ac.lk");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRoleSelect = (role: "lecturer" | "admin") => {
     setSelectedRole(role);
     setErrorMessage(null);
-    if (role === "lecturer") {
-      setEmail("arthur.vance@university.ac.lk");
-      setPassword("password123");
-    } else {
-      setEmail("admin@university.ac.lk");
-      setPassword("adminpass123");
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,11 +30,14 @@ export default function LoginPage() {
       setErrorMessage(res.error);
       setLoading(false);
     } else {
-      if (selectedRole === "admin" || res.role === "admin" || email.includes("admin")) {
-        router.push("/admin");
-      } else {
-        router.push("/");
+      if (!res.role) { setErrorMessage("Your account role could not be resolved."); setLoading(false); return; }
+      if (res.role !== selectedRole) {
+        setErrorMessage(`This account is registered as ${res.role}, not ${selectedRole}.`);
+        setLoading(false);
+        await logout();
+        return;
       }
+      router.push(res.role === "admin" ? "/admin" : "/");
     }
   };
 
@@ -211,7 +207,7 @@ export default function LoginPage() {
             <input
               type="email"
               className="input-control"
-              placeholder={selectedRole === "admin" ? "admin@university.ac.lk" : "arthur.vance@university.ac.lk"}
+              placeholder={selectedRole === "admin" ? "admin@university.example" : "lecturer@university.example"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

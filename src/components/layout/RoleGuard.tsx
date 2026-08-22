@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { UserRole } from "@/types";
 import { ShieldAlertIcon, ChevronRightIcon } from "@/components/ui/Icons";
@@ -13,6 +14,7 @@ interface RoleGuardProps {
 
 export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -48,7 +50,12 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     );
   }
 
-  const currentRole = user?.role || "student";
+  if (!user) {
+    router.replace("/login");
+    return null;
+  }
+
+  const currentRole = user.role;
   const isAuthorized = allowedRoles.includes(currentRole as UserRole);
 
   if (!isAuthorized) {

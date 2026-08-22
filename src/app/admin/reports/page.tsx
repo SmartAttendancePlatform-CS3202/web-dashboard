@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { AdminDashboardLayout } from "@/components/layout/AdminDashboardLayout";
 import { adminApi, reportsApi } from "@/lib/api/services";
-import { Department, WeeklyTrendItem, AttendanceVerificationAttempt } from "@/types";
+import { Department, WeeklyTrendItem, AttendanceVerificationAttempt, CourseOffering, OfferingReport, Course, Student, Lecturer } from "@/types";
 import {
   BarChartIcon,
   ShieldAlertIcon,
@@ -14,18 +14,33 @@ export default function AdminReportsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [trends, setTrends] = useState<WeeklyTrendItem[]>([]);
   const [attempts, setAttempts] = useState<AttendanceVerificationAttempt[]>([]);
+  const [offerings, setOfferings] = useState<CourseOffering[]>([]);
+  const [offeringReports, setOfferingReports] = useState<OfferingReport[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [lecturers, setLecturers] = useState<Lecturer[]>([]);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [depts, trs, atts] = await Promise.all([
+        const [depts, trs, atts, offs, crs, studs, lecs] = await Promise.all([
           adminApi.getDepartments(),
           reportsApi.getWeeklyTrends(),
           reportsApi.getRecentAttempts(),
+          adminApi.getAllOfferings(),
+          adminApi.getCourses(),
+          adminApi.getStudents(),
+          adminApi.getLecturers(),
         ]);
+        const reportResults = await Promise.all(offs.map((o) => reportsApi.getOfferingReport(o.id).catch(() => null)));
         setDepartments(depts);
         setTrends(trs);
         setAttempts(atts);
+        setOfferings(offs);
+        setOfferingReports(reportResults.filter(Boolean) as OfferingReport[]);
+        setCourses(crs);
+        setStudents(studs);
+        setLecturers(lecs);
       } catch (err) {
         console.error("Error loading institutional reports:", err);
       }
@@ -33,13 +48,34 @@ export default function AdminReportsPage() {
     loadData();
   }, []);
 
+  const averageAttendance = offeringReports.length ? offeringReports.reduce((sum, r) => sum + r.attendance_percentage, 0) / offeringReports.length : 0;
+  const confidenceAttempts = attempts.filter((a) => typeof a.face_match_confidence === "number");
+  const averageFaceMatch = confidenceAttempts.length ? (confidenceAttempts.reduce((sum, a) => sum + Number(a.face_match_confidence || 0), 0) / confidenceAttempts.length) * 100 : 0;
+  const locationAttempts = attempts.filter((a) => a.used_location_check);
+  const geofenceCompliance = locationAttempts.length ? (locationAttempts.filter((a) => a.status === "success").length / locationAttempts.length) * 100 : 0;
+  const flaggedCount = attempts.filter((a) => a.is_flagged || a.status === "failed").length;
+
+  const departmentStats = departments.map((dept) => {
+    const departmentCourseIds = new Set(courses.filter((c) => c.department_id === dept.id).map((c) => c.id));
+    const deptOfferingIds = new Set(offerings.filter((o) => departmentCourseIds.has(o.course_id)).map((o) => o.id));
+    const deptReports = offeringReports.filter((r) => deptOfferingIds.has(r.course_offering_id));
+    const deptAttendance = deptReports.length ? deptReports.reduce((sum, r) => sum + r.attendance_percentage, 0) / deptReports.length : 0;
+    return {
+      ...dept,
+      rate: deptAttendance,
+      studentCount: students.filter((st) => st.department_id === dept.id).length,
+      lecturerCount: lecturers.filter((l) => l.department_id === dept.id).length,
+      courseCount: departmentCourseIds.size,
+    };
+  });
+
   const handleExportCSV = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["Department,Code,Attendance Rate,Enrolled Students,Faculty Count"]
+      ["Department,Code,Attendance Rate,Students,Lecturers,Courses"]
         .concat(
-          departments.map(
-            (d, idx) => `${d.name},${d.code},${(88 + idx * 3.5).toFixed(1)}%,${d.student_count || 300},${d.lecturer_count || 15}`
+          departmentStats.map(
+            (d) => `${d.name},${d.code},${d.rate.toFixed(2)}%,${d.studentCount},${d.lecturerCount},${d.courseCount}`
           )
         )
         .join("\n");
@@ -74,7 +110,7 @@ export default function AdminReportsPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px", marginBottom: "28px" }}>
         <div className="glass-card" style={{ padding: "20px" }}>
           <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>University Average Attendance</p>
-          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#34D399", marginTop: "4px" }}>91.8%</h3>
+          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#34D399", marginTop: "4px" }}>{averageAttendance.toFixed(1)}%</h3>
           <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "6px" }}>
             Target benchmark: 80.0% statutory minimum
           </p>
@@ -82,7 +118,7 @@ export default function AdminReportsPage() {
 
         <div className="glass-card" style={{ padding: "20px" }}>
           <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>Face Match Verification Avg</p>
-          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#818CF8", marginTop: "4px" }}>96.4%</h3>
+          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#818CF8", marginTop: "4px" }}>{averageFaceMatch.toFixed(1)}%</h3>
           <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "6px" }}>
             AI Confidence threshold: &gt; 85%
           </p>
@@ -90,7 +126,7 @@ export default function AdminReportsPage() {
 
         <div className="glass-card" style={{ padding: "20px" }}>
           <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>Geofence Compliance</p>
-          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#22D3EE", marginTop: "4px" }}>98.9%</h3>
+          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#22D3EE", marginTop: "4px" }}>{geofenceCompliance.toFixed(1)}%</h3>
           <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "6px" }}>
             Within configured 35m perimeter
           </p>
@@ -98,7 +134,7 @@ export default function AdminReportsPage() {
 
         <div className="glass-card" style={{ padding: "20px" }}>
           <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>Flagged Proxy Anomalies</p>
-          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#F87171", marginTop: "4px" }}>4 Intercepted</h3>
+          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#F87171", marginTop: "4px" }}>{flaggedCount} Intercepted</h3>
           <p style={{ fontSize: "0.75rem", color: "#F87171", marginTop: "6px" }}>
             100% prevented from illicit sign-in
           </p>
@@ -120,8 +156,8 @@ export default function AdminReportsPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-            {departments.map((dept, idx) => {
-              const rate = 88.5 + idx * 3.2;
+            {departmentStats.map((dept) => {
+              const rate = dept.rate;
               return (
                 <div key={dept.id}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
