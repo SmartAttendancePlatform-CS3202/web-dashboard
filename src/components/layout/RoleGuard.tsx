@@ -16,6 +16,12 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
+  React.useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+    }
+  }, [isLoading, user, router]);
+
   if (isLoading) {
     return (
       <div
@@ -51,7 +57,6 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   }
 
   if (!user) {
-    router.replace("/login");
     return null;
   }
 

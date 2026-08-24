@@ -1,131 +1,38 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { AdminDashboardLayout } from "@/components/layout/AdminDashboardLayout";
 import { noticesApi, adminApi } from "@/lib/api/services";
 import { Notice, CourseOffering } from "@/types";
-import {
-  BellIcon,
-  PlusIcon,
-  CheckCircleIcon,
-} from "@/components/ui/Icons";
+import { BroadcastModalButton } from "@/components/admin/BroadcastModalButton";
 
-export default function AdminNoticesPage() {
-  const [notices, setNotices] = useState<Notice[]>([]);
-  const [offerings, setOfferings] = useState<CourseOffering[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Modal Form State
-  const [showModal, setShowModal] = useState(false);
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [urgency, setUrgency] = useState("normal");
-  const [targetScope, setTargetScope] = useState("all_university");
-  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
-  const [isSending, setIsSending] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [noticesData, offs] = await Promise.all([
-          noticesApi.getNotices(),
-          adminApi.getAllOfferings(),
-        ]);
-        setNotices(noticesData);
-        setOfferings(offs);
-        if (offs.length > 0) setSelectedOfferingId(offs[0].id);
-      } catch (err) {
-        console.error("Error loading notices:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
-
-  const handleSendBroadcast = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSending(true);
-
-    try {
-      const targetOffering = targetScope === "specific_offering" ? selectedOfferingId : undefined;
-      const targetRoles =
-        targetScope === "all_students"
-          ? ["student"]
-          : targetScope === "all_lecturers"
-          ? ["lecturer"]
-          : ["student", "lecturer", "admin"];
-
-      const newNotice = await noticesApi.broadcastNotice({
-        title,
-        body,
-        urgency,
-        course_offering_id: targetOffering,
-        target_roles: targetRoles,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      });
-
-      setNotices((prev) => [newNotice, ...prev]);
-      setShowModal(false);
-      setTitle("");
-      setBody("");
-      setUrgency("normal");
-      setToastMessage("Institutional broadcast successfully transmitted across web & mobile devices.");
-      setTimeout(() => setToastMessage(null), 4000);
-    } catch (err) {
-      console.error("Failed to broadcast notice:", err);
-    } finally {
-      setIsSending(false);
-    }
-  };
+export default async function AdminNoticesPage() {
+  let notices: Notice[] = [];
+  let offerings: CourseOffering[] = [];
+  
+  try {
+    const [noticesData, offs] = await Promise.all([
+      noticesApi.getNotices(),
+      adminApi.getAllOfferings(),
+    ]);
+    notices = noticesData;
+    offerings = offs;
+  } catch (err) {
+    console.error("Error loading notices on server:", err);
+  }
 
   return (
-    <AdminDashboardLayout
-      title="Campus Announcements & Broadcasts"
-      subtitle="Issue real-time push alerts and emergency notifications to students, lecturers, and academic departments"
-      actions={
-        <button onClick={() => setShowModal(true)} className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
-          <PlusIcon size={14} />
-          <span>New Campus Broadcast</span>
-        </button>
-      }
-    >
-      {/* Toast Alert */}
-      {toastMessage && (
-        <div
-          style={{
-            marginBottom: "20px",
-            padding: "12px 18px",
-            borderRadius: "var(--radius-md)",
-            backgroundColor: "rgba(16, 185, 129, 0.15)",
-            border: "1px solid rgba(16, 185, 129, 0.35)",
-            color: "#34D399",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            fontSize: "0.85rem",
-            fontWeight: 600,
-          }}
-        >
-          <CheckCircleIcon size={18} />
-          <span>{toastMessage}</span>
+    <AdminDashboardLayout>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+        <div>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 700, color: "var(--text-primary)" }}>Campus Broadcasts</h1>
+          <p style={{ color: "var(--text-secondary)", marginTop: "4px" }}>Manage and dispatch emergency or standard university notices.</p>
         </div>
-      )}
+        <BroadcastModalButton offerings={offerings} />
+      </div>
 
-      {/* Broadcasts List */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>
-          Active Broadcast Announcements ({notices.length})
-        </h3>
-
-        {loading ? (
-          <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
-            Loading broadcast archive...
-          </div>
-        ) : notices.length === 0 ? (
-          <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
-            No active notices currently published.
+      <div style={{ display: "grid", gap: "16px" }}>
+        {notices.length === 0 ? (
+          <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", backgroundColor: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px dashed var(--border-subtle)" }}>
+            <p>No announcements found.</p>
           </div>
         ) : (
           notices.map((notice) => (
@@ -133,30 +40,25 @@ export default function AdminNoticesPage() {
               key={notice.id}
               className="glass-card"
               style={{
-                padding: "20px 24px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-                borderLeft: `4px solid ${
+                padding: "20px",
+                borderLeft:
                   notice.urgency === "urgent"
-                    ? "#EF4444"
+                    ? "4px solid #F87171"
                     : notice.urgency === "high"
-                    ? "#F59E0B"
-                    : "#22D3EE"
-                }`,
+                    ? "4px solid #FBBF24"
+                    : "4px solid #22D3EE",
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
                     <span
                       style={{
-                        fontSize: "0.68rem",
-                        fontWeight: 800,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        padding: "2px 6px",
+                        padding: "2px 8px",
                         borderRadius: "4px",
+                        fontSize: "0.7rem",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
                         backgroundColor:
                           notice.urgency === "urgent"
                             ? "rgba(239, 68, 68, 0.15)"
@@ -190,7 +92,7 @@ export default function AdminNoticesPage() {
                 </div>
               </div>
 
-              <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+              <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "12px" }}>
                 {notice.body}
               </p>
 
@@ -212,144 +114,6 @@ export default function AdminNoticesPage() {
           ))
         )}
       </div>
-
-      {/* Broadcast Modal */}
-      {showModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(6px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100,
-            padding: "20px",
-          }}
-        >
-          <div className="glass-card" style={{ width: "100%", maxWidth: "560px", padding: "28px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <BellIcon size={20} className="text-cyan" />
-                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                  Dispatch Campus Broadcast
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowModal(false)}
-                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSendBroadcast} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                  Announcement Title
-                </label>
-                <input
-                  type="text"
-                  className="input-control"
-                  placeholder="e.g. Campus Network Maintenance & Geofence Sync"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    Urgency Level
-                  </label>
-                  <select
-                    className="input-control"
-                    value={urgency}
-                    onChange={(e) => setUrgency(e.target.value)}
-                  >
-                    <option value="normal">Normal Priority</option>
-                    <option value="high">High Priority</option>
-                    <option value="urgent">Urgent Alert</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    Audience Scope
-                  </label>
-                  <select
-                    className="input-control"
-                    value={targetScope}
-                    onChange={(e) => setTargetScope(e.target.value)}
-                  >
-                    <option value="all_university">All University Members</option>
-                    <option value="all_students">All Students</option>
-                    <option value="all_lecturers">Faculty & Lecturers Only</option>
-                    <option value="specific_offering">Specific Course Offering</option>
-                  </select>
-                </div>
-              </div>
-
-              {targetScope === "specific_offering" && (
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    Select Target Course Offering
-                  </label>
-                  <select
-                    className="input-control"
-                    value={selectedOfferingId}
-                    onChange={(e) => setSelectedOfferingId(e.target.value)}
-                  >
-                    {offerings.map((off) => (
-                      <option key={off.id} value={off.id}>
-                        {off.course_code} - {off.course_name} ({off.lecturer_name})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                  Notice Content / Instructions
-                </label>
-                <textarea
-                  className="input-control"
-                  rows={4}
-                  placeholder="Detailed announcement text to be broadcasted to mobile devices and web banners..."
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="btn-secondary"
-                  style={{ flex: 1, justifyContent: "center" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1, justifyContent: "center" }}
-                  disabled={isSending}
-                >
-                  {isSending ? "Transmitting..." : "Send Broadcast"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </AdminDashboardLayout>
   );
 }
