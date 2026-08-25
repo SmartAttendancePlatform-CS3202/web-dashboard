@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { AdminDashboardLayout } from "@/components/layout/AdminDashboardLayout";
-import { adminApi, reportsApi } from "@/lib/api/services";
+import { adminApi, reportsApi, schedulingApi } from "@/lib/api/services";
 import { Department, WeeklyTrendItem, AttendanceVerificationAttempt, CourseOffering, OfferingReport, Course, Student, Lecturer } from "@/types";
 import {
   BarChartIcon,
@@ -29,8 +29,8 @@ export default function AdminReportsPage() {
           reportsApi.getRecentAttempts(),
           adminApi.getAllOfferings(),
           adminApi.getCourses(),
-          adminApi.getStudents(),
-          adminApi.getLecturers(),
+          schedulingApi.getStudents(),
+          schedulingApi.getLecturers(),
         ]);
         const reportResults = await Promise.all(offs.map((o) => reportsApi.getOfferingReport(o.id).catch(() => null)));
         setDepartments(depts);
