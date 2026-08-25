@@ -138,6 +138,10 @@ export default function AdminCoursesPage() {
         random_check_enabled: offRandomCheck,
       });
 
+      if (!created) {
+        throw new Error("Failed to create course offering");
+      }
+
       setOfferings((prev) => [...prev, created]);
       setShowOfferingModal(false);
       setToastMessage(`Course offering scheduled for ${created.course_code}.`);
