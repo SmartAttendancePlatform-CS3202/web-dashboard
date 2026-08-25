@@ -1,5 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { supabase } from "@/lib/supabase/client";
+import { supabase as browserSupabase } from "@/lib/supabase/client";
+
+async function getAccessToken(): Promise<string | undefined> {
+  if (typeof window !== "undefined") {
+    const { data: { session } } = await browserSupabase.auth.getSession();
+    return session?.access_token;
+  }
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const { createServerClient } = await import("@supabase/ssr");
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
+    
+    const supabaseServer = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll() {}
+      }
+    });
+    const { data: { session } } = await supabaseServer.auth.getSession();
+    return session?.access_token;
+  } catch (e) {
+    return undefined;
+  }
+}
+
+async function refreshAccessToken(): Promise<string | undefined> {
+  if (typeof window !== "undefined") {
+    const refreshed = await browserSupabase.auth.refreshSession();
+    return refreshed.data.session?.access_token;
+  }
+  return undefined;
+}
 
 export async function apiFetch<T = unknown>(
   url: string,
@@ -7,20 +43,20 @@ export async function apiFetch<T = unknown>(
   retryOn401 = true,
 ): Promise<{ data: T | null; error: string | null; status: number }> {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const token = await getAccessToken();
     const headers = new Headers(options.headers || {});
     if (!(options.body instanceof FormData) && !headers.has("Content-Type")) {
       headers.set("Content-Type", "application/json");
     }
     headers.set("X-Request-ID", crypto.randomUUID());
-    if (session?.access_token) headers.set("Authorization", `Bearer ${session.access_token}`);
+    if (token) headers.set("Authorization", `Bearer ${token}`);
 
     let response = await fetch(url, { ...options, headers, cache: "no-store" });
 
     if (response.status === 401 && retryOn401) {
-      const refreshed = await supabase.auth.refreshSession();
-      if (refreshed.data.session?.access_token) {
-        headers.set("Authorization", `Bearer ${refreshed.data.session.access_token}`);
+      const refreshedToken = await refreshAccessToken();
+      if (refreshedToken) {
+        headers.set("Authorization", `Bearer ${refreshedToken}`);
         response = await fetch(url, { ...options, headers, cache: "no-store" });
       }
     }
@@ -49,25 +85,25 @@ export async function apiFetch<T = unknown>(
   }
 }
 
-
 export async function apiFetchText(
   url: string,
   options: RequestInit = {},
   retryOn401 = true,
 ): Promise<{ data: string | null; error: string | null; status: number }> {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const token = await getAccessToken();
     const headers = new Headers(options.headers || {});
     if (!(options.body instanceof FormData) && !headers.has("Content-Type") && options.body) {
       headers.set("Content-Type", "application/json");
     }
     headers.set("X-Request-ID", crypto.randomUUID());
-    if (session?.access_token) headers.set("Authorization", `Bearer ${session.access_token}`);
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+
     let response = await fetch(url, { ...options, headers, cache: "no-store" });
     if (response.status === 401 && retryOn401) {
-      const refreshed = await supabase.auth.refreshSession();
-      if (refreshed.data.session?.access_token) {
-        headers.set("Authorization", `Bearer ${refreshed.data.session.access_token}`);
+      const refreshedToken = await refreshAccessToken();
+      if (refreshedToken) {
+        headers.set("Authorization", `Bearer ${refreshedToken}`);
         response = await fetch(url, { ...options, headers, cache: "no-store" });
       }
     }
