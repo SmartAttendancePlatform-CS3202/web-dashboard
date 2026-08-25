@@ -84,17 +84,19 @@ export default function AdminDashboardPage() {
       }
     }
     loadData();
+  }, []);
 
+  useEffect(() => {
     // Subtle throughput ticker
     const interval = setInterval(() => {
       setThroughputData((prev) => {
-        const nextVal = Math.floor(Math.random() * 16) + 18;
+        const nextVal = services.length ? Math.round(services.reduce((a,s)=>a+s.latency_ms,0)/services.length) : 0;
         return [...prev.slice(1), nextVal];
       });
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [services]);
 
   // Handler: Force Sync Node Cluster
   const handleForceSyncNodes = async () => {
@@ -108,7 +110,7 @@ export default function AdminDashboardPage() {
       // randomize latency slightly to reflect live re-ping
       const freshServices = updatedServices.map((svc) => ({
         ...svc,
-        latency_ms: Math.floor(Math.random() * 15) + (svc.port === 8003 ? 32 : 14),
+        latency_ms: svc.latency_ms ?? 0,
       }));
       setServices(freshServices);
       setSupabaseEdgeStatus(updatedSupabase);
@@ -124,9 +126,7 @@ export default function AdminDashboardPage() {
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const headers = "SessionID,CourseCode,Venue,StudentRegNo,TimestampUTC,VerificationMethod,GPSStatus,FaceConfidence,LedgerChecksum\n";
     const sampleRows = [
-      "SES-4091,CS4012,AUDITORIUM-A,STU/2021/042,2026-08-18T18:14:02.129Z,DUAL_GPS_FACE,INSIDE_GEOFENCE,96.8%,0x94F2B881E9A\n",
-      "SES-4091,CS4012,AUDITORIUM-A,STU/2021/089,2026-08-18T18:14:05.441Z,DUAL_GPS_FACE,INSIDE_GEOFENCE,98.2%,0x41B89AC221F\n",
-      "SES-4091,CS4012,AUDITORIUM-A,STU/2021/114,2026-08-18T18:14:12.802Z,DUAL_GPS_FACE,INSIDE_GEOFENCE,94.5%,0x7E19C00A994\n",
+      "session_id,course_offering_id,student_id,timestamp,action,status\n",
       "SES-4092,CS3022,ENG-LAB-04,STU/2022/012,2026-08-18T18:15:30.910Z,GPS_GEOFENCE,INSIDE_GEOFENCE,N/A,0x33A0B17EF42\n",
       "SES-4092,CS3022,ENG-LAB-04,STU/2022/058,2026-08-18T18:15:48.330Z,GPS_GEOFENCE,INSIDE_GEOFENCE,N/A,0x10C99AA4E01\n",
     ];
@@ -327,7 +327,7 @@ export default function AdminDashboardPage() {
                   marginTop: "4px",
                 }}
               >
-                {loading ? "..." : (stats?.total_students || 1020).toLocaleString()}
+                {loading ? "..." : (stats?.total_students ?? 0).toLocaleString()}
               </h3>
             </div>
             <div
@@ -385,7 +385,7 @@ export default function AdminDashboardPage() {
                   marginTop: "4px",
                 }}
               >
-                {loading ? "..." : stats?.total_lecturers || 45}
+                {loading ? "..." : stats?.total_lecturers ?? 0}
               </h3>
             </div>
             <div
@@ -441,7 +441,7 @@ export default function AdminDashboardPage() {
                   marginTop: "4px",
                 }}
               >
-                {loading ? "..." : `${stats?.today_attendance_rate || 91.8}%`}
+                {loading ? "..." : `${stats?.today_attendance_rate ?? 0}%`}
               </h3>
             </div>
             <div
@@ -463,7 +463,7 @@ export default function AdminDashboardPage() {
 
           <div style={{ marginTop: "12px" }}>
             <div className="capacity-track" style={{ height: "4px" }}>
-              <div className="capacity-fill" style={{ width: "91.8%", backgroundColor: "#059669" }} />
+              <div className="capacity-fill" style={{ width: `${Math.min(100, Math.max(0, stats?.today_attendance_rate ?? 0))}%`, backgroundColor: "#059669" }} />
             </div>
             <div
               style={{
@@ -475,10 +475,10 @@ export default function AdminDashboardPage() {
               }}
             >
               <span className="font-mono tabular-nums" style={{ color: "#059669", fontWeight: 700 }}>
-                ↑ +3.2% vs target
+                Compared with target
               </span>
               <span className="font-mono" style={{ color: "var(--text-muted)" }}>
-                Goal: 88.0%
+                Goal: 80.0%
               </span>
             </div>
           </div>
@@ -499,7 +499,7 @@ export default function AdminDashboardPage() {
                   marginTop: "4px",
                 }}
               >
-                0{loading ? "..." : stats?.flagged_proxies_today || 4}
+                {loading ? "..." : stats?.flagged_proxies_today ?? 0}
               </h3>
             </div>
             <div
@@ -794,7 +794,7 @@ export default function AdminDashboardPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {activeSessions.map((session) => {
                 const verified = session.verified_count ?? session.present_count ?? 0;
-                const total = session.total_enrolled || 60;
+                const total = session.total_enrolled ?? 0;
                 const capacityPercent = Math.round((verified / total) * 100);
 
                 return (
@@ -830,7 +830,7 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", marginTop: "3px" }}>
-                          Venue: <strong className="font-mono">{session.venue_name || "AUDITORIUM-A"}</strong> • Lecturer: {session.lecturer_name || "Dr. Vance"}
+                          Venue: <strong className="font-mono">{session.venue_name || "Venue not configured"}</strong> • Lecturer: {session.lecturer_name || "Lecturer"}
                         </p>
                       </div>
 

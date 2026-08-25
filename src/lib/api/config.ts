@@ -1,7 +1,9 @@
-// Base URLs for backend services
+
+const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
+
 export const API_CONFIG = {
-  scheduling: process.env.NEXT_PUBLIC_SCHEDULING_SERVICE_URL || "http://localhost:8001",
-  attendance: process.env.NEXT_PUBLIC_ATTENDANCE_SERVICE_URL || "http://localhost:8002",
-  vision: process.env.NEXT_PUBLIC_VISION_SERVICE_URL || "http://localhost:8003",
-  isMockFallbackEnabled: true,
+  base: baseUrl,
+  scheduling: `${baseUrl}/scheduling`,
+  attendance: `${baseUrl}/attendance`,
+  // AI Vision is intentionally not exposed through the browser/API gateway.
 };

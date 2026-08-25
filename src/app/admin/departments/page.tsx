@@ -246,7 +246,7 @@ export default function AdminDepartmentsPage() {
               >
                 <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Head of Department / Dean:</span>
                 <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)", marginTop: "2px" }}>
-                  {dept.faculty_head || "Prof. Ananda Dharmaratne"}
+                  {dept.faculty_head || "Not configured"}
                 </p>
               </div>
             </div>
@@ -264,15 +264,15 @@ export default function AdminDepartmentsPage() {
             >
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Courses</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#22D3EE" }}>{dept.course_count || 12}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#22D3EE" }}>{dept.course_count ?? 0}</p>
               </div>
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Lecturers</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#818CF8" }}>{dept.lecturer_count || 16}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#818CF8" }}>{dept.lecturer_count ?? 0}</p>
               </div>
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Students</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#34D399" }}>{dept.student_count || 380}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#34D399" }}>{dept.student_count ?? 0}</p>
               </div>
             </div>
           </div>

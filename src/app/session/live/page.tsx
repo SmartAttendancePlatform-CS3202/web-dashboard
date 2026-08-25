@@ -82,7 +82,7 @@ function LiveSessionContent() {
     );
   };
 
-  const totalEnrolled = session?.total_enrolled || 58;
+  const totalEnrolled = session?.total_enrolled ?? 0;
   const presentCount = records.filter((r) => r.status === "present").length;
   const lateCount = records.filter((r) => r.status === "late").length;
   const flaggedCount = records.filter((r) => r.status === "flagged_proxy").length;
@@ -137,7 +137,7 @@ function LiveSessionContent() {
               </span>
             </div>
             <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "2px" }}>
-              Venue: <strong style={{ color: "var(--text-primary)" }}>{session?.venue_name || "Auditorium Hall A"}</strong> • Session #{session?.session_number || 7}
+              Venue: <strong style={{ color: "var(--text-primary)" }}>{session?.venue_name || "Venue"}</strong> • Session #{session?.session_number ?? "—"}
             </p>
           </div>
         </div>
