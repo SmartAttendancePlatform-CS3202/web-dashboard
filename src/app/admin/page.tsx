@@ -84,7 +84,9 @@ export default function AdminDashboardPage() {
       }
     }
     loadData();
+  }, []);
 
+  useEffect(() => {
     // Subtle throughput ticker
     const interval = setInterval(() => {
       setThroughputData((prev) => {
@@ -94,7 +96,7 @@ export default function AdminDashboardPage() {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [services]);
 
   // Handler: Force Sync Node Cluster
   const handleForceSyncNodes = async () => {

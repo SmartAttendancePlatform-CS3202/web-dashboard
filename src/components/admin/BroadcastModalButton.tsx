@@ -47,7 +47,7 @@ export function BroadcastModalButton({ offerings }: { offerings: CourseOffering[
       router.refresh();
       
       setTimeout(() => setToastMessage(null), 3000);
-    } catch (err) {
+    } catch {
       alert("Failed to send broadcast.");
     } finally {
       setIsSending(false);

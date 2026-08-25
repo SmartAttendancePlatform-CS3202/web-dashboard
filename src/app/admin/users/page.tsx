@@ -27,14 +27,6 @@ export default function AdminUsersPage() {
   const [editDisplayName, setEditDisplayName] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const handleApproval = async (id: string, approve: boolean) => {
-    try {
-      if (approve) await adminApi.approveUser(id); else await adminApi.rejectUser(id);
-      const fresh = await adminApi.getUsers(selectedRole, selectedStatus);
-      setUsers(fresh);
-      setToastMessage(approve ? "User approved." : "User rejected.");
-    } catch (e) { setToastMessage(e instanceof Error ? e.message : "Approval action failed"); }
-  };
 
   useEffect(() => {
     async function loadData() {

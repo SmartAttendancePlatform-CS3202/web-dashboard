@@ -1,4 +1,4 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { API_CONFIG } from "./config";
 import { apiFetch, apiFetchText } from "./fetcher";
 import { supabase } from "@/lib/supabase/client";
@@ -7,7 +7,6 @@ import {
   AttendanceVerificationAttempt, OfferingReport, TrendData, WeeklyTrendItem,
   SystemAlert, Notice, Lecturer, Department, AcademicYear, Enrollment,
   AdminDashboardStats, SystemAuditLog, MicroserviceStatus, UserWithProfile,
-  User, AttendanceStatus,
 } from "@/types";
 
 async function must<T>(promise: Promise<{data:T|null; error:string|null; status:number}>): Promise<T> {
