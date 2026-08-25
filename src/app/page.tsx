@@ -35,19 +35,21 @@ export default function HomePage() {
   useEffect(() => {
     async function loadDashboardData() {
       try {
-        const [offs, sess, rep, tr, al, nots] = await Promise.all([
-          schedulingApi.getLecturerTimetable(),
+        const offs = await schedulingApi.getLecturerTimetable();
+        const activeOffId = offs.length > 0 ? offs[0].id : null;
+
+        const [sess, rep, tr, al, nots] = await Promise.all([
           attendanceApi.getSessions(),
-          reportsApi.getOfferingReport("off-001"),
-          reportsApi.getOfferingTrends("off-001"),
+          activeOffId ? reportsApi.getOfferingReport(activeOffId).catch(() => null) : Promise.resolve(null),
+          activeOffId ? reportsApi.getOfferingTrends(activeOffId).catch(() => null) : Promise.resolve(null),
           alertsApi.getAlerts(),
           noticesApi.getNotices(),
         ]);
 
         setOfferings(offs);
         setSessions(sess);
-        setReport(rep);
-        setTrends(tr);
+        setReport(rep as OfferingReport | null);
+        setTrends(tr as TrendData | null);
         setAlerts(al);
         setNotices(nots);
       } catch (err) {
@@ -62,7 +64,7 @@ export default function HomePage() {
 
   const liveSession = sessions.find((s) => s.status === "ongoing");
   const totalEnrolledStudents = offerings.reduce((sum, o) => sum + (o.enrolled_count || 0), 0);
-  const averageAttendance = report?.attendance_percentage || 87.4;
+  const averageAttendance = report?.attendance_percentage ?? 0;
 
   if (loading) {
     return (

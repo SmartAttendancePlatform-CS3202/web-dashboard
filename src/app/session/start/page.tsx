@@ -128,7 +128,7 @@ function StartSessionContent() {
               >
                 {venues.map((v) => (
                   <option key={v.id} value={v.id} style={{ backgroundColor: "#111827" }}>
-                    {v.name} ({v.building} - Radius: {v.boundary_data.radius_meters || 30}m)
+                    {v.name} ({v.building} - {v.shape_type === "circle" ? `Radius: ${v.boundary_data.radius_meters ?? "configured"}m` : "Square boundary"})
                   </option>
                 ))}
               </select>
@@ -148,9 +148,9 @@ function StartSessionContent() {
                     flexWrap: "wrap",
                   }}
                 >
-                  <span>📍 GPS Radius: <strong>{currentVenue.boundary_data.radius_meters}m</strong></span>
-                  <span>📶 Campus WiFi SSID: <strong>{currentVenue.wifi_ssid || "UOC_Campus"}</strong></span>
-                  <span>👥 Capacity: <strong>{currentVenue.capacity || 100} seats</strong></span>
+                  <span>📍 GPS Boundary: <strong>{currentVenue.shape_type === "circle" ? `${currentVenue.boundary_data.radius_meters ?? "configured"}m radius` : "Square"}</strong></span>
+                  <span>📶 Campus WiFi SSID: <strong>{currentVenue.wifi_ssid || "Not configured"}</strong></span>
+                  <span>👥 Capacity: <strong>{currentVenue.capacity ?? "Not configured"} seats</strong></span>
                 </div>
               )}
             </div>
@@ -182,7 +182,7 @@ function StartSessionContent() {
                   max={240}
                   step={15}
                   value={durationMins}
-                  onChange={(e) => setDurationMins(parseInt(e.target.value) || 90)}
+                  onChange={(e) => setDurationMins(Number.isFinite(Number(e.target.value)) ? parseInt(e.target.value, 10) : 0)}
                   required
                 />
               </div>

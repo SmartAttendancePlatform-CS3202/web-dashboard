@@ -61,9 +61,9 @@ export function AttemptDrawer({
           width: "100%",
           maxWidth: "480px",
           height: "100%",
-          backgroundColor: "#0F172A",
+          backgroundColor: "#FFFFFF",
           borderLeft: "1px solid var(--border-subtle)",
-          boxShadow: "-10px 0 30px rgba(0, 0, 0, 0.7)",
+          boxShadow: "var(--shadow-command)",
           display: "flex",
           flexDirection: "column",
           overflowY: "auto",
@@ -78,7 +78,7 @@ export function AttemptDrawer({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "rgba(15, 23, 42, 0.8)",
+            background: "#FFFFFF",
           }}
         >
           <div>
@@ -96,7 +96,7 @@ export function AttemptDrawer({
           <button
             onClick={onClose}
             style={{
-              background: "rgba(255, 255, 255, 0.06)",
+              background: "var(--bg-surface)",
               border: "1px solid var(--border-subtle)",
               borderRadius: "8px",
               padding: "6px",
@@ -116,11 +116,11 @@ export function AttemptDrawer({
               style={{
                 padding: "12px 14px",
                 borderRadius: "var(--radius-md)",
-                backgroundColor: "rgba(99, 102, 241, 0.1)",
-                border: "1px solid rgba(99, 102, 241, 0.3)",
+                backgroundColor: "rgba(79, 70, 229, 0.08)",
+                border: "1px solid rgba(79, 70, 229, 0.25)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#818CF8", fontSize: "0.8rem", fontWeight: 600 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--accent-primary)", fontSize: "0.8rem", fontWeight: 600 }}>
                 <span>🛡️</span>
                 <span>Manually Overridden by {record.override_by_name || "Lecturer"}</span>
               </div>
@@ -150,16 +150,16 @@ export function AttemptDrawer({
                     className="glass-card"
                     style={{
                       padding: "16px",
-                      borderColor: isSuccess ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.3)",
-                      background: isSuccess ? "rgba(16, 185, 129, 0.03)" : "rgba(239, 68, 68, 0.03)",
+                      borderColor: isSuccess ? "rgba(5, 150, 105, 0.25)" : "rgba(225, 29, 72, 0.3)",
+                      background: isSuccess ? "rgba(5, 150, 105, 0.03)" : "rgba(225, 29, 72, 0.03)",
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         {isSuccess ? (
-                          <span style={{ color: "#10B981" }}><CheckCircleIcon size={16} /></span>
+                          <span style={{ color: "#059669" }}><CheckCircleIcon size={16} /></span>
                         ) : (
-                          <span style={{ color: "#EF4444" }}><AlertTriangleIcon size={16} /></span>
+                          <span style={{ color: "#E11D48" }}><AlertTriangleIcon size={16} /></span>
                         )}
                         <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-primary)" }}>
                           Attempt #{attempt.attempt_number}
@@ -174,9 +174,9 @@ export function AttemptDrawer({
                     {attempt.used_location_check && (
                       <div style={{ marginBottom: "10px", fontSize: "0.8rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-secondary)" }}>
-                          <MapPinIcon size={14} className="text-cyan-400" />
+                          <MapPinIcon size={14} style={{ color: "var(--accent-cyan)" }} />
                           <span>GPS Distance:</span>
-                          <strong style={{ color: (attempt.distance_from_venue_meters || 0) > 35 ? "#F87171" : "#34D399" }}>
+                          <strong style={{ color: (attempt.distance_from_venue_meters || 0) > 35 ? "#E11D48" : "#059669" }}>
                             {attempt.distance_from_venue_meters?.toFixed(1)}m from Venue
                           </strong>
                         </div>
@@ -191,17 +191,17 @@ export function AttemptDrawer({
 
                     {/* AI Face Match Metric */}
                     {attempt.used_face_verification && (
-                      <div style={{ marginTop: "10px", padding: "10px", backgroundColor: "rgba(0,0,0,0.25)", borderRadius: "8px" }}>
+                      <div style={{ marginTop: "10px", padding: "10px", backgroundColor: "var(--bg-surface)", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                            <ScanFaceIcon size={14} />
+                            <ScanFaceIcon size={14} style={{ color: "var(--accent-primary)" }} />
                             <span>AI Face Match Confidence</span>
                           </div>
                           <span
                             style={{
                               fontSize: "0.85rem",
                               fontWeight: 700,
-                              color: (attempt.face_match_confidence || 0) >= 85 ? "#34D399" : "#F87171",
+                              color: (attempt.face_match_confidence || 0) >= 85 ? "#059669" : "#E11D48",
                             }}
                           >
                             {attempt.face_match_confidence ? `${attempt.face_match_confidence}%` : "N/A"}
@@ -209,12 +209,12 @@ export function AttemptDrawer({
                         </div>
 
                         {/* Progress Bar */}
-                        <div style={{ width: "100%", height: "6px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "9999px", overflow: "hidden" }}>
+                        <div style={{ width: "100%", height: "6px", backgroundColor: "#E2E8F0", borderRadius: "9999px", overflow: "hidden" }}>
                           <div
                             style={{
                               width: `${attempt.face_match_confidence || 0}%`,
                               height: "100%",
-                              backgroundColor: (attempt.face_match_confidence || 0) >= 85 ? "#10B981" : "#EF4444",
+                              backgroundColor: (attempt.face_match_confidence || 0) >= 85 ? "#059669" : "#E11D48",
                               transition: "width 0.4s ease",
                             }}
                           />
@@ -227,8 +227,8 @@ export function AttemptDrawer({
 
                     {/* Failure diagnostic */}
                     {attempt.failure_reason && (
-                      <div style={{ marginTop: "10px", padding: "8px 10px", backgroundColor: "rgba(239, 68, 68, 0.1)", borderRadius: "6px", border: "1px solid rgba(239, 68, 68, 0.25)" }}>
-                        <p style={{ fontSize: "0.75rem", color: "#F87171", lineHeight: 1.4 }}>
+                      <div style={{ marginTop: "10px", padding: "8px 10px", backgroundColor: "rgba(225, 29, 72, 0.08)", borderRadius: "6px", border: "1px solid rgba(225, 29, 72, 0.25)" }}>
+                        <p style={{ fontSize: "0.75rem", color: "#E11D48", lineHeight: 1.4 }}>
                           ⚠️ {attempt.failure_reason}
                         </p>
                       </div>
@@ -254,7 +254,7 @@ export function AttemptDrawer({
             borderTop: "1px solid var(--border-subtle)",
             display: "flex",
             gap: "10px",
-            background: "rgba(15, 23, 42, 0.9)",
+            background: "#FFFFFF",
           }}
         >
           <button

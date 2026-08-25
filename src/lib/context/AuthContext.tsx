@@ -1,238 +1,87 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Lecturer, UserRole } from "@/types";
 import { supabase } from "@/lib/supabase/client";
-import { MOCK_LECTURER, MOCK_ADMIN } from "@/lib/mock/mockData";
 import { schedulingApi } from "@/lib/api/services";
 
 interface AuthContextType {
   user: User | null;
   lecturerProfile: Lecturer | null;
   isLoading: boolean;
-  isDemoMode: boolean;
   isAdmin: boolean;
   isLecturer: boolean;
-  toggleDemoMode: (enabled?: boolean) => void;
-  loginWithSupabase: (email: string, password: string) => Promise<{ error: string | null; role?: UserRole }>;
-  loginWithDemo: () => void;
-  loginWithLecturerDemo: () => void;
-  loginWithAdminDemo: () => void;
-  switchPersona: (role: "lecturer" | "admin") => void;
-  logout: () => Promise<void>;
+  loginWithSupabase: (email:string,password:string)=>Promise<{error:string|null;role?:UserRole}>;
+  logout: ()=>Promise<void>;
+}
+const AuthContext=createContext<AuthContextType|undefined>(undefined);
+
+function userFromBackend(data:any): User {
+  return {
+    id:data.id,
+    email:data.email || data.username,
+    role:data.role as UserRole,
+    status:data.status,
+    is_active:data.is_active,
+    user_metadata:{},
+    created_at:data.created_at,
+    updated_at:data.updated_at,
+  };
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export function AuthProvider({children}:{children:React.ReactNode}) {
+  const [user,setUser]=useState<User|null>(null);
+  const [lecturerProfile,setLecturerProfile]=useState<Lecturer|null>(null);
+  const [isLoading,setIsLoading]=useState(true);
+  const isAdmin=user?.role==="admin"; const isLecturer=user?.role==="lecturer";
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [lecturerProfile, setLecturerProfile] = useState<Lecturer | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
-
-  // Helper getters
-  const isAdmin = user?.role === "admin";
-  const isLecturer = user?.role === "lecturer";
-
-  const loginWithLecturerDemo = () => {
-    setUser({
-      id: MOCK_LECTURER.id,
-      email: MOCK_LECTURER.email || "arthur.vance@university.ac.lk",
-      role: "lecturer",
-      status: "active",
-      created_at: "2024-01-10T08:00:00Z",
-    });
-    setLecturerProfile(MOCK_LECTURER);
-    setIsDemoMode(true);
-  };
-
-  const loginWithAdminDemo = () => {
-    setUser({
-      id: MOCK_ADMIN.id,
-      email: MOCK_ADMIN.email,
-      role: "admin",
-      status: "active",
-      created_at: "2023-01-01T00:00:00Z",
-    });
-    setLecturerProfile(null);
-    setIsDemoMode(true);
-  };
-
-  const switchPersona = (role: "lecturer" | "admin") => {
-    if (role === "admin") {
-      loginWithAdminDemo();
-    } else {
-      loginWithLecturerDemo();
-    }
-  };
-
-  // Initialize Auth state
-  useEffect(() => {
-    async function initAuth() {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session?.user) {
-          const userRole = (session.user.user_metadata?.role as UserRole) || "lecturer";
-          const authUser: User = {
-            id: session.user.id,
-            email: session.user.email || "lecturer@university.ac.lk",
-            role: userRole,
-            status: "active",
-            created_at: session.user.created_at,
-          };
-          setUser(authUser);
-          setIsDemoMode(false);
-
-          if (userRole === "lecturer") {
-            try {
-              const profile = await schedulingApi.getLecturerProfile();
-              setLecturerProfile(profile);
-            } catch {
-              setLecturerProfile(MOCK_LECTURER);
-            }
-          }
-        } else {
-          // Default to Demo Lecturer mode so dashboard is immediately interactive
-          loginWithLecturerDemo();
-        }
-      } catch (err) {
-        console.warn("Supabase session check failed, falling back to Demo Mode:", err);
-        loginWithLecturerDemo();
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    initAuth();
-
-    // Listen to Supabase auth state changes
+  const syncSession=async()=>{
+    const {data:{session}}=await supabase.auth.getSession();
+    if(!session){setUser(null);setLecturerProfile(null);return;}
     try {
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (_event, session) => {
-        if (session?.user) {
-          const role = (session.user.user_metadata?.role as UserRole) || "lecturer";
-          setUser({
-            id: session.user.id,
-            email: session.user.email || "lecturer@university.ac.lk",
-            role,
-            status: "active",
-            created_at: session.user.created_at,
-          });
-          setIsDemoMode(false);
-          if (role === "lecturer") {
-            const profile = await schedulingApi.getLecturerProfile();
-            setLecturerProfile(profile);
-          }
-        }
-      });
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    } catch {
-      // ignore
+      const backendUser=await schedulingApi.getCurrentUser();
+      setUser(userFromBackend(backendUser));
+      if(backendUser.role==="lecturer") setLecturerProfile(await schedulingApi.getLecturerProfile());
+      else setLecturerProfile(null);
+    } catch (error) {
+      await supabase.auth.signOut(); setUser(null); setLecturerProfile(null);
+      throw error;
     }
-  }, []);
+  };
 
-  const loginWithSupabase = async (email: string, password: string) => {
+  useEffect(()=>{
+    let active=true;
+    syncSession().catch(()=>{}).finally(()=>{if(active)setIsLoading(false);});
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((event)=>{
+      if(event==="SIGNED_OUT"){setUser(null);setLecturerProfile(null);setIsLoading(false);return;}
+      if(event==="SIGNED_IN" || event==="TOKEN_REFRESHED") syncSession().catch(()=>{});
+    });
+    return()=>{active=false;subscription.unsubscribe();};
+  },[]);
+
+  const loginWithSupabase=async(email:string,password:string)=>{
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setIsLoading(false);
-        return { error: error.message };
-      }
-
-      if (data.user) {
-        const role = (data.user.user_metadata?.role as UserRole) || (email.includes("admin") ? "admin" : "lecturer");
-        setUser({
-          id: data.user.id,
-          email: data.user.email || email,
-          role,
-          status: "active",
-          created_at: data.user.created_at,
-        });
-        setIsDemoMode(false);
-
-        if (role === "lecturer") {
-          const profile = await schedulingApi.getLecturerProfile();
-          setLecturerProfile(profile);
-        } else {
-          setLecturerProfile(null);
+      const {data,error}=await supabase.auth.signInWithPassword({email,password});
+      if(error) return {error:error.message};
+      if(!data.user) return {error:"Authentication failed"};
+      try {
+        const backendUser=await schedulingApi.getCurrentUser();
+        if(backendUser.status!=="active" || backendUser.is_active===false) {
+          await supabase.auth.signOut(); return {error:"This account is not active."};
         }
-
-        setIsLoading(false);
-        return { error: null, role };
+        setUser(userFromBackend(backendUser));
+        if(backendUser.role==="lecturer") setLecturerProfile(await schedulingApi.getLecturerProfile());
+        else setLecturerProfile(null);
+        return {error:null,role:backendUser.role as UserRole};
+      } catch(e) {
+        await supabase.auth.signOut();
+        return {error:e instanceof Error?e.message:"Backend authorization failed"};
       }
-
-      setIsLoading(false);
-      return { error: null };
-    } catch (err: unknown) {
-      setIsLoading(false);
-      const message = err instanceof Error ? err.message : "Failed to log in";
-      return { error: message };
-    }
+    } catch(e){ return {error:e instanceof Error?e.message:"Failed to log in"}; }
+    finally{setIsLoading(false);}
   };
-
-  const toggleDemoMode = (enabled?: boolean) => {
-    const nextState = enabled !== undefined ? enabled : !isDemoMode;
-    setIsDemoMode(nextState);
-    if (nextState) {
-      if (isAdmin) {
-        loginWithAdminDemo();
-      } else {
-        loginWithLecturerDemo();
-      }
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // ignore
-    }
-    setUser(null);
-    setLecturerProfile(null);
-    setIsDemoMode(false);
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        lecturerProfile,
-        isLoading,
-        isDemoMode,
-        isAdmin,
-        isLecturer,
-        toggleDemoMode,
-        loginWithSupabase,
-        loginWithDemo: loginWithLecturerDemo,
-        loginWithLecturerDemo,
-        loginWithAdminDemo,
-        switchPersona,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const logout=async()=>{await supabase.auth.signOut();setUser(null);setLecturerProfile(null);};
+  return <AuthContext.Provider value={{user,lecturerProfile,isLoading,isAdmin,isLecturer,loginWithSupabase,logout}}>{children}</AuthContext.Provider>;
 }
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}
-
+export function useAuth(){const c=useContext(AuthContext); if(!c) throw new Error("useAuth must be used within AuthProvider"); return c;}

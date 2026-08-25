@@ -75,14 +75,14 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
                 y1={y}
                 x2={width - paddingX}
                 y2={y}
-                stroke={tick === 80 ? "rgba(245, 158, 11, 0.4)" : "rgba(255, 255, 255, 0.06)"}
+                stroke={tick === 80 ? "rgba(217, 119, 6, 0.35)" : "var(--border-subtle)"}
                 strokeDasharray={tick === 80 ? "4 4" : undefined}
                 strokeWidth={tick === 80 ? 1.5 : 1}
               />
               <text
                 x={paddingX - 10}
                 y={y + 4}
-                fill={tick === 80 ? "#FBBF24" : "var(--text-muted)"}
+                fill={tick === 80 ? "#D97706" : "var(--text-muted)"}
                 fontSize="10"
                 textAnchor="end"
                 fontFamily="var(--font-mono)"
@@ -98,7 +98,7 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
         <text
           x={width - paddingX}
           y={thresholdY - 6}
-          fill="#FBBF24"
+          fill="#D97706"
           fontSize="9"
           textAnchor="end"
           fontWeight="600"
@@ -114,7 +114,7 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
         <path
           d={linePath}
           fill="none"
-          stroke="#818CF8"
+          stroke="var(--accent-primary)"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -143,7 +143,7 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
                 cx={p.x}
                 cy={p.y}
                 r={isBelow ? 6 : 5}
-                fill={isBelow ? "#EF4444" : "#6366F1"}
+                fill={isBelow ? "#E11D48" : "var(--accent-primary)"}
                 stroke="#FFFFFF"
                 strokeWidth="2"
               />
@@ -171,9 +171,9 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
             left: `${hoverCoords.x}px`,
             top: `${hoverCoords.y - 65}px`,
             transform: "translateX(-50%)",
-            backgroundColor: "#1E293B",
-            border: "1px solid var(--border-subtle)",
-            boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid var(--border-medium)",
+            boxShadow: "var(--shadow-command)",
             padding: "8px 12px",
             borderRadius: "8px",
             pointerEvents: "none",
@@ -184,7 +184,7 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
           <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "2px" }}>
             {hoveredPoint.date} (Session #{hoveredPoint.session_number || 1})
           </p>
-          <p style={{ fontSize: "0.9rem", fontWeight: 700, color: hoveredPoint.attendance_percentage < 80 ? "#F87171" : "#34D399" }}>
+          <p style={{ fontSize: "0.9rem", fontWeight: 700, color: hoveredPoint.attendance_percentage < 80 ? "#E11D48" : "#059669" }}>
             {hoveredPoint.attendance_percentage.toFixed(1)}% Attendance
           </p>
           {hoveredPoint.present_count !== undefined && (

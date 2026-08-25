@@ -20,11 +20,11 @@ export function AdminDashboardLayout({
 }: AdminDashboardLayoutProps) {
   return (
     <RoleGuard allowedRoles={["admin"]}>
-      <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "var(--bg-main)" }}>
+      <div className="micro-grid-bg" style={{ display: "flex", minHeight: "100vh" }}>
         <AdminSidebar />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <AdminHeader title={title} subtitle={subtitle} actions={actions} />
-          <main style={{ flex: 1, padding: "32px", overflowY: "auto" }}>
+          <main style={{ flex: 1, padding: "28px 32px 48px 32px", overflowY: "auto" }}>
             {children}
           </main>
         </div>

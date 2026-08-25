@@ -1,41 +1,39 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
-import { AdminDashboardLayout } from "@/components/layout/AdminDashboardLayout";
+OB
+imOport React, { useEffect, useState } from "react";
+impOBort { AdminDashboardLayout } from "@/components/layout/AdminDashboardLayout";
 import { adminApi } from "@/lib/api/services";
 import { Venue } from "@/types";
-import {
-  MapPinIcon,
-  PlusIcon,
-  CheckCircleIcon,
-  RadioIcon,
-} from "@/components/ui/Icons";
-
-export default function AdminVenuesPage() {
+imp[ort {
+  [M[[[[[[[[[[apPinIconnsIcon,
+[[  CheckCircl[[[[[[[[[[[[[[[[eIcon,
+  RadioIcon,[[[[[[[[
+} from "@/com[ponent[[[[s/ui/Icons";
+[
+e[Bxport default function AdminVenuesPage() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
 
   // Modal State
-  const [showModal, setShowModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  c[B[Bonst [showModal, setShowModal] = useState(false);
+  const[B[B [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-
-  // Form Fields
+[[[
+  /[/ Form Fields
   const [vName, setVName] = useState("");
   const [vBuilding, setVBuilding] = useState("");
   const [vFloor, setVFloor] = useState("Level 1");
   const [vCapacity, setVCapacity] = useState(120);
-  const [vLat, setVLat] = useState(6.9022);
+  co[[nst [vLat, setVLat] = useState(6.9022);
   const [vLng, setVLng] = useState(79.8608);
-  const [vRadius, setVRadius] = useState(35);
-  const [vShape, setVShape] = useState<"circle" | "square">("circle");
+  cons[t [vRadius, setVRadius] = useState(35);
   const [vMethod, setVMethod] = useState("gps_geofence");
-  const [vWifiSsid, setVWifiSsid] = useState("");
-  const [vWifiBssid, setVWifiBssid] = useState("");
+  const [vWifiSsid, setVWifiSsid] = useState("UOC-SECURE-WIFI");
+  const[ [vWifiBssid, setVWifiBssid] = useState("00:14:22:01:23:45");
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  useEffect(() => {
+[  useEffect(() => {
     async function loadData() {
       try {
         const vens = await adminApi.getVenues();
@@ -52,64 +50,57 @@ export default function AdminVenuesPage() {
     setIsEditing(false);
     setEditId(null);
     setVName("");
-    setVBuilding("");
+ [   setVBuilding("");
     setVFloor("Level 1");
-    setVCapacity(120);
+  [  setVCapacity(120);
     setVLat(6.9022);
     setVLng(79.8608);
-    setVRadius(35);
-    setVShape("circle");
-    setVMethod("gps_geofence");
-    setVWifiSsid("");
-    setVWifiBssid("");
-    setShowModal(true);
+   [ setVRadius(35);
+    [setVMethod("gps_geofence");
+    setVWifiSsid("UOC-SECURE-WIFI");
+    setVWifiBssid("00:14:22:01:23:45");
+    s[etShowModal(true);
   };
 
   const handleOpenEdit = (venue: Venue) => {
     setIsEditing(true);
     setEditId(venue.id);
-    setVName(venue.name);
-    setVBuilding(venue.building || "");
+    seBtVName(venue.name);
+    set[VBuilding(venue.building || "");
     setVFloor(venue.floor || "Level 1");
-    setVCapacity(venue.capacity ?? 0);
-    setVLat(venue.boundary_data?.latitude ?? 6.9022);
+    setVCapacity(venue.capacity || 100);
+    setV[Lat(venue.boundary_data?.latitude ?? 6.9022);
     setVLng(venue.boundary_data?.longitude ?? 79.8608);
-    setVRadius(venue.boundary_data?.radius_meters ?? 30);
-    setVShape(venue.shape_type === "polygon" || venue.shape_type === "square" ? "square" : "circle");
-    setVMethod(venue.default_verification_method || "gps_geofence");
-    setVWifiSsid(venue.wifi_ssid || "");
-    setVWifiBssid(venue.wifi_bssid || "");
+    setVR[[adius(venue.boundary_data?.radius_meters ?? 30);
+    setVMet[hod(venue.default_verification_method || "gps_geofence");
+    setVWifiSsid(venue.wifi_ssid || "UOC-SECURE-WIFI");
+    setVWifiBssid(venue.wifi_bssid || "00:14:22:01:23:45");
     setShowModal(true);
   };
 
-  const handleSaveVenue = async (e: React.FormEvent) => {
+  const hand[leSaveVenue = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const payload: Partial<Venue> = {
         name: vName,
-        building: vBuilding,
+        build[ing: vBuilding,
         floor: vFloor,
         capacity: vCapacity,
-        shape_type: vShape,
-        boundary_data: vShape === "circle" ? {
-          latitude: Number(vLat), longitude: Number(vLng), radius_meters: Number(vRadius),
-        } : {
-          vertices: [
-            [Number(vLat) + Number(vRadius) / 111320, Number(vLng) - Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-            [Number(vLat) + Number(vRadius) / 111320, Number(vLng) + Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-            [Number(vLat) - Number(vRadius) / 111320, Number(vLng) + Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-            [Number(vLat) - Number(vRadius) / 111320, Number(vLng) - Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-          ],
+        shape_type: "circle",
+        bounda[ry_data: {
+          latitude: Number(vLat),
+          longitude: Number(vLng),
+          radius_meters: Number(vRadius),
         },
         default_verification_method: vMethod as Venue["default_verification_method"],
         wifi_ssid: vWifiSsid,
         wifi_bssid: vWifiBssid,
-      };
-
-      if (isEditing && editId) {
-        const updated = await adminApi.updateVenue(editId, payload);
+      };[
+[
+ [     if (isEditing && editId) {
+  [      const updated = await adminApi.updateVenue(editId, payload);
         if (updated) {
-          setVenues((prev) => prev.map((v) => (v.id === editId ? updated : v)));
+   [       setVenues((prev) => prev.map((v) => (v.id === editId ? updated : v)));
           setSelectedVenue(updated);
           setToastMessage(`Geofence boundary for '${updated.name}' updated.`);
         }
@@ -118,8 +109,8 @@ export default function AdminVenuesPage() {
         setVenues((prev) => [...prev, created]);
         setSelectedVenue(created);
         setToastMessage(`Venue '${created.name}' configured with ${created.boundary_data?.radius_meters ?? 0}m GPS geofence.`);
-      }
-
+    [  }
+[
       setShowModal(false);
       setTimeout(() => setToastMessage(null), 4000);
     } catch (err) {
@@ -127,36 +118,36 @@ export default function AdminVenuesPage() {
     }
   };
 
-  return (
-    <AdminDashboardLayout
+[  return (
+ [   <AdminDashboardLayout
       title="Venues & Geofencing Command"
-      subtitle="Configure classroom coordinates, circle or square GPS boundaries, and supported verification policies"
-      actions={
+      subtitle="Configure physical classroom coordinates, GPS boundary radiuses, and multi-factor WiFi/BLE verification policies"
+  B[    actions={
         <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
           <PlusIcon size={14} />
-          <span>Provision New Venue</span>
+    [      <span>Provision New Venue</span>
         </button>
       }
     >
-      {/* Toast Alert */}
+     [ {/* Toast Alert */}
       {toastMessage && (
         <div
           style={{
             marginBottom: "20px",
             padding: "12px 18px",
             borderRadius: "var(--radius-md)",
-            backgroundColor: "rgba(16, 185, 129, 0.15)",
+      [      backgroundColor: "rgba(16, 185, 129, 0.15)",
             border: "1px solid rgba(16, 185, 129, 0.35)",
             color: "#34D399",
             display: "flex",
-            alignItems: "center",
+       [     alignItems: "center",
             gap: "10px",
             fontSize: "0.85rem",
-            fontWeight: 600,
-          }}
-        >
+        [    fontWeight: 600,
+         [ }}
+        >[
           <CheckCircleIcon size={18} />
-          <span>{toastMessage}</span>
+          [<span>{toastMessage}</span>
         </div>
       )}
 
@@ -353,7 +344,7 @@ export default function AdminVenuesPage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    {selectedVenue.shape_type === "polygon" ? "SQUARE" : `${selectedVenue.boundary_data?.radius_meters ?? 0}m PERIMETER`}
+                    {selectedVenue.boundary_data?.radius_meters ?? 0}m PERIMETER
                   </span>
                 </div>
               </div>
@@ -377,7 +368,7 @@ export default function AdminVenuesPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem" }}>
                   <span style={{ color: "var(--text-muted)" }}>Campus WiFi BSSID:</span>
                   <span style={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
-                    {selectedVenue.wifi_bssid || "Not configured"}
+                    {selectedVenue.wifi_bssid || "00:14:22:01:23:45"}
                   </span>
                 </div>
 
@@ -488,31 +479,44 @@ export default function AdminVenuesPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Geofence Shape</label>
-                  <select className="input-control" value={vShape} onChange={(e)=>setVShape(e.target.value as "circle"|"square")}>
-                    <option value="circle">Circle</option>
-                    <option value="square">Square</option>
-                  </select>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
+                    Latitude
+                  </label>
+                  <input
+                    type="number"
+                    step="0.000001"
+                    className="input-control"
+                    value={vLat}
+                    onChange={(e) => setVLat(Number(e.target.value))}
+                    required
+                  />
                 </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Latitude</label>
-                  <input type="number" step="0.000001" className="input-control" value={vLat} onChange={(e)=>setVLat(Number(e.target.value))} required />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Longitude</label>
-                  <input type="number" step="0.000001" className="input-control" value={vLng} onChange={(e)=>setVLng(Number(e.target.value))} required />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    {vShape === "circle" ? "Radius (Meters)" : "Half-size (Meters)"}
+                    Longitude
                   </label>
-                  <input type="number" min={5} max={500} className="input-control" value={vRadius} onChange={(e)=>setVRadius(Number(e.target.value))} required />
+                  <input
+                    type="number"
+                    step="0.000001"
+                    className="input-control"
+                    value={vLng}
+                    onChange={(e) => setVLng(Number(e.target.value))}
+                    required
+                  />
                 </div>
-                <div style={{paddingTop:24,fontSize:"0.76rem",color:"var(--text-muted)"}}>
-                  {vShape === "square" ? "A square is stored as four GPS vertices in boundary_data." : "A circle is stored as center coordinates + radius."}
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
+                    Radius (Meters)
+                  </label>
+                  <input
+                    type="number"
+                    min={5}
+                    max={200}
+                    className="input-control"
+                    value={vRadius}
+                    onChange={(e) => setVRadius(Number(e.target.value))}
+                    required
+                  />
                 </div>
               </div>
 
@@ -527,7 +531,8 @@ export default function AdminVenuesPage() {
                     onChange={(e) => setVMethod(e.target.value)}
                   >
                     <option value="gps_geofence">GPS Geofence</option>
-                    <option value="wifi_ap">WiFi Access Point (future)</option>
+                    <option value="ble_beacon">BLE Beacon Perimeter</option>
+                    <option value="wifi_bssid">Campus WiFi BSSID</option>
                   </select>
                 </div>
                 <div>

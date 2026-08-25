@@ -84,7 +84,7 @@ export function OverrideModal({
         <div
           style={{
             padding: "12px 16px",
-            backgroundColor: "rgba(255, 255, 255, 0.03)",
+            backgroundColor: "var(--bg-surface)",
             borderRadius: "var(--radius-md)",
             border: "1px solid var(--border-subtle)",
             display: "flex",
@@ -100,7 +100,7 @@ export function OverrideModal({
           </div>
           {record.flag_reason && (
             <div style={{ maxWidth: "260px", textAlign: "right" }}>
-              <p style={{ fontSize: "0.75rem", color: "#F472B6" }}>Flag Reason:</p>
+              <p style={{ fontSize: "0.75rem", color: "#BE185D", fontWeight: 600 }}>Flag Reason:</p>
               <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{record.flag_reason}</p>
             </div>
           )}
@@ -109,7 +109,7 @@ export function OverrideModal({
         {/* New Status Selection */}
         <div>
           <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "8px" }}>
-            Select Overridden Status <span style={{ color: "#EF4444" }}>*</span>
+            Select Overridden Status <span style={{ color: "#E11D48" }}>*</span>
           </label>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
             {(["present", "late", "absent", "flagged_proxy"] as AttendanceStatus[]).map((st) => (
@@ -121,8 +121,8 @@ export function OverrideModal({
                   padding: "10px 8px",
                   borderRadius: "var(--radius-md)",
                   border: selectedStatus === st ? "2px solid var(--accent-primary)" : "1px solid var(--border-subtle)",
-                  backgroundColor: selectedStatus === st ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.03)",
-                  color: selectedStatus === st ? "#FFFFFF" : "var(--text-secondary)",
+                  backgroundColor: selectedStatus === st ? "rgba(79, 70, 229, 0.08)" : "var(--bg-surface)",
+                  color: selectedStatus === st ? "var(--accent-primary)" : "var(--text-secondary)",
                   fontWeight: selectedStatus === st ? 700 : 500,
                   fontSize: "0.8rem",
                   cursor: "pointer",
@@ -140,7 +140,7 @@ export function OverrideModal({
         {/* Reason Presets */}
         <div>
           <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "8px" }}>
-            Audit Reason for Override <span style={{ color: "#EF4444" }}>*</span>
+            Audit Reason for Override <span style={{ color: "#E11D48" }}>*</span>
           </label>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {PRESET_REASONS.map((preset) => (
@@ -152,8 +152,8 @@ export function OverrideModal({
                   gap: "10px",
                   padding: "8px 12px",
                   borderRadius: "8px",
-                  backgroundColor: selectedPreset === preset ? "rgba(255, 255, 255, 0.06)" : "transparent",
-                  border: selectedPreset === preset ? "1px solid var(--border-focus)" : "1px solid transparent",
+                  backgroundColor: selectedPreset === preset ? "var(--bg-surface)" : "transparent",
+                  border: selectedPreset === preset ? "1px solid var(--border-medium)" : "1px solid transparent",
                   cursor: "pointer",
                   fontSize: "0.85rem",
                   color: selectedPreset === preset ? "var(--text-primary)" : "var(--text-secondary)",
@@ -194,11 +194,11 @@ export function OverrideModal({
         <div
           style={{
             padding: "10px 14px",
-            backgroundColor: "rgba(245, 158, 11, 0.08)",
-            border: "1px solid rgba(245, 158, 11, 0.2)",
+            backgroundColor: "rgba(217, 119, 6, 0.08)",
+            border: "1px solid rgba(217, 119, 6, 0.25)",
             borderRadius: "8px",
             fontSize: "0.75rem",
-            color: "#FBBF24",
+            color: "#D97706",
             display: "flex",
             alignItems: "center",
             gap: "8px",
@@ -211,7 +211,7 @@ export function OverrideModal({
         </div>
 
         {error && (
-          <p style={{ color: "#EF4444", fontSize: "0.85rem", fontWeight: 500 }}>
+          <p style={{ color: "#E11D48", fontSize: "0.85rem", fontWeight: 500 }}>
             {error}
           </p>
         )}
