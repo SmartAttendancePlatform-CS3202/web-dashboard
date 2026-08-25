@@ -2,31 +2,13 @@
 import { supabase as browserSupabase } from "@/lib/supabase/client";
 
 async function getAccessToken(): Promise<string | undefined> {
+  // We only support client-side auth tokens directly in fetcher.ts.
+  // For server-side fetching, components must pass tokens explicitly or use a server-only fetcher.
   if (typeof window !== "undefined") {
     const { data: { session } } = await browserSupabase.auth.getSession();
     return session?.access_token;
   }
-  try {
-    const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
-    const { createServerClient } = await import("@supabase/ssr");
-    
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
-    
-    const supabaseServer = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {}
-      }
-    });
-    const { data: { session } } = await supabaseServer.auth.getSession();
-    return session?.access_token;
-  } catch (e) {
-    return undefined;
-  }
+  return undefined;
 }
 
 async function refreshAccessToken(): Promise<string | undefined> {
