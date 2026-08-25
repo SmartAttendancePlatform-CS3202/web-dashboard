@@ -16,11 +16,11 @@ import {
 
 function AttendanceHubContent() {
   const searchParams = useSearchParams();
-  const initialSessionId = searchParams.get("session_id") || "sess-live-01";
+  const initialSessionId = searchParams.get("session_id") || "";
 
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [sessions, setSessions] = useState<LectureSession[]>([]);
-  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("off-001");
+  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
   const [selectedSessionId, setSelectedSessionId] = useState<string>(initialSessionId);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -38,9 +38,22 @@ function AttendanceHubContent() {
         ]);
         setOfferings(offs);
         setSessions(sess);
+        
+        if (offs.length > 0 && !selectedOfferingId) {
+          setSelectedOfferingId(offs[0].id);
+        }
 
-        const recs = await attendanceApi.getAttendanceRecords(selectedSessionId);
-        setRecords(recs);
+        const targetSessionId = selectedSessionId || (sess.length > 0 ? sess[0].id : "");
+        if (targetSessionId && !selectedSessionId) {
+          setSelectedSessionId(targetSessionId);
+        }
+
+        if (targetSessionId) {
+          const recs = await attendanceApi.getAttendanceRecords(targetSessionId);
+          setRecords(recs);
+        } else {
+          setRecords([]);
+        }
       } catch (err) {
         console.error("Failed to load attendance records:", err);
       } finally {
@@ -49,7 +62,7 @@ function AttendanceHubContent() {
     }
 
     loadInitialData();
-  }, [selectedSessionId]);
+  }, [selectedSessionId, selectedOfferingId]);
 
   const handleOverrideSuccess = (updatedRecord: AttendanceRecord) => {
     setRecords((prev) =>

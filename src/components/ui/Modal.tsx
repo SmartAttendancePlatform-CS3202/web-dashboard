@@ -64,10 +64,10 @@ export function Modal({
           maxHeight: "90vh",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "#111827",
+          backgroundColor: "#FFFFFF",
           border: "1px solid var(--border-subtle)",
           borderRadius: "var(--radius-xl)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+          boxShadow: "var(--shadow-command)",
           overflow: "hidden",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -102,7 +102,7 @@ export function Modal({
           <button
             onClick={onClose}
             style={{
-              background: "rgba(255, 255, 255, 0.06)",
+              background: "var(--bg-surface)",
               border: "1px solid var(--border-subtle)",
               borderRadius: "8px",
               padding: "6px",

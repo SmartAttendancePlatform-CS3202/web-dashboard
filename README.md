@@ -1,50 +1,33 @@
-# web-dashboard
 
-Next.js admin/lecturer dashboard for PID 12 / Group 24's Smart
-Attendance and Classroom Access Platform.
+# Smart Attendance Web Dashboard
 
-Talks to the `scheduling-service` and `attendance-service` FastAPI
-services (see the sibling `backend` repo) and directly to Supabase
-for auth.
+This dashboard is connected to the FastAPI backend through Kong.
 
-## Local setup
+## Environment
+
+Copy `.env.example` to `.env.local` and set:
+
+- `NEXT_PUBLIC_API_BASE_URL` – Kong URL, normally `http://localhost:8000`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+The browser never calls AI Vision directly.
+
+## Run
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in your Supabase project + backend URLs
 npm run dev
 ```
 
-Runs at http://localhost:3000. If you're also running the backend
-locally via `docker compose up` in the `backend` repo, point
-`NEXT_PUBLIC_SCHEDULING_SERVICE_URL` at `http://localhost:8001` and
-`NEXT_PUBLIC_ATTENDANCE_SERVICE_URL` at `http://localhost:8002`
-instead of the deployed URLs.
+Open `http://localhost:3000`.
 
-## Structure
+## Authentication
 
-```
-src/
-├── app/            # Next.js App Router pages
-├── components/      # shared UI components
-├── lib/
-│   ├── supabase/    # Supabase client (auth)
-│   └── api/         # backend service base URLs + authenticated fetcher
-└── types/
-```
+Login is performed by Supabase Auth. The backend is the authority for the user's role and active status. A successful Supabase session is immediately checked against `/scheduling/users/me` before the dashboard is opened.
 
-## Deploying
+## Backend routing
 
-Deploy via **Vercel's native GitHub integration** — connect this repo
-in the Vercel dashboard, it auto-detects Next.js, and every push to
-`main` deploys automatically with zero extra config. Add the
-`.env.example` variables under Vercel's Project Settings → Environment
-Variables. No custom GitHub Action needed for deployment — the
-`ci.yml` workflow here just runs lint + build as a PR check.
-
-## Auth
-
-Uses Supabase Auth directly (`src/lib/supabase/client.ts`). Backend
-API calls attach the current session's JWT via `src/lib/api/fetcher.ts`
-— the backend services verify it using the same `SUPABASE_JWT_SECRET`
-you'll set in the `backend` repo's service `.env` files.
+- `/scheduling/*` -> Scheduling Service
+- `/attendance/*` -> Attendance Service
+- AI Vision remains private behind the internal network and RabbitMQ.

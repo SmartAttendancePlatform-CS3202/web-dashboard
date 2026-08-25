@@ -2,9 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { UserRole } from "@/types";
-import { ShieldAlertIcon, ChevronRightIcon, RefreshIcon } from "@/components/ui/Icons";
+import { ShieldAlertIcon, ChevronRightIcon } from "@/components/ui/Icons";
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -12,7 +13,14 @@ interface RoleGuardProps {
 }
 
 export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
-  const { user, isLoading, isDemoMode, switchPersona } = useAuth();
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+    }
+  }, [isLoading, user, router]);
 
   if (isLoading) {
     return (
@@ -48,7 +56,11 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     );
   }
 
-  const currentRole = user?.role || "student";
+  if (!user) {
+    return null;
+  }
+
+  const currentRole = user.role;
   const isAuthorized = allowedRoles.includes(currentRole as UserRole);
 
   if (!isAuthorized) {
@@ -105,16 +117,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {isDemoMode && allowedRoles.includes("admin") && (
-              <button
-                onClick={() => switchPersona("admin")}
-                className="btn-primary"
-                style={{ width: "100%", justifyContent: "center", padding: "12px" }}
-              >
-                <RefreshIcon size={16} />
-                <span>Switch to Administrator Persona (Demo)</span>
-              </button>
-            )}
+
 
             <Link
               href="/"

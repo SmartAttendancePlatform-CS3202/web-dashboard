@@ -3,7 +3,7 @@ export type UserStatus = "pending_approval" | "active" | "suspended" | "inactive
 export type GenderType = "male" | "female" | "other";
 export type SessionStatus = "scheduled" | "ongoing" | "completed" | "cancelled";
 export type VerificationMethod = "gps_geofence" | "wifi_ap";
-export type GeofenceShape = "circle" | "polygon";
+export type GeofenceShape = "circle" | "square" | "polygon";
 export type WindowType = "first_check_in" | "random_check";
 export type AttemptStatus = "success" | "failed";
 export type AttendanceStatus = "present" | "late" | "absent" | "flagged_proxy";
@@ -16,6 +16,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   is_active?: boolean;
+  user_metadata?: Record<string, unknown>;
   created_at: string;
   updated_at?: string;
 }
@@ -62,6 +63,8 @@ export interface Venue {
     latitude?: number;
     longitude?: number;
     radius_meters?: number;
+    center?: { latitude?: number; longitude?: number; lat?: number; lng?: number };
+    vertices?: Array<[number, number]>;
     polygon?: Array<[number, number]>;
   };
   wifi_ssid?: string;
@@ -330,6 +333,7 @@ export interface SystemAuditLog {
   id: string;
   action: string;
   category: "security" | "user" | "course" | "session" | "system";
+  performed_by_id?: string;
   performed_by_name: string;
   performed_by_role: string;
   details: string;
