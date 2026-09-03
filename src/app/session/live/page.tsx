@@ -8,11 +8,9 @@ import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
 import { attendanceApi } from "@/lib/api/services";
 import { LectureSession, AttendanceRecord } from "@/types";
-import {
   RadioIcon,
   StopCircleIcon,
   RefreshCwIcon,
-  ClockIcon,
   MapPinIcon,
   ScanFaceIcon,
   CheckCircleIcon,
@@ -26,10 +24,12 @@ function LiveSessionContent() {
 
   const [session, setSession] = useState<LectureSession | null>(null);
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [windows, setWindows] = useState<Array<{ window_type: string, is_active: boolean, [key: string]: unknown }>>([]);
   const [isStreamPaused, setIsStreamPaused] = useState<boolean>(false);
   const [selectedRecordForOverride, setSelectedRecordForOverride] = useState<AttendanceRecord | null>(null);
   const [selectedRecordForDrawer, setSelectedRecordForDrawer] = useState<AttendanceRecord | null>(null);
   const [isEnding, setIsEnding] = useState<boolean>(false);
+  const [isTriggeringRandom, setIsTriggeringRandom] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Poll for real-time live session updates every 3 seconds
@@ -41,12 +41,14 @@ function LiveSessionContent() {
     
     async function fetchLiveData() {
       try {
-        const [sess, recs] = await Promise.all([
+        const [sess, recs, wins] = await Promise.all([
           attendanceApi.getSessionById(sessionId),
           attendanceApi.getAttendanceRecords(sessionId),
+          attendanceApi.getSessionWindows(sessionId).catch(() => []),
         ]);
         if (sess) setSession(sess);
         if (recs) setRecords(recs);
+        if (wins) setWindows(wins);
       } catch (err) {
         console.error("Live polling error:", err);
       } finally {
@@ -61,6 +63,19 @@ function LiveSessionContent() {
       return () => clearInterval(interval);
     }
   }, [sessionId, isStreamPaused]);
+
+  const handleLaunchRandom = async () => {
+    setIsTriggeringRandom(true);
+    try {
+      await attendanceApi.triggerRandomWindow(sessionId);
+      const wins = await attendanceApi.getSessionWindows(sessionId);
+      setWindows(wins);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to launch random window.");
+    } finally {
+      setIsTriggeringRandom(false);
+    }
+  };
 
   const handleEndSession = async () => {
     if (!confirm("Are you sure you want to end this live attendance session? Windows will close permanently.")) {
@@ -88,6 +103,9 @@ function LiveSessionContent() {
   const flaggedCount = records.filter((r) => r.status === "flagged_proxy").length;
   const absentCount = totalEnrolled - (presentCount + lateCount + flaggedCount);
   const attendanceRate = totalEnrolled > 0 ? ((presentCount + lateCount) / totalEnrolled) * 100 : 0;
+
+  const initialWindow = windows.find((w) => w.window_type === "check_in" || w.window_type === "WindowType.check_in");
+  const randomWindow = windows.find((w) => w.window_type === "random_check" || w.window_type === "WindowType.random_check");
 
   return (
     <DashboardLayout
@@ -172,37 +190,39 @@ function LiveSessionContent() {
       {/* Verification Windows & Live Gauges */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px", marginBottom: "24px" }}>
         {/* First Check-In Window Card */}
+        {initialWindow && (
         <div className="glass-card" style={{ padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <MapPinIcon size={18} style={{ color: "var(--accent-cyan)" }} />
+              <ScanFaceIcon size={18} style={{ color: "var(--accent-primary)" }} />
               <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Window 1: GPS Geofence Check-in
+                Window 1: Location & Face Biometrics
               </h4>
             </div>
             <span
               style={{
                 fontSize: "0.72rem",
-                color: "#059669",
+                color: initialWindow.is_active ? "#D97706" : "#059669",
                 fontWeight: 700,
-                backgroundColor: "rgba(5, 150, 105, 0.08)",
-                border: "1px solid rgba(5, 150, 105, 0.2)",
+                backgroundColor: initialWindow.is_active ? "rgba(217, 119, 6, 0.08)" : "rgba(5, 150, 105, 0.08)",
+                border: `1px solid ${initialWindow.is_active ? "rgba(217, 119, 6, 0.25)" : "rgba(5, 150, 105, 0.2)"}`,
                 padding: "2px 8px",
                 borderRadius: "var(--radius-full)",
               }}
             >
-              COMPLETED
+              {initialWindow.is_active ? "ACTIVE NOW" : "COMPLETED"}
             </span>
           </div>
 
           <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p>Window: 09:00 - 09:15 AM (15 mins)</p>
-            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence (35m radius)</strong></p>
-            <p style={{ color: "#059669", fontWeight: 600 }}>53 / 58 Students checked in during window</p>
+            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + AI Face Match</strong></p>
+            <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.first_check_in_at).length} / {totalEnrolled} Students checked in</p>
           </div>
         </div>
+        )}
 
-        {/* Random AI Face Verification Window Card */}
+        {/* Random Check-in Window Card */}
+        {randomWindow ? (
         <div
           className="glass-card"
           style={{
@@ -214,35 +234,51 @@ function LiveSessionContent() {
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <ScanFaceIcon size={18} style={{ color: "var(--accent-primary)" }} />
+              <MapPinIcon size={18} style={{ color: "var(--accent-primary)" }} />
               <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Window 2: AI Face Biometric Check
+                Window 2: Random Geofence Check
               </h4>
             </div>
             <span
               style={{
                 fontSize: "0.72rem",
-                color: "#D97706",
+                color: randomWindow.is_active ? "#D97706" : "#059669",
                 fontWeight: 700,
-                backgroundColor: "rgba(217, 119, 6, 0.08)",
+                backgroundColor: randomWindow.is_active ? "rgba(217, 119, 6, 0.08)" : "rgba(5, 150, 105, 0.08)",
                 padding: "2px 8px",
                 borderRadius: "var(--radius-full)",
-                border: "1px solid rgba(217, 119, 6, 0.25)",
+                border: `1px solid ${randomWindow.is_active ? "rgba(217, 119, 6, 0.25)" : "rgba(5, 150, 105, 0.2)"}`,
               }}
             >
-              ACTIVE NOW
+              {randomWindow.is_active ? "ACTIVE NOW" : "COMPLETED"}
             </span>
           </div>
 
           <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p>Prompting random face match on mobile devices</p>
-            <p>Required Match Confidence: <strong style={{ color: "var(--text-primary)" }}>85.0%</strong></p>
-            <div style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "6px", color: "var(--accent-primary)", fontWeight: 600 }}>
-              <ClockIcon size={14} />
-              <span>Closes in approx. 6 minutes</span>
-            </div>
+            <p>Prompting random location match on mobile devices</p>
+            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence Only</strong></p>
+            <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.random_check_completed_at).length} / {totalEnrolled} Students verified</p>
           </div>
         </div>
+        ) : (
+          <div className="glass-card" style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "12px", borderStyle: "dashed" }}>
+            <h4 style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>
+              Random Geofence Check
+            </h4>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textAlign: "center", margin: 0 }}>
+              Trigger a surprise location check to verify students are still in the venue.
+            </p>
+            <button 
+              className="btn-primary" 
+              onClick={handleLaunchRandom} 
+              disabled={isTriggeringRandom}
+              style={{ padding: "6px 16px", fontSize: "0.85rem" }}
+            >
+              <RadioIcon size={16} />
+              {isTriggeringRandom ? "Launching..." : "Launch Random Check-in"}
+            </button>
+          </div>
+        )}
 
         {/* Live Attendance Rate Meter */}
         <div className="glass-card" style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
