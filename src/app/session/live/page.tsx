@@ -8,6 +8,7 @@ import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
 import { attendanceApi } from "@/lib/api/services";
 import { LectureSession, AttendanceRecord } from "@/types";
+import {
   RadioIcon,
   StopCircleIcon,
   RefreshCwIcon,
@@ -69,7 +70,9 @@ function LiveSessionContent() {
     try {
       await attendanceApi.triggerRandomWindow(sessionId);
       const wins = await attendanceApi.getSessionWindows(sessionId);
-      setWindows(wins);
+      if (wins) {
+        setWindows(wins);
+      }
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to launch random window.");
     } finally {
