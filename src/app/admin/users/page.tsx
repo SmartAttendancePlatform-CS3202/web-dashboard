@@ -113,9 +113,9 @@ export default function AdminUsersPage() {
       // Reload users
       const usersData = await adminApi.getUsers(selectedRole, selectedStatus);
       setUsers(usersData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to register student:", err);
-      alert(err.message || "Failed to register student");
+      alert(err instanceof Error ? err.message : "Failed to register student");
     } finally {
       setIsSaving(false);
     }

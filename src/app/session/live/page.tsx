@@ -8,11 +8,9 @@ import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
 import { attendanceApi } from "@/lib/api/services";
 import { LectureSession, AttendanceRecord } from "@/types";
-import {
   RadioIcon,
   StopCircleIcon,
   RefreshCwIcon,
-  ClockIcon,
   MapPinIcon,
   ScanFaceIcon,
   CheckCircleIcon,
@@ -26,7 +24,7 @@ function LiveSessionContent() {
 
   const [session, setSession] = useState<LectureSession | null>(null);
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
-  const [windows, setWindows] = useState<any[]>([]);
+  const [windows, setWindows] = useState<Array<{ window_type: string, is_active: boolean, [key: string]: unknown }>>([]);
   const [isStreamPaused, setIsStreamPaused] = useState<boolean>(false);
   const [selectedRecordForOverride, setSelectedRecordForOverride] = useState<AttendanceRecord | null>(null);
   const [selectedRecordForDrawer, setSelectedRecordForDrawer] = useState<AttendanceRecord | null>(null);
@@ -72,8 +70,8 @@ function LiveSessionContent() {
       await attendanceApi.triggerRandomWindow(sessionId);
       const wins = await attendanceApi.getSessionWindows(sessionId);
       setWindows(wins);
-    } catch (err: any) {
-      alert(err.message || "Failed to launch random window.");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to launch random window.");
     } finally {
       setIsTriggeringRandom(false);
     }
@@ -106,8 +104,8 @@ function LiveSessionContent() {
   const absentCount = totalEnrolled - (presentCount + lateCount + flaggedCount);
   const attendanceRate = totalEnrolled > 0 ? ((presentCount + lateCount) / totalEnrolled) * 100 : 0;
 
-  const initialWindow = windows.find((w: any) => w.window_type === "check_in" || w.window_type === "WindowType.check_in");
-  const randomWindow = windows.find((w: any) => w.window_type === "random_check" || w.window_type === "WindowType.random_check");
+  const initialWindow = windows.find((w) => w.window_type === "check_in" || w.window_type === "WindowType.check_in");
+  const randomWindow = windows.find((w) => w.window_type === "random_check" || w.window_type === "WindowType.random_check");
 
   return (
     <DashboardLayout
