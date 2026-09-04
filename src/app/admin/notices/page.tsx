@@ -20,14 +20,11 @@ export default async function AdminNoticesPage() {
   }
 
   return (
-    <AdminDashboardLayout>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <div>
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 700, color: "var(--text-primary)" }}>Campus Broadcasts</h1>
-          <p style={{ color: "var(--text-secondary)", marginTop: "4px" }}>Manage and dispatch emergency or standard university notices.</p>
-        </div>
-        <BroadcastModalButton offerings={offerings} />
-      </div>
+    <AdminDashboardLayout
+      title="Campus Broadcasts"
+      subtitle="Manage and dispatch emergency or standard university notices."
+      actions={<BroadcastModalButton offerings={offerings} />}
+    >
 
       <div style={{ display: "grid", gap: "16px" }}>
         {notices.length === 0 ? (
