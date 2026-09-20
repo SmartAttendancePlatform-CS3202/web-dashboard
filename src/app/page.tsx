@@ -220,11 +220,11 @@ export default function HomePage() {
                 </div>
 
                 <Link
-                  href={`/session/start?offering_id=${off.id}`}
+                  href="/session/live"
                   className="btn-secondary"
                   style={{ padding: "6px 12px", fontSize: "0.75rem" }}
                 >
-                  <PlayIcon size={12} /> Launch
+                  <PlayIcon size={12} /> Open Session
                 </Link>
               </div>
             ))}

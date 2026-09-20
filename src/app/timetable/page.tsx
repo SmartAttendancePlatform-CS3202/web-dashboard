@@ -2,16 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { schedulingApi } from "@/lib/api/services";
+import { attendanceApi, schedulingApi } from "@/lib/api/services";
 import { CourseOffering } from "@/types";
 import { ClockIcon, MapPinIcon, PlayIcon, UsersIcon } from "@/components/ui/Icons";
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default function TimetablePage() {
+  const router = useRouter();
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [openingOfferingId, setOpeningOfferingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadTimetable() {
@@ -26,6 +29,23 @@ export default function TimetablePage() {
     }
     loadTimetable();
   }, []);
+
+  const handleOpenSession = async (offering: CourseOffering) => {
+    setOpeningOfferingId(offering.id);
+    try {
+      const sessions = await attendanceApi.getActiveScheduledSessions(offering.id);
+      const session = sessions[0];
+      if (!session) {
+        alert("This lecture is not in its attendance window yet. Attendance opens 15 minutes before the scheduled start time.");
+        return;
+      }
+      router.push(`/session/live?session_id=${session.id}`);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Could not open the scheduled lecture session.");
+    } finally {
+      setOpeningOfferingId(null);
+    }
+  };
 
   return (
     <DashboardLayout
@@ -148,13 +168,15 @@ export default function TimetablePage() {
                         </div>
 
                         <div style={{ marginTop: "6px", paddingTop: "8px", borderTop: "1px solid rgba(255, 255, 255, 0.06)", display: "flex", gap: "6px" }}>
-                          <Link
-                            href={`/session/start?offering_id=${offering.id}`}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSession(offering)}
                             className="btn-primary"
                             style={{ flex: 1, padding: "6px 10px", fontSize: "0.75rem" }}
+                            disabled={openingOfferingId === offering.id}
                           >
-                            <PlayIcon size={12} /> Launch Live
-                          </Link>
+                            <PlayIcon size={12} /> {openingOfferingId === offering.id ? "Opening..." : "Open Session"}
+                          </button>
                           <Link
                             href={`/courses/${offering.id}`}
                             className="btn-secondary"

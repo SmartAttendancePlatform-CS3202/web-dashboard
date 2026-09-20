@@ -121,12 +121,12 @@ export default function CoursesPage() {
             {/* Actions */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px", borderTop: "1px solid var(--border-subtle)", paddingTop: "16px" }}>
               <Link
-                href={`/session/start?offering_id=${offering.id}`}
+                href="/session/live"
                 className="btn-primary"
                 style={{ flex: 1, padding: "8px 12px", fontSize: "0.8rem" }}
               >
                 <PlayIcon size={14} />
-                <span>Start Live Session</span>
+                <span>Open Session</span>
               </Link>
               <Link
                 href={`/courses/${offering.id}`}
