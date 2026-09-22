@@ -120,15 +120,15 @@ export const attendanceApi = {
   syncSessionRoster: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/sync-roster`,{method:"POST"})),
   getAttendanceRecords: async (sessionId?:string, studentId?:string): Promise<AttendanceRecord[]> => {
     const p=new URLSearchParams(); if(sessionId)p.set("session_id",sessionId); if(studentId)p.set("student_id",studentId);
-    const records:any[] = await must(apiFetch<any[]>(`${API_CONFIG.attendance}/attendance/records${p.toString()?`?${p}`:""}`));
+    const records:any[] = await must(apiFetch<any[]>(`${API_CONFIG.attendance}/records${p.toString()?`?${p}`:""}`));
     if(!records.length) return [];
     const students=await schedulingApi.getStudents().catch(()=>[] as Student[]); const sm=new Map(students.map(s=>[s.id,s]));
     return records.map(r=>({...r,student_name:sm.get(r.student_id)?.display_name||sm.get(r.student_id)?.full_name,student_index:sm.get(r.student_id)?.student_index_no,student_photo:sm.get(r.student_id)?.photo_url}));
   },
-  getRecordById: async (id:string) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/attendance/records/${id}`)),
-  overrideRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/attendance/records/${recordId}/override`,{method:"PATCH",body:JSON.stringify(data)})),
-  manualMarkRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/attendance/records/${recordId}/manual-mark`,{method:"PATCH",body:JSON.stringify(data)})),
-  getAttempts: async (recordId:string): Promise<AttendanceVerificationAttempt[]> => must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/attendance/records/${recordId}/attempts`)),
+  getRecordById: async (id:string) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${id}`)),
+  overrideRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${recordId}/override`,{method:"PATCH",body:JSON.stringify(data)})),
+  manualMarkRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${recordId}/manual-mark`,{method:"PATCH",body:JSON.stringify(data)})),
+  getAttempts: async (recordId:string): Promise<AttendanceVerificationAttempt[]> => must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/records/${recordId}/attempts`)),
   getActiveSessions: async () => hydrateSessions(await must(apiFetch<any[]>(`${API_CONFIG.attendance}/sessions?status=ongoing`))),
 };
 export const sessionsApi=attendanceApi;
@@ -137,7 +137,7 @@ export const reportsApi = {
   getOfferingReport: async (id:string): Promise<OfferingReport> => must(apiFetch(`${API_CONFIG.attendance}/reports/offerings/${id}`)),
   getOfferingTrends: async (id:string): Promise<TrendData> => must(apiFetch(`${API_CONFIG.attendance}/reports/offerings/${id}/trends`)),
   getWeeklyTrends: async (): Promise<WeeklyTrendItem[]> => must(apiFetch(`${API_CONFIG.attendance}/reports/trends/weekly`)),
-  getRecentAttempts: async (offeringId?:string) => {const p=offeringId?`?offering_id=${encodeURIComponent(offeringId)}`:""; return must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/attendance/attempts${p}`));},
+  getRecentAttempts: async (offeringId?:string) => {const p=offeringId?`?offering_id=${encodeURIComponent(offeringId)}`:""; return must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/attempts${p}`));},
   getStudentSummary: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/reports/students/${id}/summary`)),
   exportOffering: async (id:string) => {
     const {data,error,status}=await apiFetchText(`${API_CONFIG.attendance}/reports/offerings/${id}/export`);
