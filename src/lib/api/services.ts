@@ -146,7 +146,15 @@ export const alertsApi = {
 };
 
 export const noticesApi = {
-  getNotices: async ():Promise<Notice[]> => must(apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/all`)),
+  getNotices: async ():Promise<Notice[]> => {
+    const res = await apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/all`);
+    if (res.error) {
+      const meRes = await apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/me`);
+      if (!meRes.error && meRes.data) return meRes.data;
+      throw new Error(res.error);
+    }
+    return res.data || [];
+  },
   broadcastNotice: async (data:any):Promise<Notice> => must(apiFetch<Notice>(`${API_CONFIG.attendance}/notifications/broadcast`,{method:"POST",body:JSON.stringify(data)})),
   markRead: async (id:string) => must(apiFetch<Notice>(`${API_CONFIG.attendance}/notifications/${id}/read`,{method:"PATCH"})),
 };
