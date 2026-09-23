@@ -110,6 +110,7 @@ export const attendanceApi = {
     const raw:any = await must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/end`,{method:"POST"}));
     return (await hydrateSessions([raw]))[0] || null;
   },
+  triggerRandomWindow: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/windows/random`,{method:"POST"})),
   getSessionWindows: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/windows`)),
   getSessionLiveStatus: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/live`)),
   getAttendanceRecords: async (sessionId?:string, studentId?:string): Promise<AttendanceRecord[]> => {
@@ -145,7 +146,15 @@ export const alertsApi = {
 };
 
 export const noticesApi = {
-  getNotices: async ():Promise<Notice[]> => must(apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/me`)),
+  getNotices: async ():Promise<Notice[]> => {
+    const res = await apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/all`);
+    if (res.error) {
+      const meRes = await apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/me`);
+      if (!meRes.error && meRes.data) return meRes.data;
+      throw new Error(res.error);
+    }
+    return res.data || [];
+  },
   broadcastNotice: async (data:any):Promise<Notice> => must(apiFetch<Notice>(`${API_CONFIG.attendance}/notifications/broadcast`,{method:"POST",body:JSON.stringify(data)})),
   markRead: async (id:string) => must(apiFetch<Notice>(`${API_CONFIG.attendance}/notifications/${id}/read`,{method:"PATCH"})),
 };
@@ -165,7 +174,9 @@ export const adminApi = {
   getPendingUsers: schedulingApi.getPendingUsers,
   approveUser: schedulingApi.approveUser,
   rejectUser: schedulingApi.rejectUser,
+  registerStudent: async (data: any) => must(apiFetch<any>(`${API_CONFIG.scheduling}/users/register`, {method: "POST", body: JSON.stringify(data)})),
   updateUserRole: async (id:string,data:any) => {
+
     await must(apiFetch(`${API_CONFIG.scheduling}/users/${id}/role`,{method:"PATCH",body:JSON.stringify(data)}));
     const fresh=await schedulingApi.getUsers();
     return fresh.find(u=>u.id===id)||null;

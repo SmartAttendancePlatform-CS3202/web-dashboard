@@ -29,6 +29,12 @@ export default function AdminVenuesPage() {
   const [vLng, setVLng] = useState(79.8608);
   const [vRadius, setVRadius] = useState(35);
   const [vShape, setVShape] = useState<"circle" | "square">("circle");
+  const [vVertices, setVVertices] = useState<{lat: number, lng: number}[]>([
+    { lat: 6.9022, lng: 79.8608 },
+    { lat: 6.9023, lng: 79.8608 },
+    { lat: 6.9023, lng: 79.8609 },
+    { lat: 6.9022, lng: 79.8609 },
+  ]);
   const [vMethod, setVMethod] = useState("gps_geofence");
   const [vWifiSsid, setVWifiSsid] = useState("");
   const [vWifiBssid, setVWifiBssid] = useState("");
@@ -59,6 +65,12 @@ export default function AdminVenuesPage() {
     setVLng(79.8608);
     setVRadius(35);
     setVShape("circle");
+    setVVertices([
+      { lat: 6.9022, lng: 79.8608 },
+      { lat: 6.9023, lng: 79.8608 },
+      { lat: 6.9023, lng: 79.8609 },
+      { lat: 6.9022, lng: 79.8609 },
+    ]);
     setVMethod("gps_geofence");
     setVWifiSsid("");
     setVWifiBssid("");
@@ -75,7 +87,18 @@ export default function AdminVenuesPage() {
     setVLat(venue.boundary_data?.latitude ?? 6.9022);
     setVLng(venue.boundary_data?.longitude ?? 79.8608);
     setVRadius(venue.boundary_data?.radius_meters ?? 30);
-    setVShape(venue.shape_type === "polygon" || venue.shape_type === "square" ? "square" : "circle");
+    const shape = venue.shape_type === "polygon" || venue.shape_type === "square" ? "square" : "circle";
+    setVShape(shape);
+    if (shape === "square" && venue.boundary_data?.vertices) {
+      setVVertices(venue.boundary_data.vertices.map((v: number[]) => ({ lat: v[0], lng: v[1] })));
+    } else {
+      setVVertices([
+        { lat: 6.9022, lng: 79.8608 },
+        { lat: 6.9023, lng: 79.8608 },
+        { lat: 6.9023, lng: 79.8609 },
+        { lat: 6.9022, lng: 79.8609 },
+      ]);
+    }
     setVMethod(venue.default_verification_method || "gps_geofence");
     setVWifiSsid(venue.wifi_ssid || "");
     setVWifiBssid(venue.wifi_bssid || "");
@@ -94,12 +117,7 @@ export default function AdminVenuesPage() {
         boundary_data: vShape === "circle" ? {
           latitude: Number(vLat), longitude: Number(vLng), radius_meters: Number(vRadius),
         } : {
-          vertices: [
-            [Number(vLat) + Number(vRadius) / 111320, Number(vLng) - Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-            [Number(vLat) + Number(vRadius) / 111320, Number(vLng) + Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-            [Number(vLat) - Number(vRadius) / 111320, Number(vLng) + Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-            [Number(vLat) - Number(vRadius) / 111320, Number(vLng) - Number(vRadius) / (111320 * Math.cos(Number(vLat) * Math.PI / 180))],
-          ],
+          vertices: vVertices.map((v) => [Number(v.lat), Number(v.lng)])
         },
         default_verification_method: vMethod as Venue["default_verification_method"],
         wifi_ssid: vWifiSsid,
@@ -211,27 +229,41 @@ export default function AdminVenuesPage() {
                         {venue.building} • {venue.floor} • Capacity: {venue.capacity}
                       </p>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "6px" }}>
-                        <span
-                          style={{
-                            fontFamily: "monospace",
-                            fontSize: "0.72rem",
-                            color: "var(--text-muted)",
-                          }}
-                        >
-                          GPS: {(venue.boundary_data?.latitude ?? 0).toFixed(4)}, {(venue.boundary_data?.longitude ?? 0).toFixed(4)}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: "0.7rem",
-                            fontWeight: 700,
-                            padding: "1px 6px",
-                            borderRadius: "4px",
-                            backgroundColor: "rgba(6, 182, 212, 0.15)",
-                            color: "#22D3EE",
-                          }}
-                        >
-                          Radius: {venue.boundary_data?.radius_meters ?? 0}m
-                        </span>
+                        {venue.shape_type === "circle" ? (
+                          <>
+                            <span
+                              style={{
+                                fontFamily: "monospace",
+                                fontSize: "0.72rem",
+                                color: "var(--text-muted)",
+                              }}
+                            >
+                              GPS: {(venue.boundary_data?.latitude ?? 0).toFixed(4)}, {(venue.boundary_data?.longitude ?? 0).toFixed(4)}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "0.7rem",
+                                fontWeight: 700,
+                                padding: "1px 6px",
+                                borderRadius: "4px",
+                                backgroundColor: "rgba(6, 182, 212, 0.15)",
+                                color: "#22D3EE",
+                              }}
+                            >
+                              Radius: {venue.boundary_data?.radius_meters ?? 0}m
+                            </span>
+                          </>
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: "monospace",
+                              fontSize: "0.72rem",
+                              color: "#818CF8",
+                            }}
+                          >
+                            POLYGON: {venue.boundary_data?.vertices?.length ?? 0} vertices
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -304,12 +336,12 @@ export default function AdminVenuesPage() {
                   }}
                 />
 
-                {/* Outer Radius Boundary Circle */}
+                {/* Outer Radius Boundary Circle/Square */}
                 <div
                   style={{
                     width: "190px",
                     height: "190px",
-                    borderRadius: "50%",
+                    borderRadius: selectedVenue.shape_type === "polygon" || selectedVenue.shape_type === "square" ? "8px" : "50%",
                     border: "2px dashed rgba(6, 182, 212, 0.6)",
                     backgroundColor: "rgba(6, 182, 212, 0.08)",
                     display: "flex",
@@ -323,7 +355,7 @@ export default function AdminVenuesPage() {
                     style={{
                       width: "110px",
                       height: "110px",
-                      borderRadius: "50%",
+                      borderRadius: selectedVenue.shape_type === "polygon" || selectedVenue.shape_type === "square" ? "6px" : "50%",
                       border: "1px solid rgba(16, 185, 129, 0.5)",
                       backgroundColor: "rgba(16, 185, 129, 0.06)",
                       display: "flex",
@@ -353,7 +385,7 @@ export default function AdminVenuesPage() {
                       letterSpacing: "0.05em",
                     }}
                   >
-                    {selectedVenue.shape_type === "polygon" ? "SQUARE" : `${selectedVenue.boundary_data?.radius_meters ?? 0}m PERIMETER`}
+                    {selectedVenue.shape_type === "polygon" || selectedVenue.shape_type === "square" ? "SQUARE POLYGON" : `${selectedVenue.boundary_data?.radius_meters ?? 0}m PERIMETER`}
                   </span>
                 </div>
               </div>
@@ -362,8 +394,10 @@ export default function AdminVenuesPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem" }}>
                   <span style={{ color: "var(--text-muted)" }}>Target Coordinates:</span>
-                  <span style={{ fontFamily: "monospace", color: "var(--text-primary)", fontWeight: 600 }}>
-                    Lat: {(selectedVenue.boundary_data?.latitude ?? 0).toFixed(6)}, Lng: {(selectedVenue.boundary_data?.longitude ?? 0).toFixed(6)}
+                  <span style={{ fontFamily: "monospace", color: "var(--text-primary)", fontWeight: 600, textAlign: "right" }}>
+                    {selectedVenue.shape_type === "circle" 
+                      ? `Lat: ${(selectedVenue.boundary_data?.latitude ?? 0).toFixed(6)}, Lng: ${(selectedVenue.boundary_data?.longitude ?? 0).toFixed(6)}`
+                      : "4 Corner Polygon Vertices"}
                   </span>
                 </div>
 
@@ -494,27 +528,62 @@ export default function AdminVenuesPage() {
                     <option value="square">Square</option>
                   </select>
                 </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Latitude</label>
-                  <input type="number" step="0.000001" className="input-control" value={vLat} onChange={(e)=>setVLat(Number(e.target.value))} required />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Longitude</label>
-                  <input type="number" step="0.000001" className="input-control" value={vLng} onChange={(e)=>setVLng(Number(e.target.value))} required />
-                </div>
+                {vShape === "circle" ? (
+                  <>
+                    <div>
+                      <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Latitude</label>
+                      <input type="number" step="0.000001" className="input-control" value={vLat} onChange={(e)=>setVLat(Number(e.target.value))} required />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Longitude</label>
+                      <input type="number" step="0.000001" className="input-control" value={vLng} onChange={(e)=>setVLng(Number(e.target.value))} required />
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ gridColumn: "span 2" }}>
+                    <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "24px" }}>
+                      Enter the 4 corner coordinates below.
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
-                    {vShape === "circle" ? "Radius (Meters)" : "Half-size (Meters)"}
-                  </label>
-                  <input type="number" min={5} max={500} className="input-control" value={vRadius} onChange={(e)=>setVRadius(Number(e.target.value))} required />
+              {vShape === "square" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {vVertices.map((v, idx) => (
+                    <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Corner {idx + 1} Latitude</label>
+                        <input type="number" step="0.000001" className="input-control" value={v.lat} onChange={(e) => {
+                          const newV = [...vVertices];
+                          newV[idx].lat = Number(e.target.value);
+                          setVVertices(newV);
+                        }} required />
+                      </div>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Corner {idx + 1} Longitude</label>
+                        <input type="number" step="0.000001" className="input-control" value={v.lng} onChange={(e) => {
+                          const newV = [...vVertices];
+                          newV[idx].lng = Number(e.target.value);
+                          setVVertices(newV);
+                        }} required />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{paddingTop:24,fontSize:"0.76rem",color:"var(--text-muted)"}}>
-                  {vShape === "square" ? "A square is stored as four GPS vertices in boundary_data." : "A circle is stored as center coordinates + radius."}
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
+                      Radius (Meters)
+                    </label>
+                    <input type="number" min={5} max={500} className="input-control" value={vRadius} onChange={(e)=>setVRadius(Number(e.target.value))} required />
+                  </div>
+                  <div style={{paddingTop:24,fontSize:"0.76rem",color:"var(--text-muted)"}}>
+                    A circle is stored as center coordinates + radius.
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div>

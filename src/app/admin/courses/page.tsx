@@ -46,6 +46,9 @@ export default function AdminCoursesPage() {
 
   // Offering Form
   const [offCourseId, setOffCourseId] = useState("");
+  const [offCode, setOffCode] = useState("");
+  const [offSemester, setOffSemester] = useState("Semester 1");
+  const [offMaxStudents, setOffMaxStudents] = useState(100);
   const [offLecturerId, setOffLecturerId] = useState("");
   const [offVenueId, setOffVenueId] = useState("");
   const [offYearId, setOffYearId] = useState("");
@@ -136,6 +139,9 @@ export default function AdminCoursesPage() {
         end_time: offEnd,
         late_threshold_minutes: offLateMin,
         random_check_enabled: offRandomCheck,
+        offering_code: offCode,
+        semester: offSemester,
+        max_students: offMaxStudents,
       });
 
       if (!created) {
@@ -627,6 +633,50 @@ export default function AdminCoursesPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
+                    Offering Code
+                  </label>
+                  <input
+                    type="text"
+                    className="input-control"
+                    placeholder="e.g. CS4050-S1"
+                    value={offCode}
+                    onChange={(e) => setOffCode(e.target.value.toUpperCase())}
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
+                    Semester
+                  </label>
+                  <select
+                    className="input-control"
+                    value={offSemester}
+                    onChange={(e) => setOffSemester(e.target.value)}
+                  >
+                    <option value="Semester 1">Semester 1</option>
+                    <option value="Semester 2">Semester 2</option>
+                    <option value="Semester 3">Semester 3</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
+                    Max Students
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={500}
+                    className="input-control"
+                    value={offMaxStudents}
+                    onChange={(e) => setOffMaxStudents(Number(e.target.value))}
+                    required
+                  />
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>

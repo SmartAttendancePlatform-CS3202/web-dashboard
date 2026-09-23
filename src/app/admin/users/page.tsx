@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { AdminDashboardLayout } from "@/components/layout/AdminDashboardLayout";
 import { adminApi } from "@/lib/api/services";
-import { UserWithProfile, UserRole, Department } from "@/types";
+import { UserWithProfile, UserRole, Department, AcademicYear } from "@/types";
 import {
   SearchIcon,
   ShieldAlertIcon,
@@ -14,6 +14,7 @@ import {
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("all");
@@ -28,16 +29,36 @@ export default function AdminUsersPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Add Student Modal State
+  const [isAddingStudent, setIsAddingStudent] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    email: "",
+    password: "",
+    student_index_no: "",
+    full_name: "",
+    name_with_initials: "",
+    display_name: "",
+    department_id: "",
+    academic_year_id: "",
+    date_of_birth: "",
+    gender: "male",
+    nic: "",
+    contact_number: "",
+    address: "",
+  });
+
   useEffect(() => {
     async function loadData() {
       setLoading(true);
       try {
-        const [usersData, deptsData] = await Promise.all([
+        const [usersData, deptsData, yearsData] = await Promise.all([
           adminApi.getUsers(selectedRole, selectedStatus),
           adminApi.getDepartments(),
+          adminApi.getAcademicYears(),
         ]);
         setUsers(usersData);
         setDepartments(deptsData);
+        setAcademicYears(yearsData);
       } catch (err) {
         console.error("Error loading users:", err);
       } finally {
@@ -76,6 +97,25 @@ export default function AdminUsersPage() {
       setEditingUser(null);
     } catch (err) {
       console.error("Failed to update user:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRegisterStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await adminApi.registerStudent(newStudent);
+      setToastMessage(`Successfully registered student ${newStudent.email}`);
+      setTimeout(() => setToastMessage(null), 4000);
+      setIsAddingStudent(false);
+      // Reload users
+      const usersData = await adminApi.getUsers(selectedRole, selectedStatus);
+      setUsers(usersData);
+    } catch (err: unknown) {
+      console.error("Failed to register student:", err);
+      alert(err instanceof Error ? err.message : "Failed to register student");
     } finally {
       setIsSaving(false);
     }
@@ -192,6 +232,34 @@ export default function AdminUsersPage() {
             <option value="pending_approval">Pending Approval</option>
             <option value="suspended">Suspended</option>
           </select>
+        </div>
+        
+        {/* Add Student Button */}
+        <div>
+          <button 
+            onClick={() => {
+              setNewStudent({
+                email: "",
+                password: "",
+                student_index_no: "",
+                full_name: "",
+                name_with_initials: "",
+                display_name: "",
+                department_id: "",
+                academic_year_id: "",
+                date_of_birth: "",
+                gender: "male",
+                nic: "",
+                contact_number: "",
+                address: "",
+              });
+              setIsAddingStudent(true);
+            }}
+            className="btn-primary"
+            style={{ padding: "8px 16px", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "6px" }}
+          >
+            <span style={{ fontSize: "1.1rem" }}>+</span> Add Student
+          </button>
         </div>
       </div>
 
@@ -496,6 +564,239 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+
+      {/* Add Student Modal */}
+      {isAddingStudent && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100,
+            padding: "20px",
+          }}
+        >
+          <div
+            className="glass-card"
+            style={{
+              width: "100%",
+              maxWidth: "700px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "28px",
+              borderRadius: "var(--radius-lg)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <ShieldAlertIcon size={20} className="text-cyan" />
+                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)" }}>
+                  Register New Student
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsAddingStudent(false)}
+                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleRegisterStudent} style={{ display: "flex", flexDirection: "column", gap: "16px" }} autoComplete="off">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Email</label>
+                  <input
+                    type="email"
+                    className="input-control"
+                    value={newStudent.email}
+                    onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
+                    required
+                    autoComplete="new-email"
+                    name="new_student_email"
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Password</label>
+                  <input
+                    type="password"
+                    className="input-control"
+                    value={newStudent.password}
+                    onChange={(e) => setNewStudent({...newStudent, password: e.target.value})}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    name="new_student_password"
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Student Index No</label>
+                  <input
+                    type="text"
+                    className="input-control"
+                    value={newStudent.student_index_no}
+                    onChange={(e) => setNewStudent({...newStudent, student_index_no: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>NIC (Optional)</label>
+                  <input
+                    type="text"
+                    className="input-control"
+                    value={newStudent.nic}
+                    onChange={(e) => setNewStudent({...newStudent, nic: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Date of Birth</label>
+                  <input
+                    type="date"
+                    className="input-control"
+                    value={newStudent.date_of_birth}
+                    onChange={(e) => setNewStudent({...newStudent, date_of_birth: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Full Name</label>
+                <input
+                  type="text"
+                  className="input-control"
+                  value={newStudent.full_name}
+                  onChange={(e) => setNewStudent({...newStudent, full_name: e.target.value})}
+                  required
+                />
+              </div>
+              
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Name with Initials</label>
+                  <input
+                    type="text"
+                    className="input-control"
+                    value={newStudent.name_with_initials}
+                    onChange={(e) => setNewStudent({...newStudent, name_with_initials: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Display Name</label>
+                  <input
+                    type="text"
+                    className="input-control"
+                    value={newStudent.display_name}
+                    onChange={(e) => setNewStudent({...newStudent, display_name: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Gender</label>
+                  <select
+                    className="input-control"
+                    value={newStudent.gender}
+                    onChange={(e) => setNewStudent({...newStudent, gender: e.target.value})}
+                    required
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Contact Number</label>
+                  <input
+                    type="text"
+                    className="input-control"
+                    value={newStudent.contact_number}
+                    onChange={(e) => setNewStudent({...newStudent, contact_number: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Address</label>
+                <input
+                  type="text"
+                  className="input-control"
+                  value={newStudent.address}
+                  onChange={(e) => setNewStudent({...newStudent, address: e.target.value})}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Academic Department</label>
+                  <select
+                    className="input-control"
+                    value={newStudent.department_id}
+                    onChange={(e) => setNewStudent({...newStudent, department_id: e.target.value})}
+                    required
+                  >
+                    <option value="" disabled>Select Department</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.code} - {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Academic Year</label>
+                  <select
+                    className="input-control"
+                    value={newStudent.academic_year_id}
+                    onChange={(e) => setNewStudent({...newStudent, academic_year_id: e.target.value})}
+                    required
+                  >
+                    <option value="" disabled>Select Year</option>
+                    {academicYears.map((yr) => (
+                      <option key={yr.id} value={yr.id}>
+                        {yr.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+                <button
+                  type="button"
+                  onClick={() => setIsAddingStudent(false)}
+                  className="btn-secondary"
+                  style={{ flex: 1, justifyContent: "center" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ flex: 1, justifyContent: "center" }}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Registering..." : "Register Student"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AdminDashboardLayout>
+
   );
 }
