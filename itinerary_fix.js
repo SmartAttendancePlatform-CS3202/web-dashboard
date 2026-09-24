@@ -1,56 +1,10 @@
-"use client";
+const fs = require('fs');
+let code = fs.readFileSync('src/app/timetable/page.tsx', 'utf8');
 
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { attendanceApi, schedulingApi } from "@/lib/api/services";
-import { CourseOffering } from "@/types";
-import { ClockIcon, MapPinIcon, PlayIcon, UsersIcon } from "@/components/ui/Icons";
+const returnBlockStart = `  return (
+    <DashboardLayout`;
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
-export default function TimetablePage() {
-  const router = useRouter();
-  const [offerings, setOfferings] = useState<CourseOffering[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [openingOfferingId, setOpeningOfferingId] = useState<string | null>(null);
-  
-
-
-  useEffect(() => {
-    async function loadTimetable() {
-      try {
-        const data = await schedulingApi.getLecturerTimetable();
-        setOfferings(data);
-      } catch (err) {
-        console.error("Failed to load timetable:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadTimetable();
-  }, []);
-
-  const handleOpenSession = async (offering: CourseOffering) => {
-    setOpeningOfferingId(offering.id);
-    try {
-      const sessions = await attendanceApi.getActiveScheduledSessions(offering.id);
-      const session = sessions[0];
-      if (!session) {
-        alert("This lecture is not in its attendance window yet. Attendance opens 15 minutes before the scheduled start time.");
-        return;
-      }
-      router.push(`/session/live?session_id=${session.id}`);
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Could not open the scheduled lecture session.");
-    } finally {
-      setOpeningOfferingId(null);
-    }
-  };
-
-
-  const daysWithOfferings = DAYS.filter((day) => 
+const returnBlockReplacement = `  const daysWithOfferings = DAYS.filter((day) => 
     offerings.some((o) => o.day?.toLowerCase() === day.toLowerCase())
   );
 
@@ -155,7 +109,7 @@ export default function TimetablePage() {
                           <PlayIcon size={14} /> {openingOfferingId === offering.id ? "Opening..." : "Open Session"}
                         </button>
                         <Link
-                          href={`/courses/${offering.id}`}
+                          href={\`/courses/\${offering.id}\`}
                           className="btn-secondary"
                           style={{ padding: "10px 16px", fontSize: "0.85rem" }}
                         >
@@ -172,4 +126,24 @@ export default function TimetablePage() {
       )}
     </DashboardLayout>
   );
+}`;
+
+const idx = code.indexOf(returnBlockStart);
+if (idx !== -1) {
+  code = code.substring(0, idx) + returnBlockReplacement;
 }
+
+// Remove unused state
+code = code.replace(
+  '  // Set default active day to today\'s day\n  const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1; \n  const [activeDay, setActiveDay] = useState<string>(DAYS[todayIndex]);',
+  ''
+);
+
+// Remove unused activeDayOfferings
+code = code.replace(
+  '  const activeDayOfferings = offerings.filter((o) => o.day?.toLowerCase() === activeDay.toLowerCase());\n',
+  ''
+);
+
+
+fs.writeFileSync('src/app/timetable/page.tsx', code);

@@ -52,7 +52,7 @@ export function AuthProvider({children}:{children:React.ReactNode}) {
   useEffect(()=>{
     let active=true;
     syncSession().catch(()=>{}).finally(()=>{if(active)setIsLoading(false);});
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((event)=>{
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((event: string)=>{
       if(event==="SIGNED_OUT"){setUser(null);setLecturerProfile(null);setIsLoading(false);return;}
       if(event==="SIGNED_IN" || event==="TOKEN_REFRESHED") syncSession().catch(()=>{});
     });
