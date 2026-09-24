@@ -64,7 +64,14 @@ export default function HomePage() {
 
   const liveSession = sessions.find((s) => s.status === "ongoing");
   const totalEnrolledStudents = offerings.reduce((sum, o) => sum + (o.enrolled_count || 0), 0);
-  const averageAttendance = report?.attendance_percentage ?? 0;
+  
+  let markedCount = 0;
+  let enrolledCount = 0;
+  sessions.forEach(s => {
+    markedCount += s.present_count || 0;
+    enrolledCount += s.total_enrolled || 0;
+  });
+  const averageAttendance = enrolledCount > 0 ? (markedCount / enrolledCount) * 100 : (report?.attendance_percentage ?? 0);
 
   if (loading) {
     return (
@@ -142,28 +149,28 @@ export default function HomePage() {
       {/* KPI Stats Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px", marginBottom: "28px" }}>
         <StatCard
-          title="Active Courses"
+          title="My Active Courses"
           value={offerings.length}
-          subtitle="Assigned this semester"
+          subtitle="Courses assigned to you"
           icon={<BookOpenIcon size={22} />}
           accentColor="indigo"
         />
         <StatCard
-          title="Total Enrolled Students"
+          title="My Enrolled Students"
           value={totalEnrolledStudents}
-          subtitle="Across all lecture sections"
+          subtitle="Across all your lectures"
           icon={<UserCheckIcon size={22} />}
           accentColor="cyan"
         />
         <StatCard
-          title="Avg. Faculty Attendance"
+          title="My Avg. Attendance"
           value={`${averageAttendance.toFixed(1)}%`}
-          trend={{ value: "+2.4% vs last week", positive: true }}
+          trend={{ value: "Based on checked-in vs enrolled", positive: true }}
           icon={<UserCheckIcon size={22} />}
           accentColor="emerald"
         />
         <StatCard
-          title="Security Alerts"
+          title="My Security Alerts"
           value={alerts.filter((a) => !a.is_read).length}
           subtitle="Flagged proxy / timeout anomalies"
           icon={<ShieldAlertIcon size={22} />}
@@ -174,7 +181,7 @@ export default function HomePage() {
       {/* Main Grid: Schedule & Trends */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "24px", marginBottom: "28px" }}>
         {/* Weekly Classes & Today's Schedule */}
-        <div className="glass-card" style={{ padding: "24px", display: "flex", flexDirection: "column" }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: "24px", display: "flex", flexDirection: "column", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/timetable'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <div style={{ color: "#818CF8" }}><CalendarIcon size={20} /></div>
@@ -232,11 +239,11 @@ export default function HomePage() {
         </div>
 
         {/* Attendance Trend Chart Snapshot */}
-        <div className="glass-card" style={{ padding: "24px", display: "flex", flexDirection: "column" }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: "24px", display: "flex", flexDirection: "column", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/reports'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <div>
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                CS4012 Attendance Trajectory
+                Active Course Attendance Trajectory
               </h3>
               <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "2px" }}>
                 Session-by-session compliance vs 80% faculty threshold
@@ -256,7 +263,7 @@ export default function HomePage() {
       {/* Secondary Row: Recent Notices & Security Alerts */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "24px" }}>
         {/* Recent Broadcast Notices */}
-        <div className="glass-card" style={{ padding: "24px" }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: "24px", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/notices'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <BellIcon size={18} className="text-cyan-400" />
@@ -294,12 +301,12 @@ export default function HomePage() {
         </div>
 
         {/* Security & Verification Anomalies */}
-        <div className="glass-card" style={{ padding: "24px" }}>
+        <div className="glass-card glass-card-interactive" style={{ padding: "24px", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/alerts'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <ShieldAlertIcon size={18} className="text-rose-400" />
               <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Verification Anomalies
+                Security Alerts
               </h3>
             </div>
             <Link href="/alerts" style={{ fontSize: "0.8rem", color: "#818CF8", textDecoration: "none", fontWeight: 600 }}>
