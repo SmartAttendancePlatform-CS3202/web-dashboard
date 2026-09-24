@@ -67,7 +67,7 @@ export default function CoursesPage() {
 
           {filteredOfferings.length === 0 ? (
             <div className="glass-card" style={{ padding: "60px", textAlign: "center", color: "var(--text-muted)" }}>
-              No courses found matching "{searchTerm}".
+              No courses found matching &quot;{searchTerm}&quot;.
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "24px" }}>

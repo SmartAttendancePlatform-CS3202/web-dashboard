@@ -116,7 +116,7 @@ export default function TimetablePage() {
           {/* Active Day Content */}
           <div className="glass-card" style={{ padding: "24px", minHeight: "400px" }}>
             <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "20px" }}>
-              {activeDay}'s Schedule
+              {activeDay}&apos;s Schedule
             </h3>
 
             {activeDayOfferings.length === 0 ? (

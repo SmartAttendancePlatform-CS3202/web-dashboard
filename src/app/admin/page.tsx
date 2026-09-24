@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
           // Scale it or just use the raw count for the graph
           const nextVal = attempts.length > 0 ? attempts.length : Math.floor(Math.random() * 5) + 15;
           setThroughputData((prev) => [...prev.slice(1), nextVal]);
-        } catch (e) {
+        } catch {
           setThroughputData((prev) => {
             const nextVal = services.length ? Math.round(services.reduce((a,s)=>a+s.latency_ms,0)/services.length) : 0;
             return [...prev.slice(1), nextVal];
