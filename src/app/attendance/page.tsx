@@ -71,7 +71,7 @@ function AttendanceHubContent() {
   };
 
   const handleExportCSV = () => {
-    const headers = ["Index No", "Full Name", "Status", "First Check-In", "Random AI Check", "Overridden", "Override Reason"];
+    const headers = ["Index No", "Full Name", "Status", "First Check-In", "Random Location Check", "Manually Marked", "Audit Reason"];
     const rows = filteredRecords.map((r) => [
       r.student_index || "",
       r.student_name || "",
@@ -102,8 +102,8 @@ function AttendanceHubContent() {
 
   return (
     <DashboardLayout
-      title="Attendance Records & Overrides Hub"
-      subtitle="Audit student verifications, review AI biometric checks, and log official manual overrides."
+      title="Attendance Records"
+      subtitle="Review mobile verifications, random location checks, and lecturer-marked attendance."
     >
       <div className="glass-card" style={{ padding: "24px" }}>
         {/* Filters Header */}
@@ -193,8 +193,8 @@ function AttendanceHubContent() {
                 <th>Index No</th>
                 <th>Status</th>
                 <th>First Check-in</th>
-                <th>Random AI Check</th>
-                <th>Override Audit Status</th>
+                <th>Random Location Check</th>
+                <th>Manual Marking</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -278,13 +278,13 @@ function AttendanceHubContent() {
                       <td>
                         {record.is_manually_overridden ? (
                           <div style={{ fontSize: "0.75rem", color: "#818CF8" }}>
-                            <span style={{ fontWeight: 600 }}>🛡️ By {record.override_by_name || "Lecturer"}</span>
+                            <span style={{ fontWeight: 600 }}>Marked by {record.override_by_name || "Lecturer"}</span>
                             <p style={{ color: "var(--text-muted)", fontSize: "0.7rem", marginTop: "2px" }}>
                               &quot;{record.override_reason}&quot;
                             </p>
                           </div>
                         ) : (
-                          <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Direct Mobile Check-in</span>
+                          <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Mobile verified</span>
                         )}
                       </td>
 
@@ -299,7 +299,7 @@ function AttendanceHubContent() {
                               setSelectedRecordForOverride(record);
                             }}
                           >
-                            <EditIcon size={12} /> Override
+                            <EditIcon size={12} /> Mark Attendance
                           </button>
                         </div>
                       </td>
@@ -320,7 +320,7 @@ function AttendanceHubContent() {
         onOpenOverride={(rec) => setSelectedRecordForOverride(rec)}
       />
 
-      {/* Manual Override Modal */}
+      {/* Manual Mark Modal */}
       <OverrideModal
         record={selectedRecordForOverride}
         isOpen={!!selectedRecordForOverride}
