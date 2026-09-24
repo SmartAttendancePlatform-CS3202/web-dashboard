@@ -72,9 +72,9 @@ export function Header({ title = "Faculty Command Center", subtitle }: HeaderPro
       {/* Header Actions */}
       <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
         {/* Quick Launch Session Button */}
-        <Link href="/session/start" className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
+        <Link href="/session/live" className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
           <PlayIcon size={14} />
-          <span>Launch Session</span>
+          <span>Active Session</span>
         </Link>
 
         {/* Alert Bell */}

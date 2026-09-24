@@ -4,7 +4,7 @@ export type GenderType = "male" | "female" | "other";
 export type SessionStatus = "scheduled" | "ongoing" | "completed" | "cancelled";
 export type VerificationMethod = "gps_geofence" | "wifi_ap";
 export type GeofenceShape = "circle" | "square" | "polygon";
-export type WindowType = "first_check_in" | "random_check";
+export type WindowType = "check_in" | "random_check";
 export type AttemptStatus = "success" | "failed";
 export type AttendanceStatus = "present" | "late" | "absent" | "flagged_proxy";
 export type NoticeUrgency = "low" | "normal" | "high" | "urgent";
@@ -339,6 +339,9 @@ export interface SystemAuditLog {
   details: string;
   timestamp: string;
   severity: "info" | "warning" | "critical";
+  ip_address?: string | null;
+  node_endpoint?: string | null;
+  payload?: Record<string, unknown>;
 }
 
 export interface MicroserviceStatus {

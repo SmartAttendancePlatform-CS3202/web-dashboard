@@ -100,9 +100,9 @@ export default function CourseDetailPage() {
             </div>
           </div>
 
-          <Link href={`/session/start?offering_id=${offering.id}`} className="btn-primary">
+          <Link href="/session/live" className="btn-primary">
             <PlayIcon size={16} />
-            <span>Launch Live Session</span>
+            <span>Open Session</span>
           </Link>
         </div>
       )}

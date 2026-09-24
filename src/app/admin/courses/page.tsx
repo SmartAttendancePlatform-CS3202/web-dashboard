@@ -742,7 +742,7 @@ export default function AdminCoursesPage() {
                     value={offDay}
                     onChange={(e) => setOffDay(e.target.value)}
                   >
-                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((d) => (
+                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((d) => (
                       <option key={d} value={d}>
                         {d}
                       </option>

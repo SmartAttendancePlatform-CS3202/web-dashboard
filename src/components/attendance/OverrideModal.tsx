@@ -46,13 +46,13 @@ export function OverrideModal({
         : selectedPreset;
 
     if (!finalReason) {
-      setError("Please provide a reason for this manual override.");
+      setError("Please provide a reason for this manual attendance mark.");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const updated = await attendanceApi.overrideRecord(record.id, {
+      const updated = await attendanceApi.manualMarkRecord(record.id, {
         status: selectedStatus,
         override_reason: finalReason,
       });
@@ -61,7 +61,7 @@ export function OverrideModal({
         onSuccess(updated);
         onClose();
       } else {
-        setError("Failed to submit override. Please check connection.");
+        setError("Failed to save attendance mark. Please check connection.");
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred.";
@@ -75,7 +75,7 @@ export function OverrideModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Manual Attendance Override"
+      title="Mark Attendance"
       subtitle={`Student: ${record.student_name} (${record.student_index})`}
       maxWidth="md"
     >
@@ -109,7 +109,7 @@ export function OverrideModal({
         {/* New Status Selection */}
         <div>
           <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "8px" }}>
-            Select Overridden Status <span style={{ color: "#E11D48" }}>*</span>
+            Select Attendance Status <span style={{ color: "#E11D48" }}>*</span>
           </label>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
             {(["present", "late", "absent", "flagged_proxy"] as AttendanceStatus[]).map((st) => (
@@ -140,7 +140,7 @@ export function OverrideModal({
         {/* Reason Presets */}
         <div>
           <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "8px" }}>
-            Audit Reason for Override <span style={{ color: "#E11D48" }}>*</span>
+            Audit Reason <span style={{ color: "#E11D48" }}>*</span>
           </label>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             {PRESET_REASONS.map((preset) => (
@@ -206,7 +206,7 @@ export function OverrideModal({
         >
           <span>⚖️</span>
           <span>
-            This action is permanently stamped in the backend audit log under your lecturer account with UTC timestamp.
+            This action is stamped in the backend audit log under your lecturer account with UTC timestamp.
           </span>
         </div>
 
@@ -222,7 +222,7 @@ export function OverrideModal({
             Cancel
           </button>
           <button type="submit" className="btn-primary" disabled={isSubmitting}>
-            {isSubmitting ? "Updating Audit Log..." : "Confirm & Save Override"}
+            {isSubmitting ? "Updating Audit Log..." : "Confirm Attendance Mark"}
           </button>
         </div>
       </form>

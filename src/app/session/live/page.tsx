@@ -16,6 +16,7 @@ import {
   ScanFaceIcon,
   CheckCircleIcon,
   AlertTriangleIcon,
+  UsersIcon,
 } from "@/components/ui/Icons";
 
 function LiveSessionContent() {
@@ -32,11 +33,29 @@ function LiveSessionContent() {
   const [isEnding, setIsEnding] = useState<boolean>(false);
   const [isTriggeringRandom, setIsTriggeringRandom] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [emptyMessage, setEmptyMessage] = useState<string>("");
+  const [filter, setFilter] = useState<string>("all");
+  const [hasSynced, setHasSynced] = useState<boolean>(false);
 
   // Poll for real-time live session updates every 3 seconds
   useEffect(() => {
     if (!sessionId) {
-      setLoading(false);
+      async function openCurrentScheduledSession() {
+        try {
+          const active = await attendanceApi.getActiveScheduledSessions();
+          if (active.length > 0) {
+            router.replace(`/session/live?session_id=${active[0].id}`);
+            return;
+          }
+          setEmptyMessage("No scheduled lecture is inside its attendance window right now.");
+        } catch (err: unknown) {
+          setEmptyMessage(err instanceof Error ? err.message : "Could not find an active scheduled lecture session.");
+        } finally {
+          setLoading(false);
+        }
+      }
+      openCurrentScheduledSession();
       return;
     }
     
@@ -48,6 +67,10 @@ function LiveSessionContent() {
           attendanceApi.getSessionWindows(sessionId).catch(() => []),
         ]);
         if (sess) setSession(sess);
+        if (sess && !hasSynced && recs && recs.length === 0) {
+          setHasSynced(true);
+          attendanceApi.syncSessionRoster(sessionId).then(() => attendanceApi.getAttendanceRecords(sessionId).then(setRecords)).catch(console.error);
+        }
         if (recs) setRecords(recs);
         if (wins) setWindows(wins);
       } catch (err) {
@@ -63,7 +86,7 @@ function LiveSessionContent() {
       const interval = setInterval(fetchLiveData, 3000);
       return () => clearInterval(interval);
     }
-  }, [sessionId, isStreamPaused]);
+  }, [sessionId, isStreamPaused, router, hasSynced]);
 
   const handleLaunchRandom = async () => {
     setIsTriggeringRandom(true);
@@ -77,6 +100,19 @@ function LiveSessionContent() {
       alert(err instanceof Error ? err.message : "Failed to launch random window.");
     } finally {
       setIsTriggeringRandom(false);
+    }
+  };
+
+  const handleSyncRoster = async () => {
+    setIsSyncing(true);
+    try {
+      await attendanceApi.syncSessionRoster(sessionId);
+      const updatedRecords = await attendanceApi.getAttendanceRecords(sessionId);
+      setRecords(updatedRecords);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to sync roster.");
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -110,10 +146,23 @@ function LiveSessionContent() {
   const initialWindow = windows.find((w) => w.window_type === "check_in" || w.window_type === "WindowType.check_in");
   const randomWindow = windows.find((w) => w.window_type === "random_check" || w.window_type === "WindowType.random_check");
 
+  if (!sessionId) {
+    return (
+      <DashboardLayout
+        title="Active Session"
+        subtitle="Scheduled attendance sessions open automatically 15 minutes before lecture start."
+      >
+        <div className="glass-card" style={{ padding: "36px", textAlign: "center", color: "var(--text-secondary)" }}>
+          {loading ? "Looking for your active scheduled lecture..." : emptyMessage}
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout
       title={session ? `Live Session: ${session.course_code} - ${session.course_name}` : "Live Command Center"}
-      subtitle="Real-time check-in stream, active verification windows, and AI biometric matching feed."
+      subtitle="Scheduled attendance check-ins, lecturer random location checks, and manual lecturer marking."
     >
       {/* Top Command Bar */}
       <div
@@ -151,7 +200,7 @@ function LiveSessionContent() {
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <span className="pulse-dot-live" />
               <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "#E11D48", letterSpacing: "0.02em" }}>
-                LIVE ATTENDANCE STREAM ACTIVE
+                SCHEDULED ATTENDANCE SESSION
               </span>
               <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
                 • Polling every 3s
@@ -199,7 +248,7 @@ function LiveSessionContent() {
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <ScanFaceIcon size={18} style={{ color: "var(--accent-primary)" }} />
               <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Window 1: Location & Face Biometrics
+                Student Check-in Window
               </h4>
             </div>
             <span
@@ -218,7 +267,8 @@ function LiveSessionContent() {
           </div>
 
           <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + AI Face Match</strong></p>
+            <p>Open from 15 minutes before lecture start until scheduled lecture end</p>
+            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + Face Match</strong></p>
             <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.first_check_in_at).length} / {totalEnrolled} Students checked in</p>
           </div>
         </div>
@@ -239,7 +289,7 @@ function LiveSessionContent() {
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <MapPinIcon size={18} style={{ color: "var(--accent-primary)" }} />
               <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Window 2: Random Geofence Check
+                Random Location Check
               </h4>
             </div>
             <span
@@ -278,7 +328,7 @@ function LiveSessionContent() {
               style={{ padding: "6px 16px", fontSize: "0.85rem" }}
             >
               <RadioIcon size={16} />
-              {isTriggeringRandom ? "Launching..." : "Launch Random Check-in"}
+              {isTriggeringRandom ? "Launching..." : "Launch Random Check"}
             </button>
           </div>
         )}
@@ -320,18 +370,43 @@ function LiveSessionContent() {
               Live Student Check-In Stream ({records.length} Records)
             </h4>
             <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "2px" }}>
-              Click any student row to view forensic GPS distance, WiFi SSID match, and AI Face confidence scores.
+              Click any student row to view GPS distance, WiFi match, and face verification evidence.
             </p>
           </div>
 
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => attendanceApi.getAttendanceRecords(sessionId).then(setRecords)}
-            style={{ padding: "6px 12px", fontSize: "0.8rem" }}
-          >
-            <RefreshCwIcon size={14} /> Refresh
-          </button>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <select
+              className="input-field"
+              style={{ padding: "6px 12px", fontSize: "0.8rem", width: "160px" }}
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">All Students</option>
+              <option value="marked">Present / Marked</option>
+              <option value="late">Late</option>
+              <option value="partial">Complete One Step</option>
+              <option value="absent">Not Marking (Absent)</option>
+              <option value="flagged">Flagged</option>
+            </select>
+
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleSyncRoster}
+              disabled={isSyncing}
+              style={{ padding: "6px 12px", fontSize: "0.8rem", color: "#3B82F6", borderColor: "rgba(59, 130, 246, 0.3)" }}
+            >
+              <UsersIcon size={14} /> {isSyncing ? "Syncing..." : "Sync Full Roster"}
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => attendanceApi.getAttendanceRecords(sessionId).then(setRecords)}
+              style={{ padding: "6px 12px", fontSize: "0.8rem" }}
+            >
+              <RefreshCwIcon size={14} /> Refresh
+            </button>
+          </div>
         </div>
 
         <div style={{ overflowX: "auto" }}>
@@ -342,8 +417,8 @@ function LiveSessionContent() {
                 <th>Index No</th>
                 <th>Status</th>
                 <th>Check-In Time</th>
-                <th>AI Biometric / Proxy Diagnostics</th>
-                <th>Override History</th>
+                <th>Verification Evidence</th>
+                <th>Manual Marking</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -357,11 +432,19 @@ function LiveSessionContent() {
               ) : records.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
-                    No check-in records recorded for this session yet.
+                    No check-in records recorded for this session yet. Click &quot;Sync Full Roster&quot; to load enrolled students.
                   </td>
                 </tr>
               ) : (
-                records.map((record) => {
+                records.filter((record) => {
+                  if (filter === "all") return true;
+                  if (filter === "marked") return record.status === "present" || record.is_manually_overridden;
+                  if (filter === "late") return record.status === "late";
+                  if (filter === "flagged") return record.status === "flagged_proxy";
+                  if (filter === "absent") return record.status === "absent" && !record.first_check_in_at;
+                  if (filter === "partial") return record.first_check_in_at && record.status !== "present" && !record.is_manually_overridden;
+                  return true;
+                }).map((record) => {
                   const isFlagged = record.status === "flagged_proxy";
                   return (
                     <tr
@@ -423,15 +506,15 @@ function LiveSessionContent() {
                       {isFlagged ? (
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#BE185D", fontSize: "0.75rem", fontWeight: 600 }}>
                           <AlertTriangleIcon size={14} />
-                          <span>AI Face & GPS Discrepancy Flagged</span>
+                          <span>Verification discrepancy flagged</span>
                         </div>
                       ) : record.status === "present" ? (
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#059669", fontSize: "0.75rem" }}>
                           <CheckCircleIcon size={14} />
-                          <span>Verified (Geofence + Biometric)</span>
+                          <span>Verified by mobile check-in</span>
                         </div>
                       ) : record.status === "late" ? (
-                        <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Checked in after 10m threshold</span>
+                        <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Late but valid check-in</span>
                       ) : (
                         <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Not checked in yet</span>
                       )}
@@ -440,11 +523,11 @@ function LiveSessionContent() {
                     <td>
                       {record.is_manually_overridden ? (
                         <div style={{ fontSize: "0.75rem", color: "var(--accent-primary)" }}>
-                          <span>🛡️ {record.override_by_name || "Lecturer"}</span>
+                          <span>Marked by {record.override_by_name || "Lecturer"}</span>
                           <p style={{ color: "var(--text-muted)", fontSize: "0.7rem" }}>{record.override_reason}</p>
                         </div>
                       ) : (
-                        <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>System Verified</span>
+                        <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Mobile verified</span>
                       )}
                     </td>
 
@@ -458,7 +541,7 @@ function LiveSessionContent() {
                           setSelectedRecordForOverride(record);
                         }}
                       >
-                        Override
+                        Mark Attendance
                       </button>
                     </td>
                   </tr>
@@ -477,7 +560,7 @@ function LiveSessionContent() {
         onOpenOverride={(rec) => setSelectedRecordForOverride(rec)}
       />
 
-      {/* Manual Override Modal */}
+      {/* Manual Mark Modal */}
       <OverrideModal
         record={selectedRecordForOverride}
         isOpen={!!selectedRecordForOverride}

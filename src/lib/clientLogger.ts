@@ -17,7 +17,7 @@ function logToServer(level: LogLevel, message: string, context?: Record<string, 
   }
 
   // Fire and forget to server
-  supabase.auth.getSession().then(({ data: { session } }) => {
+  supabase.auth.getSession().then(({ data: { session } }: { data: { session: { access_token?: string } | null } }) => {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (session?.access_token) {
       headers["Authorization"] = `Bearer ${session.access_token}`;

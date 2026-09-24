@@ -47,7 +47,7 @@ async function hydrateSessions(raw:any[]): Promise<LectureSession[]> {
     ...s,
     course_code: om.get(s.course_offering_id)?.course_code,
     course_name: om.get(s.course_offering_id)?.course_name,
-    venue_name: om.get(s.venue_id)?.venue_name,
+    venue_name: om.get(s.course_offering_id)?.venue_name,
     lecturer_id: om.get(s.course_offering_id)?.lecturer_id,
     lecturer_name: om.get(s.course_offering_id)?.lecturer_name,
   }));
@@ -98,6 +98,10 @@ export const attendanceApi = {
     const p = new URLSearchParams(); if(offeringId)p.set("offering_id",offeringId);
     return hydrateSessions(await must(apiFetch<any[]>(`${API_CONFIG.attendance}/sessions${p.toString()?`?${p}`:""}`)));
   },
+  getActiveScheduledSessions: async (offeringId?:string): Promise<LectureSession[]> => {
+    const p = new URLSearchParams(); if(offeringId)p.set("offering_id",offeringId);
+    return hydrateSessions(await must(apiFetch<any[]>(`${API_CONFIG.attendance}/sessions/active${p.toString()?`?${p}`:""}`)));
+  },
   getSessionById: async (id:string) => {
     const raw:any = await must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}`));
     return (await hydrateSessions([raw]))[0] || null;
@@ -113,16 +117,18 @@ export const attendanceApi = {
   triggerRandomWindow: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/windows/random`,{method:"POST"})),
   getSessionWindows: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/windows`)),
   getSessionLiveStatus: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/live`)),
+  syncSessionRoster: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/sync-roster`,{method:"POST"})),
   getAttendanceRecords: async (sessionId?:string, studentId?:string): Promise<AttendanceRecord[]> => {
     const p=new URLSearchParams(); if(sessionId)p.set("session_id",sessionId); if(studentId)p.set("student_id",studentId);
-    const records:any[] = await must(apiFetch<any[]>(`${API_CONFIG.attendance}/attendance/records${p.toString()?`?${p}`:""}`));
+    const records:any[] = await must(apiFetch<any[]>(`${API_CONFIG.attendance}/records${p.toString()?`?${p}`:""}`));
     if(!records.length) return [];
     const students=await schedulingApi.getStudents().catch(()=>[] as Student[]); const sm=new Map(students.map(s=>[s.id,s]));
     return records.map(r=>({...r,student_name:sm.get(r.student_id)?.display_name||sm.get(r.student_id)?.full_name,student_index:sm.get(r.student_id)?.student_index_no,student_photo:sm.get(r.student_id)?.photo_url}));
   },
-  getRecordById: async (id:string) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/attendance/records/${id}`)),
-  overrideRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/attendance/records/${recordId}/override`,{method:"PATCH",body:JSON.stringify(data)})),
-  getAttempts: async (recordId:string): Promise<AttendanceVerificationAttempt[]> => must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/attendance/records/${recordId}/attempts`)),
+  getRecordById: async (id:string) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${id}`)),
+  overrideRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${recordId}/override`,{method:"PATCH",body:JSON.stringify(data)})),
+  manualMarkRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${recordId}/manual-mark`,{method:"PATCH",body:JSON.stringify(data)})),
+  getAttempts: async (recordId:string): Promise<AttendanceVerificationAttempt[]> => must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/records/${recordId}/attempts`)),
   getActiveSessions: async () => hydrateSessions(await must(apiFetch<any[]>(`${API_CONFIG.attendance}/sessions?status=ongoing`))),
 };
 export const sessionsApi=attendanceApi;
@@ -131,7 +137,7 @@ export const reportsApi = {
   getOfferingReport: async (id:string): Promise<OfferingReport> => must(apiFetch(`${API_CONFIG.attendance}/reports/offerings/${id}`)),
   getOfferingTrends: async (id:string): Promise<TrendData> => must(apiFetch(`${API_CONFIG.attendance}/reports/offerings/${id}/trends`)),
   getWeeklyTrends: async (): Promise<WeeklyTrendItem[]> => must(apiFetch(`${API_CONFIG.attendance}/reports/trends/weekly`)),
-  getRecentAttempts: async (offeringId?:string) => {const p=offeringId?`?offering_id=${encodeURIComponent(offeringId)}`:""; return must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/attendance/attempts${p}`));},
+  getRecentAttempts: async (offeringId?:string) => {const p=offeringId?`?offering_id=${encodeURIComponent(offeringId)}`:""; return must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/attempts${p}`));},
   getStudentSummary: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/reports/students/${id}/summary`)),
   exportOffering: async (id:string) => {
     const {data,error,status}=await apiFetchText(`${API_CONFIG.attendance}/reports/offerings/${id}/export`);
@@ -146,7 +152,15 @@ export const alertsApi = {
 };
 
 export const noticesApi = {
-  getNotices: async ():Promise<Notice[]> => must(apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/all`)),
+  getNotices: async ():Promise<Notice[]> => {
+    const res = await apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/all`);
+    if (res.error) {
+      const meRes = await apiFetch<Notice[]>(`${API_CONFIG.attendance}/notifications/me`);
+      if (!meRes.error && meRes.data) return meRes.data;
+      throw new Error(res.error);
+    }
+    return res.data || [];
+  },
   broadcastNotice: async (data:any):Promise<Notice> => must(apiFetch<Notice>(`${API_CONFIG.attendance}/notifications/broadcast`,{method:"POST",body:JSON.stringify(data)})),
   markRead: async (id:string) => must(apiFetch<Notice>(`${API_CONFIG.attendance}/notifications/${id}/read`,{method:"PATCH"})),
 };
