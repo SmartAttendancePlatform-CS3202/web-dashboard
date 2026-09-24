@@ -11,6 +11,8 @@ export default function CoursesPage() {
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [semesterFilter, setSemesterFilter] = useState("all");
+  const [dayFilter, setDayFilter] = useState("all");
 
   useEffect(() => {
     async function loadCourses() {
@@ -26,10 +28,16 @@ export default function CoursesPage() {
     loadCourses();
   }, []);
 
-  const filteredOfferings = offerings.filter(o => 
-    (o.course_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
-    (o.course_code?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
+  const filteredOfferings = offerings.filter(o => {
+    const matchSearch = (o.course_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) || 
+                        (o.course_code?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    const matchSem = semesterFilter === "all" || o.semester === semesterFilter;
+    const matchDay = dayFilter === "all" || o.day === dayFilter;
+    return matchSearch && matchSem && matchDay;
+  });
+
+  const semesters = Array.from(new Set(offerings.map(o => o.semester).filter(Boolean)));
+  const days = Array.from(new Set(offerings.map(o => o.day).filter(Boolean)));
 
   return (
     <DashboardLayout
@@ -43,9 +51,9 @@ export default function CoursesPage() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           
-          {/* Search Bar */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <div style={{ position: "relative", width: "100%", maxWidth: "400px" }}>
+          {/* Search and Filters Bar */}
+          <div className="glass-card" style={{ display: "flex", flexWrap: "wrap", gap: "16px", padding: "16px", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ flex: 1, minWidth: "250px", position: "relative" }}>
               <input 
                 type="text" 
                 placeholder="Search by course code or name..." 
@@ -54,8 +62,8 @@ export default function CoursesPage() {
                 style={{
                   width: "100%",
                   padding: "10px 16px",
-                  borderRadius: "9999px",
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(255, 255, 255, 0.03)",
                   border: "1px solid var(--border-subtle)",
                   color: "var(--text-primary)",
                   fontSize: "0.9rem",
@@ -63,11 +71,48 @@ export default function CoursesPage() {
                 }}
               />
             </div>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              <select
+                value={semesterFilter}
+                onChange={(e) => setSemesterFilter(e.target.value)}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                  border: "1px solid var(--border-subtle)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.9rem",
+                  outline: "none",
+                  cursor: "pointer"
+                }}
+              >
+                <option value="all" style={{ color: "black" }}>All Semesters</option>
+                {semesters.map(sem => <option key={sem} value={sem} style={{ color: "black" }}>{sem}</option>)}
+              </select>
+              
+              <select
+                value={dayFilter}
+                onChange={(e) => setDayFilter(e.target.value)}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                  border: "1px solid var(--border-subtle)",
+                  color: "var(--text-primary)",
+                  fontSize: "0.9rem",
+                  outline: "none",
+                  cursor: "pointer"
+                }}
+              >
+                <option value="all" style={{ color: "black" }}>All Days</option>
+                {days.map(day => <option key={day} value={day} style={{ color: "black" }}>{day}</option>)}
+              </select>
+            </div>
           </div>
 
           {filteredOfferings.length === 0 ? (
             <div className="glass-card" style={{ padding: "60px", textAlign: "center", color: "var(--text-muted)" }}>
-              No courses found matching "{searchTerm}".
+              No courses found matching &quot;{searchTerm}&quot;.
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "24px" }}>

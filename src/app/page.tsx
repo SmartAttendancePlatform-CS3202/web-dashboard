@@ -50,10 +50,10 @@ export default function HomePage() {
         
         // Filter sessions and notices to only those related to the lecturer's offerings
         const myOfferingIds = new Set(offs.map((o) => o.id));
-        const myCourseIds = new Set(offs.map((o) => o.course_id));
+
         
         const mySessions = sess.filter((s) => myOfferingIds.has(s.course_offering_id));
-        const myNotices = nots.filter((n) => myCourseIds.has(n.course_id));
+        const myNotices = nots.filter((n) => !n.course_offering_id || myOfferingIds.has(n.course_offering_id));
 
         setSessions(mySessions);
         setReport(rep as OfferingReport | null);

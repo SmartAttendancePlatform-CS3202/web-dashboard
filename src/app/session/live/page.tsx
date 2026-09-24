@@ -35,6 +35,8 @@ function LiveSessionContent() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [emptyMessage, setEmptyMessage] = useState<string>("");
+  const [filter, setFilter] = useState<string>("all");
+  const [hasSynced, setHasSynced] = useState<boolean>(false);
 
   // Poll for real-time live session updates every 3 seconds
   useEffect(() => {
@@ -65,6 +67,10 @@ function LiveSessionContent() {
           attendanceApi.getSessionWindows(sessionId).catch(() => []),
         ]);
         if (sess) setSession(sess);
+        if (sess && !hasSynced && recs && recs.length === 0) {
+          setHasSynced(true);
+          attendanceApi.syncSessionRoster(sessionId).then(() => attendanceApi.getAttendanceRecords(sessionId).then(setRecords)).catch(console.error);
+        }
         if (recs) setRecords(recs);
         if (wins) setWindows(wins);
       } catch (err) {
@@ -80,7 +86,7 @@ function LiveSessionContent() {
       const interval = setInterval(fetchLiveData, 3000);
       return () => clearInterval(interval);
     }
-  }, [sessionId, isStreamPaused, router]);
+  }, [sessionId, isStreamPaused, router, hasSynced]);
 
   const handleLaunchRandom = async () => {
     setIsTriggeringRandom(true);
@@ -368,7 +374,21 @@ function LiveSessionContent() {
             </p>
           </div>
 
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <select
+              className="input-field"
+              style={{ padding: "6px 12px", fontSize: "0.8rem", width: "160px" }}
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">All Students</option>
+              <option value="marked">Present / Marked</option>
+              <option value="late">Late</option>
+              <option value="partial">Complete One Step</option>
+              <option value="absent">Not Marking (Absent)</option>
+              <option value="flagged">Flagged</option>
+            </select>
+
             <button
               type="button"
               className="btn-secondary"
@@ -412,11 +432,19 @@ function LiveSessionContent() {
               ) : records.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
-                    No check-in records recorded for this session yet.
+                    No check-in records recorded for this session yet. Click &quot;Sync Full Roster&quot; to load enrolled students.
                   </td>
                 </tr>
               ) : (
-                records.map((record) => {
+                records.filter((record) => {
+                  if (filter === "all") return true;
+                  if (filter === "marked") return record.status === "present" || record.is_manually_overridden;
+                  if (filter === "late") return record.status === "late";
+                  if (filter === "flagged") return record.status === "flagged_proxy";
+                  if (filter === "absent") return record.status === "absent" && !record.first_check_in_at;
+                  if (filter === "partial") return record.first_check_in_at && record.status !== "present" && !record.is_manually_overridden;
+                  return true;
+                }).map((record) => {
                   const isFlagged = record.status === "flagged_proxy";
                   return (
                     <tr
