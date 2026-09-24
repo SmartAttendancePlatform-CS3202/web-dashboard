@@ -42,8 +42,8 @@ export default function HomePage() {
           attendanceApi.getSessions(),
           activeOffId ? reportsApi.getOfferingReport(activeOffId).catch(() => null) : Promise.resolve(null),
           activeOffId ? reportsApi.getOfferingTrends(activeOffId).catch(() => null) : Promise.resolve(null),
-          alertsApi.getAlerts(),
-          noticesApi.getNotices(),
+          alertsApi.getAlerts().catch(() => []),
+          noticesApi.getNotices().catch(() => []),
         ]);
 
         setOfferings(offs);
