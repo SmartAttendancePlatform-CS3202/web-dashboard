@@ -47,11 +47,19 @@ export default function HomePage() {
         ]);
 
         setOfferings(offs);
-        setSessions(sess);
+        
+        // Filter sessions and notices to only those related to the lecturer's offerings
+        const myOfferingIds = new Set(offs.map((o) => o.id));
+        const myCourseIds = new Set(offs.map((o) => o.course_id));
+        
+        const mySessions = sess.filter((s) => myOfferingIds.has(s.course_offering_id));
+        const myNotices = nots.filter((n) => myCourseIds.has(n.course_id));
+
+        setSessions(mySessions);
         setReport(rep as OfferingReport | null);
         setTrends(tr as TrendData | null);
         setAlerts(al);
-        setNotices(nots);
+        setNotices(myNotices);
       } catch (err) {
         console.error("Error loading dashboard metrics:", err);
       } finally {
