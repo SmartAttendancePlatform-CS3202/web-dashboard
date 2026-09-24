@@ -53,7 +53,7 @@ export default function HomePage() {
         const myCourseIds = new Set(offs.map((o) => o.course_id));
         
         const mySessions = sess.filter((s) => myOfferingIds.has(s.course_offering_id));
-        const myNotices = nots.filter((n) => myCourseIds.has(n.course_id));
+        const myNotices = nots.filter((n) => !n.course_offering_id || myOfferingIds.has(n.course_offering_id));
 
         setSessions(mySessions);
         setReport(rep as OfferingReport | null);

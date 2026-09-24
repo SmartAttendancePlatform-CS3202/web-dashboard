@@ -8,4 +8,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // This automatically uses document.cookie instead of localStorage
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createBrowserClient(supabaseUrl as string, supabaseAnonKey as string);

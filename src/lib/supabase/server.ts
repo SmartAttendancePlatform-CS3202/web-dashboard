@@ -13,7 +13,7 @@ export async function createClient() {
   const authHeader = headerList.get("authorization");
   const token = authHeader?.replace("Bearer ", "") || "";
 
-  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+  return createSupabaseClient(supabaseUrl as string, supabaseAnonKey as string, {
     global: {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     },

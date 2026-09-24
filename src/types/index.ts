@@ -339,6 +339,9 @@ export interface SystemAuditLog {
   details: string;
   timestamp: string;
   severity: "info" | "warning" | "critical";
+  ip_address?: string | null;
+  node_endpoint?: string | null;
+  payload?: any;
 }
 
 export interface MicroserviceStatus {
