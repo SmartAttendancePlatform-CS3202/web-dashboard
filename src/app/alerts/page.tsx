@@ -46,7 +46,7 @@ export default function AlertsPage() {
 
   return (
     <DashboardLayout
-      title="Security & Anomaly Alerts"
+      title="Alerts"
       subtitle="Audit real-time proxy detection events, geofence boundary anomalies, and AI biometric mismatch flags."
     >
       <div className="glass-card" style={{ padding: "24px" }}>
@@ -92,7 +92,7 @@ export default function AlertsPage() {
                   style={{
                     padding: "18px 20px",
                     borderRadius: "var(--radius-md)",
-                    backgroundColor: alert.is_read ? "rgba(255, 255, 255, 0.02)" : isProxy ? "rgba(236, 72, 153, 0.08)" : "rgba(245, 158, 11, 0.08)",
+                    backgroundColor: alert.is_read ? "var(--bg-surface)" : isProxy ? "rgba(236, 72, 153, 0.08)" : "rgba(245, 158, 11, 0.08)",
                     border: alert.is_read ? "1px solid var(--border-subtle)" : isProxy ? "1px solid rgba(236, 72, 153, 0.35)" : "1px solid rgba(245, 158, 11, 0.35)",
                     display: "flex",
                     alignItems: "flex-start",

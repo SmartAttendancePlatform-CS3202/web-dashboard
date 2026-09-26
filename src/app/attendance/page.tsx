@@ -138,7 +138,7 @@ function AttendanceHubContent() {
             </select>
 
             {/* Status Filter Chips */}
-            <div style={{ display: "flex", gap: "6px", backgroundColor: "rgba(255, 255, 255, 0.03)", padding: "4px", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
+            <div style={{ display: "flex", gap: "6px", backgroundColor: "var(--bg-surface)", padding: "4px", borderRadius: "8px", border: "1px solid var(--border-subtle)" }}>
               {["all", "present", "late", "flagged_proxy", "absent"].map((st) => (
                 <button
                   key={st}
@@ -148,8 +148,8 @@ function AttendanceHubContent() {
                     padding: "4px 10px",
                     borderRadius: "6px",
                     border: "none",
-                    backgroundColor: statusFilter === st ? "rgba(99, 102, 241, 0.25)" : "transparent",
-                    color: statusFilter === st ? "#818CF8" : "var(--text-secondary)",
+                    backgroundColor: statusFilter === st ? "var(--bg-surface-recess)" : "transparent",
+                    color: statusFilter === st ? "var(--accent-blue)" : "var(--text-secondary)",
                     fontWeight: statusFilter === st ? 700 : 500,
                     fontSize: "0.75rem",
                     cursor: "pointer",
@@ -236,7 +236,7 @@ function AttendanceHubContent() {
                               justifyContent: "center",
                               fontSize: "0.75rem",
                               fontWeight: 700,
-                              color: "#818CF8",
+                              color: "var(--accent-blue)",
                               overflow: "hidden",
                             }}
                           >
@@ -254,7 +254,7 @@ function AttendanceHubContent() {
                       </td>
 
                       <td>
-                        <code style={{ fontSize: "0.85rem", color: "#818CF8", fontWeight: 700 }}>
+                        <code style={{ fontSize: "0.85rem", color: "var(--accent-blue)", fontWeight: 700 }}>
                           {record.student_index}
                         </code>
                       </td>
@@ -277,7 +277,7 @@ function AttendanceHubContent() {
 
                       <td>
                         {record.is_manually_overridden ? (
-                          <div style={{ fontSize: "0.75rem", color: "#818CF8" }}>
+                          <div style={{ fontSize: "0.75rem", color: "var(--accent-blue)" }}>
                             <span style={{ fontWeight: 600 }}>Marked by {record.override_by_name || "Lecturer"}</span>
                             <p style={{ color: "var(--text-muted)", fontSize: "0.7rem", marginTop: "2px" }}>
                               &quot;{record.override_reason}&quot;

@@ -143,7 +143,7 @@ export function BroadcastModalButton({ offerings }: { offerings: CourseOffering[
                   >
                     <option value="all_university">All University Members</option>
                     <option value="all_students">All Students</option>
-                    <option value="all_lecturers">Faculty & Lecturers Only</option>
+                    <option value="all_lecturers">Lecturers Only</option>
                     <option value="specific_offering">Specific Course Offering</option>
                   </select>
                 </div>

@@ -94,7 +94,7 @@ export default function TimetablePage() {
                   <div style={{ 
                     width: "8px", 
                     height: "24px", 
-                    backgroundColor: "#818CF8", 
+                    backgroundColor: "var(--accent-blue)", 
                     borderRadius: "4px" 
                   }} />
                   {day}
@@ -107,8 +107,8 @@ export default function TimetablePage() {
                       style={{
                         padding: "20px",
                         borderRadius: "var(--radius-md)",
-                        backgroundColor: "rgba(99, 102, 241, 0.04)",
-                        border: "1px solid rgba(99, 102, 241, 0.15)",
+                        backgroundColor: "var(--bg-surface-recess)",
+                        border: "1px solid var(--bg-surface-recess)",
                         display: "flex",
                         flexDirection: "column",
                         gap: "12px",
@@ -117,7 +117,7 @@ export default function TimetablePage() {
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "#818CF8", backgroundColor: "rgba(99, 102, 241, 0.1)", padding: "4px 10px", borderRadius: "6px" }}>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--accent-blue)", backgroundColor: "var(--bg-surface-recess)", padding: "4px 10px", borderRadius: "6px" }}>
                           {offering.course_code}
                         </span>
                         <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 600 }}>
@@ -131,11 +131,11 @@ export default function TimetablePage() {
 
                       <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "8px", margin: "8px 0" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <ClockIcon size={16} className="text-indigo-400" />
+                          <ClockIcon size={16}  />
                           <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{offering.start_time} - {offering.end_time}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <MapPinIcon size={16} className="text-cyan-400" />
+                          <MapPinIcon size={16}  />
                           <span>{offering.venue_name}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

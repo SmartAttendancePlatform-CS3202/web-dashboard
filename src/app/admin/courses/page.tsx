@@ -258,7 +258,7 @@ export default function AdminCoursesPage() {
             borderRadius: "var(--radius-md)",
             fontSize: "0.85rem",
             fontWeight: 700,
-            backgroundColor: activeTab === "offerings" ? "rgba(6, 182, 212, 0.2)" : "rgba(255, 255, 255, 0.03)",
+            backgroundColor: activeTab === "offerings" ? "rgba(6, 182, 212, 0.2)" : "var(--bg-surface)",
             border: activeTab === "offerings" ? "1px solid #22D3EE" : "1px solid var(--border-subtle)",
             color: activeTab === "offerings" ? "#22D3EE" : "var(--text-secondary)",
             cursor: "pointer",
@@ -273,7 +273,7 @@ export default function AdminCoursesPage() {
             borderRadius: "var(--radius-md)",
             fontSize: "0.85rem",
             fontWeight: 700,
-            backgroundColor: activeTab === "courses" ? "rgba(6, 182, 212, 0.2)" : "rgba(255, 255, 255, 0.03)",
+            backgroundColor: activeTab === "courses" ? "rgba(6, 182, 212, 0.2)" : "var(--bg-surface)",
             border: activeTab === "courses" ? "1px solid #22D3EE" : "1px solid var(--border-subtle)",
             color: activeTab === "courses" ? "#22D3EE" : "var(--text-secondary)",
             cursor: "pointer",
@@ -291,7 +291,7 @@ export default function AdminCoursesPage() {
               <tr>
                 <th>Course Details</th>
                 <th>Academic Term</th>
-                <th>Assigned Faculty</th>
+                <th>Assigned Lecturer</th>
                 <th>Venue & Slot</th>
                 <th>Enrolled Roster</th>
                 <th>Verification Config</th>
@@ -315,8 +315,8 @@ export default function AdminCoursesPage() {
                             fontFamily: "monospace",
                             fontSize: "0.75rem",
                             fontWeight: 700,
-                            color: "#818CF8",
-                            backgroundColor: "rgba(99, 102, 241, 0.12)",
+                            color: "var(--accent-blue)",
+                            backgroundColor: "var(--bg-surface-recess)",
                             padding: "2px 6px",
                             borderRadius: "4px",
                           }}
@@ -345,8 +345,8 @@ export default function AdminCoursesPage() {
                             width: "28px",
                             height: "28px",
                             borderRadius: "50%",
-                            backgroundColor: "rgba(99, 102, 241, 0.2)",
-                            color: "#818CF8",
+                            backgroundColor: "var(--bg-surface-recess)",
+                            color: "var(--accent-blue)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -354,7 +354,7 @@ export default function AdminCoursesPage() {
                             fontWeight: 700,
                           }}
                         >
-                          {(off.lecturer_name || "Faculty").charAt(0)}
+                          {(off.lecturer_name || "Lecturer").charAt(0)}
                         </div>
                         <span style={{ fontSize: "0.82rem", fontWeight: 500, color: "var(--text-primary)" }}>
                           {off.lecturer_name || "Unassigned"}
@@ -447,7 +447,7 @@ export default function AdminCoursesPage() {
                   </td>
                   <td>
                     <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>
-                      {crs.department_name || "Computing Faculty"}
+                      {crs.department_name || "Computing"}
                     </span>
                   </td>
                   <td>
@@ -531,7 +531,7 @@ export default function AdminCoursesPage() {
                 <input
                   type="text"
                   className="input-control"
-                  placeholder="e.g. Distributed Cloud Computing & Microservices"
+                  placeholder="e.g. Distributed Cloud Computing & Services"
                   value={courseName}
                   onChange={(e) => setCourseName(e.target.value)}
                   required
@@ -877,7 +877,7 @@ export default function AdminCoursesPage() {
                 gap: "10px",
                 padding: "12px",
                 borderRadius: "var(--radius-md)",
-                backgroundColor: "rgba(255, 255, 255, 0.03)",
+                backgroundColor: "var(--bg-surface)",
                 border: "1px solid var(--border-subtle)",
                 marginBottom: "16px",
               }}
@@ -913,7 +913,7 @@ export default function AdminCoursesPage() {
                     style={{
                       padding: "10px 14px",
                       borderRadius: "var(--radius-md)",
-                      backgroundColor: "rgba(255, 255, 255, 0.02)",
+                      backgroundColor: "var(--bg-surface)",
                       border: "1px solid var(--border-subtle)",
                       display: "flex",
                       alignItems: "center",

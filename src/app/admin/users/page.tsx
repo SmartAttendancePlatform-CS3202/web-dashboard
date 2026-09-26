@@ -206,7 +206,7 @@ export default function AdminUsersPage() {
                 fontSize: "0.78rem",
                 fontWeight: 600,
                 textTransform: "capitalize",
-                backgroundColor: selectedRole === r ? "rgba(6, 182, 212, 0.2)" : "rgba(255, 255, 255, 0.03)",
+                backgroundColor: selectedRole === r ? "rgba(6, 182, 212, 0.2)" : "var(--bg-surface)",
                 border: selectedRole === r ? "1px solid #22D3EE" : "1px solid var(--border-subtle)",
                 color: selectedRole === r ? "#22D3EE" : "var(--text-secondary)",
                 cursor: "pointer",
@@ -353,14 +353,14 @@ export default function AdminUsersPage() {
                           backgroundColor: isAdmin
                             ? "rgba(6, 182, 212, 0.15)"
                             : isLecturer
-                            ? "rgba(99, 102, 241, 0.15)"
+                            ? "var(--bg-surface-recess)"
                             : "rgba(16, 185, 129, 0.15)",
-                          color: isAdmin ? "#22D3EE" : isLecturer ? "#818CF8" : "#34D399",
+                          color: isAdmin ? "#22D3EE" : isLecturer ? "var(--accent-blue)" : "#34D399",
                           border: `1px solid ${
                             isAdmin
                               ? "rgba(6, 182, 212, 0.3)"
                               : isLecturer
-                              ? "rgba(99, 102, 241, 0.3)"
+                              ? "var(--bg-surface-recess)"
                               : "rgba(16, 185, 129, 0.3)"
                           }`,
                         }}
@@ -504,7 +504,7 @@ export default function AdminUsersPage() {
                     onChange={(e) => setEditRole(e.target.value as UserRole)}
                   >
                     <option value="student">Student</option>
-                    <option value="lecturer">Lecturer (Faculty)</option>
+                    <option value="lecturer">Lecturer</option>
                     <option value="admin">Administrator</option>
                   </select>
                 </div>

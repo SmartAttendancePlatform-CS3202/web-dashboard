@@ -9,7 +9,7 @@ interface HeaderProps {
   subtitle?: string;
 }
 
-export function Header({ title = "Faculty Command Center", subtitle }: HeaderProps) {
+export function Header({ title = "Dashboard", subtitle }: HeaderProps) {
 
   return (
     <header
