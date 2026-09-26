@@ -63,7 +63,7 @@ export default function LoginPage() {
           left: "20%",
           width: "400px",
           height: "400px",
-          background: "radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(0,0,0,0) 70%)",
+          background: "radial-gradient(circle, var(--bg-surface-recess) 0%, rgba(0,0,0,0) 70%)",
           borderRadius: "50%",
           filter: "blur(60px)",
           pointerEvents: "none",
@@ -110,7 +110,7 @@ export default function LoginPage() {
               justifyContent: "center",
               boxShadow: selectedRole === "admin"
                 ? "0 0 24px rgba(6, 182, 212, 0.4)"
-                : "0 0 24px rgba(99, 102, 241, 0.5)",
+                : "0 0 24px var(--bg-surface-recess)",
               transition: "all 0.3s ease",
             }}
           >
@@ -141,7 +141,7 @@ export default function LoginPage() {
           style={{
             display: "flex",
             padding: "4px",
-            backgroundColor: "rgba(255, 255, 255, 0.04)",
+            backgroundColor: "var(--bg-surface)",
             borderRadius: "12px",
             border: "1px solid var(--border-subtle)",
             marginBottom: "24px",

@@ -118,7 +118,7 @@ export default function AdminReportsPage() {
 
         <div className="glass-card" style={{ padding: "20px" }}>
           <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>Face Match Verification Avg</p>
-          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#818CF8", marginTop: "4px" }}>{averageFaceMatch.toFixed(1)}%</h3>
+          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--accent-blue)", marginTop: "4px" }}>{averageFaceMatch.toFixed(1)}%</h3>
           <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "6px" }}>
             AI Confidence threshold: &gt; 85%
           </p>
@@ -133,7 +133,7 @@ export default function AdminReportsPage() {
         </div>
 
         <div className="glass-card" style={{ padding: "20px" }}>
-          <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>Flagged Proxy Anomalies</p>
+          <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>Proxy Alerts</p>
           <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#F87171", marginTop: "4px" }}>{flaggedCount} Intercepted</h3>
           <p style={{ fontSize: "0.75rem", color: "#F87171", marginTop: "6px" }}>
             100% prevented from illicit sign-in
@@ -149,7 +149,7 @@ export default function AdminReportsPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <BarChartIcon size={18} className="text-cyan" />
               <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Faculty Department Compliance
+                Department Compliance
               </h3>
             </div>
             <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Current Semester</span>
@@ -178,7 +178,7 @@ export default function AdminReportsPage() {
                     style={{
                       height: "8px",
                       borderRadius: "999px",
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      backgroundColor: "var(--bg-surface)",
                       overflow: "hidden",
                     }}
                   >
@@ -282,7 +282,7 @@ export default function AdminReportsPage() {
               style={{
                 padding: "16px",
                 borderRadius: "var(--radius-md)",
-                backgroundColor: "rgba(255, 255, 255, 0.02)",
+                backgroundColor: "var(--bg-surface)",
                 border: "1px solid var(--border-subtle)",
                 textAlign: "center",
               }}

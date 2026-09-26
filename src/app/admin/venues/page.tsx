@@ -108,7 +108,7 @@ export default function AdminVenuesPage() {
   const handleSaveVenue = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload: Partial<Venue> = {
+      const details: Partial<Venue> = {
         name: vName,
         building: vBuilding,
         floor: vFloor,
@@ -125,14 +125,14 @@ export default function AdminVenuesPage() {
       };
 
       if (isEditing && editId) {
-        const updated = await adminApi.updateVenue(editId, payload);
+        const updated = await adminApi.updateVenue(editId, details);
         if (updated) {
           setVenues((prev) => prev.map((v) => (v.id === editId ? updated : v)));
           setSelectedVenue(updated);
           setToastMessage(`Geofence boundary for '${updated.name}' updated.`);
         }
       } else {
-        const created = await adminApi.createVenue(payload);
+        const created = await adminApi.createVenue(details);
         setVenues((prev) => [...prev, created]);
         setSelectedVenue(created);
         setToastMessage(`Venue '${created.name}' configured with ${created.boundary_data?.radius_meters ?? 0}m GPS geofence.`);
@@ -212,7 +212,7 @@ export default function AdminVenuesPage() {
                         width: "40px",
                         height: "40px",
                         borderRadius: "10px",
-                        backgroundColor: isSelected ? "rgba(6, 182, 212, 0.2)" : "rgba(255, 255, 255, 0.05)",
+                        backgroundColor: isSelected ? "rgba(6, 182, 212, 0.2)" : "var(--bg-surface)",
                         color: isSelected ? "#22D3EE" : "var(--text-muted)",
                         display: "flex",
                         alignItems: "center",
@@ -258,7 +258,7 @@ export default function AdminVenuesPage() {
                             style={{
                               fontFamily: "monospace",
                               fontSize: "0.72rem",
-                              color: "#818CF8",
+                              color: "var(--accent-blue)",
                             }}
                           >
                             POLYGON: {venue.boundary_data?.vertices?.length ?? 0} vertices

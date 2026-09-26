@@ -84,7 +84,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <DashboardLayout
-        title="Lecturer Faculty Command Center"
+        title="Dashboard"
         subtitle="Loading faculty dashboard..."
       >
         <div className="glass-card" style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
@@ -97,7 +97,7 @@ export default function HomePage() {
   return (
     <DashboardLayout
       title={`Welcome back, ${lecturerProfile?.display_name || "Doctor"}`}
-      subtitle="Here is your active classroom overview and real-time attendance status."
+      subtitle="Overview of your classes and attendance."
     >
       {/* Live Session Alert Banner if active */}
       {liveSession && (
@@ -106,7 +106,7 @@ export default function HomePage() {
           style={{
             padding: "18px 24px",
             marginBottom: "24px",
-            background: "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%)",
+            background: "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, var(--bg-surface-recess) 100%)",
             borderColor: "rgba(239, 68, 68, 0.35)",
             display: "flex",
             alignItems: "center",
@@ -134,7 +134,7 @@ export default function HomePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <span className="pulse-dot-live" />
                 <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#F87171", textTransform: "uppercase" }}>
-                  Active Live Session in Progress
+                  Live Session Active
                 </span>
                 <Badge type="session" value="ongoing" size="sm" />
               </div>
@@ -148,7 +148,7 @@ export default function HomePage() {
           </div>
 
           <Link href="/session/live" className="btn-primary" style={{ backgroundColor: "#EF4444" }}>
-            <span>Enter Live Command Center</span>
+            <span>Open Live Session</span>
             <ChevronRightIcon size={16} />
           </Link>
         </div>
@@ -192,12 +192,12 @@ export default function HomePage() {
         <div className="glass-card glass-card-interactive" style={{ padding: "24px", display: "flex", flexDirection: "column", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/timetable'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div style={{ color: "#818CF8" }}><CalendarIcon size={20} /></div>
+              <div style={{ color: "var(--accent-blue)" }}><CalendarIcon size={20} /></div>
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Teaching Timetable Snapshot
+                Today&apos;s Timetable
               </h3>
             </div>
-            <Link href="/timetable" style={{ fontSize: "0.8rem", color: "#818CF8", textDecoration: "none", fontWeight: 600 }}>
+            <Link href="/timetable" style={{ fontSize: "0.8rem", color: "var(--accent-blue)", textDecoration: "none", fontWeight: 600 }}>
               Full Timetable →
             </Link>
           </div>
@@ -209,7 +209,7 @@ export default function HomePage() {
                 style={{
                   padding: "14px 16px",
                   borderRadius: "var(--radius-md)",
-                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                  backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border-subtle)",
                   display: "flex",
                   alignItems: "center",
@@ -218,7 +218,7 @@ export default function HomePage() {
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#818CF8" }}>{off.course_code}</span>
+                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--accent-blue)" }}>{off.course_code}</span>
                     <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>• {off.day}</span>
                   </div>
                   <h4 style={{ fontSize: "0.9rem", fontWeight: 600, color: "var(--text-primary)", marginTop: "2px" }}>
@@ -246,18 +246,18 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Attendance Trend Chart Snapshot */}
+        {/* Attendance Trend */}
         <div className="glass-card glass-card-interactive" style={{ padding: "24px", display: "flex", flexDirection: "column", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/reports'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <div>
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Active Course Attendance Trajectory
+                Attendance Trend
               </h3>
               <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "2px" }}>
                 Session-by-session compliance vs 80% faculty threshold
               </p>
             </div>
-            <Link href="/reports" style={{ fontSize: "0.8rem", color: "#818CF8", textDecoration: "none", fontWeight: 600 }}>
+            <Link href="/reports" style={{ fontSize: "0.8rem", color: "var(--accent-blue)", textDecoration: "none", fontWeight: 600 }}>
               View Reports →
             </Link>
           </div>
@@ -274,12 +274,12 @@ export default function HomePage() {
         <div className="glass-card glass-card-interactive" style={{ padding: "24px", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/notices'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <BellIcon size={18} className="text-cyan-400" />
+              <BellIcon size={18}  />
               <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>
                 Recent Course Announcements
               </h3>
             </div>
-            <Link href="/notices" style={{ fontSize: "0.8rem", color: "#818CF8", textDecoration: "none", fontWeight: 600 }}>
+            <Link href="/notices" style={{ fontSize: "0.8rem", color: "var(--accent-blue)", textDecoration: "none", fontWeight: 600 }}>
               Broadcast Notice →
             </Link>
           </div>
@@ -291,12 +291,12 @@ export default function HomePage() {
                 style={{
                   padding: "12px",
                   borderRadius: "var(--radius-md)",
-                  backgroundColor: "rgba(255, 255, 255, 0.02)",
+                  backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
-                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#818CF8" }}>{n.course_code}</span>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--accent-blue)" }}>{n.course_code}</span>
                   <Badge type="urgency" value={n.urgency} size="sm" />
                 </div>
                 <h4 style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>{n.title}</h4>
@@ -308,7 +308,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Security & Verification Anomalies */}
+        {/* Security Alerts */}
         <div className="glass-card glass-card-interactive" style={{ padding: "24px", cursor: "pointer", position: "relative" }} onClick={() => window.location.href = '/alerts'}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -317,7 +317,7 @@ export default function HomePage() {
                 Security Alerts
               </h3>
             </div>
-            <Link href="/alerts" style={{ fontSize: "0.8rem", color: "#818CF8", textDecoration: "none", fontWeight: 600 }}>
+            <Link href="/alerts" style={{ fontSize: "0.8rem", color: "var(--accent-blue)", textDecoration: "none", fontWeight: 600 }}>
               Security Center →
             </Link>
           </div>

@@ -38,7 +38,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
             style={{
               width: "40px",
               height: "40px",
-              border: "3px solid rgba(99, 102, 241, 0.2)",
+              border: "3px solid var(--bg-surface-recess)",
               borderTopColor: "var(--accent-primary)",
               borderRadius: "50%",
               animation: "spin 1s linear infinite",
@@ -124,7 +124,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
               className="btn-secondary"
               style={{ width: "100%", justifyContent: "center", padding: "12px" }}
             >
-              <span>Return to Faculty Dashboard</span>
+              <span>Return to Dashboard</span>
               <ChevronRightIcon size={16} />
             </Link>
           </div>
