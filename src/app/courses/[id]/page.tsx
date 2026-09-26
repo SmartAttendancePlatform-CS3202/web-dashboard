@@ -72,8 +72,8 @@ export default function CourseDetailPage() {
                 style={{
                   fontSize: "0.8rem",
                   fontWeight: 800,
-                  color: "#818CF8",
-                  backgroundColor: "rgba(99, 102, 241, 0.15)",
+                  color: "var(--accent-blue)",
+                  backgroundColor: "var(--bg-surface-recess)",
                   padding: "2px 8px",
                   borderRadius: "6px",
                 }}
@@ -89,10 +89,10 @@ export default function CourseDetailPage() {
             </h3>
             <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
               <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <ClockIcon size={14} className="text-indigo-400" /> Every {offering.day} ({offering.start_time} - {offering.end_time})
+                <ClockIcon size={14}  /> Every {offering.day} ({offering.start_time} - {offering.end_time})
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <MapPinIcon size={14} className="text-cyan-400" /> {offering.venue_name}
+                <MapPinIcon size={14}  /> {offering.venue_name}
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                 <UsersIcon size={14} /> {students.length} Enrolled
@@ -183,7 +183,7 @@ export default function CourseDetailPage() {
                               justifyContent: "center",
                               fontSize: "0.8rem",
                               fontWeight: 700,
-                              color: "#818CF8",
+                              color: "var(--accent-blue)",
                               overflow: "hidden",
                             }}
                           >
@@ -201,7 +201,7 @@ export default function CourseDetailPage() {
                       </div>
                     </td>
                     <td>
-                      <code style={{ fontSize: "0.85rem", color: "#818CF8", fontWeight: 700 }}>
+                      <code style={{ fontSize: "0.85rem", color: "var(--accent-blue)", fontWeight: 700 }}>
                         {student.student_index_no}
                       </code>
                     </td>

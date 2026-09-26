@@ -156,7 +156,7 @@ export default function AdminDepartmentsPage() {
               style={{
                 padding: "14px 18px",
                 borderRadius: "var(--radius-md)",
-                backgroundColor: ay.is_active ? "rgba(6, 182, 212, 0.08)" : "rgba(255, 255, 255, 0.02)",
+                backgroundColor: ay.is_active ? "rgba(6, 182, 212, 0.08)" : "var(--bg-surface)",
                 border: ay.is_active ? "1px solid rgba(6, 182, 212, 0.35)" : "1px solid var(--border-subtle)",
                 display: "flex",
                 flexDirection: "column",
@@ -174,7 +174,7 @@ export default function AdminDepartmentsPage() {
                     textTransform: "uppercase",
                     padding: "2px 6px",
                     borderRadius: "4px",
-                    backgroundColor: ay.is_active ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                    backgroundColor: ay.is_active ? "rgba(16, 185, 129, 0.15)" : "var(--bg-surface)",
                     color: ay.is_active ? "#34D399" : "var(--text-muted)",
                   }}
                 >
@@ -218,9 +218,9 @@ export default function AdminDepartmentsPage() {
                       textTransform: "uppercase",
                       padding: "2px 8px",
                       borderRadius: "6px",
-                      backgroundColor: "rgba(99, 102, 241, 0.15)",
-                      border: "1px solid rgba(99, 102, 241, 0.3)",
-                      color: "#818CF8",
+                      backgroundColor: "var(--bg-surface-recess)",
+                      border: "1px solid var(--bg-surface-recess)",
+                      color: "var(--accent-blue)",
                     }}
                   >
                     CODE: {dept.code}
@@ -239,7 +239,7 @@ export default function AdminDepartmentsPage() {
                 style={{
                   padding: "10px 14px",
                   borderRadius: "var(--radius-md)",
-                  backgroundColor: "rgba(255, 255, 255, 0.02)",
+                  backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border-subtle)",
                   marginBottom: "16px",
                 }}
@@ -268,7 +268,7 @@ export default function AdminDepartmentsPage() {
               </div>
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Lecturers</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#818CF8" }}>{dept.lecturer_count ?? 0}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--accent-blue)" }}>{dept.lecturer_count ?? 0}</p>
               </div>
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Students</p>

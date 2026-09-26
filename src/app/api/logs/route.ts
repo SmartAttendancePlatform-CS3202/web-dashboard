@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const body = await req.text();
     
     if (body.length > 2048) {
-      logger.warn({ msg: "Log payload too large", userId });
+      logger.warn({ msg: "Log details too large", userId });
       return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }
 
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     try {
       logData = JSON.parse(body);
     } catch {
-      logger.warn({ msg: "Invalid JSON log payload", userId });
+      logger.warn({ msg: "Invalid JSON log details", userId });
       return NextResponse.json({ error: "Bad Request" }, { status: 400 });
     }
 

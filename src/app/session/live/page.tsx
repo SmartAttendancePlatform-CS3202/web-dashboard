@@ -161,7 +161,7 @@ function LiveSessionContent() {
 
   return (
     <DashboardLayout
-      title={session ? `Live Session: ${session.course_code} - ${session.course_name}` : "Live Command Center"}
+      title={session ? `Live Session: ${session.course_code} - ${session.course_name}` : "Live Session"}
       subtitle="Scheduled attendance check-ins, lecturer random location checks, and manual lecturer marking."
     >
       {/* Top Command Bar */}
@@ -362,12 +362,12 @@ function LiveSessionContent() {
         </div>
       </div>
 
-      {/* Live Stream Table */}
+      {/* Live Attendance Table */}
       <div className="glass-card" style={{ padding: "24px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
           <div>
             <h4 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>
-              Live Student Check-In Stream ({records.length} Records)
+              Student Check-In Records ({records.length} Records)
             </h4>
             <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "2px" }}>
               Click any student row to view GPS distance, WiFi match, and face verification evidence.
@@ -426,7 +426,7 @@ function LiveSessionContent() {
               {loading ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--text-muted)" }}>
-                    Connecting to live classroom stream...
+                    Loading records...
                   </td>
                 </tr>
               ) : records.length === 0 ? (

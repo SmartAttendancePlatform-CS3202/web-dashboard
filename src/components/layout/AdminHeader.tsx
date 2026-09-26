@@ -104,13 +104,13 @@ export function AdminHeader({ title, subtitle, actions }: AdminHeaderProps) {
             color: "var(--text-secondary)",
             fontWeight: 600,
           }}
-          title="System Node Master Telemetry Clock"
+          title="System Clock"
         >
           <ClockIcon size={13} className="text-slate-400" />
           <span>{timeString || "00:00:00 UTC"}</span>
         </div>
 
-        {/* Backend Microservices Cluster Status */}
+        {/* System Status */}
         <div
           style={{
             display: "flex",
@@ -124,11 +124,11 @@ export function AdminHeader({ title, subtitle, actions }: AdminHeaderProps) {
             color: "var(--text-secondary)",
             boxShadow: "var(--shadow-xs)",
           }}
-          title="FastAPI Microservices Cluster Status (:8001, :8002, :8003)"
+          title="System Services Status"
         >
           <span className="pulse-dot-emerald" />
           <span className="font-mono" style={{ fontSize: "0.72rem" }}>
-            MESH: <strong style={{ color: "var(--text-primary)" }}>{healthyCount}/3 NODES</strong>
+            System: <strong style={{ color: "var(--text-primary)" }}>{healthyCount}/3 Online</strong>
           </span>
         </div>
 

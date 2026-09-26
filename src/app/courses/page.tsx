@@ -63,7 +63,7 @@ export default function CoursesPage() {
                   width: "100%",
                   padding: "10px 16px",
                   borderRadius: "8px",
-                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                  backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border-subtle)",
                   color: "var(--text-primary)",
                   fontSize: "0.9rem",
@@ -78,7 +78,7 @@ export default function CoursesPage() {
                 style={{
                   padding: "10px 16px",
                   borderRadius: "8px",
-                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                  backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border-subtle)",
                   color: "var(--text-primary)",
                   fontSize: "0.9rem",
@@ -96,7 +96,7 @@ export default function CoursesPage() {
                 style={{
                   padding: "10px 16px",
                   borderRadius: "8px",
-                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                  backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border-subtle)",
                   color: "var(--text-primary)",
                   fontSize: "0.9rem",
@@ -126,7 +126,7 @@ export default function CoursesPage() {
                     flexDirection: "column",
                     justifyContent: "space-between",
                     transition: "transform 0.2s, box-shadow 0.2s",
-                    border: "1px solid rgba(255, 255, 255, 0.05)",
+                    border: "1px solid var(--bg-surface)",
                   }}
                 >
                   <div>
@@ -137,8 +137,8 @@ export default function CoursesPage() {
                           style={{
                             fontSize: "0.75rem",
                             fontWeight: 800,
-                            color: "#818CF8",
-                            backgroundColor: "rgba(99, 102, 241, 0.15)",
+                            color: "var(--accent-blue)",
+                            backgroundColor: "var(--bg-surface-recess)",
                             padding: "4px 10px",
                             borderRadius: "6px",
                           }}
@@ -167,17 +167,17 @@ export default function CoursesPage() {
                       {offering.course_name}
                     </h3>
                     <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "20px" }}>
-                      Offering: <code style={{ color: "#818CF8", background: "rgba(99, 102, 241, 0.1)", padding: "2px 6px", borderRadius: "4px" }}>{offering.offering_code}</code>
+                      Offering: <code style={{ color: "var(--accent-blue)", background: "var(--bg-surface-recess)", padding: "2px 6px", borderRadius: "4px" }}>{offering.offering_code}</code>
                     </p>
 
                     {/* Specs */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "24px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <ClockIcon size={16} className="text-indigo-400" />
+                        <ClockIcon size={16}  />
                         <span>Every {offering.day} ({offering.start_time} - {offering.end_time})</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <MapPinIcon size={16} className="text-cyan-400" />
+                        <MapPinIcon size={16}  />
                         <span>{offering.venue_name}</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -188,7 +188,7 @@ export default function CoursesPage() {
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", borderTop: "1px solid var(--bg-surface)", paddingTop: "20px" }}>
                     <Link
                       href="/session/live"
                       className="btn-primary"

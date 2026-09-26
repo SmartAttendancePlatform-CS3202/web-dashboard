@@ -71,7 +71,7 @@ export default function NoticesPage() {
         {/* Notice Composer */}
         <div className="glass-card" style={{ padding: "24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
-            <div style={{ color: "#818CF8" }}><SendIcon size={20} /></div>
+            <div style={{ color: "var(--accent-blue)" }}><SendIcon size={20} /></div>
             <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>
               Broadcast New Announcement
             </h3>
@@ -114,7 +114,7 @@ export default function NoticesPage() {
                       padding: "8px 4px",
                       borderRadius: "6px",
                       border: urgency === urg ? "2px solid var(--accent-primary)" : "1px solid var(--border-subtle)",
-                      backgroundColor: urgency === urg ? "rgba(99, 102, 241, 0.25)" : "rgba(255, 255, 255, 0.03)",
+                      backgroundColor: urgency === urg ? "var(--bg-surface-recess)" : "var(--bg-surface)",
                       color: urgency === urg ? "#FFFFFF" : "var(--text-secondary)",
                       fontSize: "0.75rem",
                       fontWeight: urgency === urg ? 700 : 500,
@@ -198,13 +198,13 @@ export default function NoticesPage() {
                 style={{
                   padding: "16px",
                   borderRadius: "var(--radius-md)",
-                  backgroundColor: "rgba(255, 255, 255, 0.02)",
+                  backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border-subtle)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#818CF8" }}>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--accent-blue)" }}>
                       {n.course_code || "GENERAL"}
                     </span>
                     <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>

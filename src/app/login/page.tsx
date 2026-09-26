@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
-import { RadioIcon, ShieldAlertIcon, UserCheckIcon } from "@/components/ui/Icons";
+import { RadioIcon, ShieldAlertIcon, UserCheckIcon, EyeIcon, EyeOffIcon } from "@/components/ui/Icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<"lecturer" | "admin">("lecturer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -62,7 +63,7 @@ export default function LoginPage() {
           left: "20%",
           width: "400px",
           height: "400px",
-          background: "radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(0,0,0,0) 70%)",
+          background: "radial-gradient(circle, var(--bg-surface-recess) 0%, rgba(0,0,0,0) 70%)",
           borderRadius: "50%",
           filter: "blur(60px)",
           pointerEvents: "none",
@@ -109,7 +110,7 @@ export default function LoginPage() {
               justifyContent: "center",
               boxShadow: selectedRole === "admin"
                 ? "0 0 24px rgba(6, 182, 212, 0.4)"
-                : "0 0 24px rgba(99, 102, 241, 0.5)",
+                : "0 0 24px var(--bg-surface-recess)",
               transition: "all 0.3s ease",
             }}
           >
@@ -140,7 +141,7 @@ export default function LoginPage() {
           style={{
             display: "flex",
             padding: "4px",
-            backgroundColor: "rgba(255, 255, 255, 0.04)",
+            backgroundColor: "var(--bg-surface)",
             borderRadius: "12px",
             border: "1px solid var(--border-subtle)",
             marginBottom: "24px",
@@ -218,14 +219,47 @@ export default function LoginPage() {
             <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "6px" }}>
               Password
             </label>
-            <input
-              type="password"
-              className="input-control"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                className="input-control"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ paddingRight: "42px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: "absolute",
+                  right: "8px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "6px",
+                  borderRadius: "6px",
+                  color: "var(--text-muted)",
+                  transition: "all 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = "var(--text-primary)";
+                  e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.05)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = "var(--text-muted)";
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+              </button>
+            </div>
           </div>
 
           {errorMessage && (

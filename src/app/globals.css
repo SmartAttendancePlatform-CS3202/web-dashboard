@@ -62,9 +62,9 @@
 
   /* Elevation & Tactile Depth */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
-  --shadow-card-hover: 0 6px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
-  --shadow-command: 0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-command: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
 }
 
@@ -86,7 +86,7 @@ html, body {
 /* Micro-Grid Background Pattern */
 .micro-grid-bg {
   background-color: var(--bg-main);
-  background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+  background-image: none;
   background-size: 20px 20px;
 }
 
@@ -106,7 +106,7 @@ html, body {
   background: var(--text-muted);
 }
 
-/* Command Center White Card */
+/* Dashboard White Card */
 .glass-card,
 .command-card {
   background: var(--bg-card);

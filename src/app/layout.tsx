@@ -3,7 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "Smart Attendance - Lecturer Faculty Command Center",
+  title: "Smart Attendance Platform",
   description: "Advanced classroom attendance, live geofencing, and AI vision verification management platform for university lecturers.",
 };
 

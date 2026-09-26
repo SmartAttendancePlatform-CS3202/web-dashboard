@@ -90,7 +90,7 @@ export default function ReportsPage() {
 
   return (
     <DashboardLayout
-      title="Attendance Analytics & Faculty Reports"
+      title="Reports"
       subtitle="Course compliance trajectories, at-risk student intervention lists, and official department exports."
     >
       {/* Action Controls & Course Filter */}
@@ -177,7 +177,7 @@ export default function ReportsPage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <div>
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Attendance Compliance Trajectory
+                Attendance Trend
               </h3>
               <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "2px" }}>
                 Session-by-session attendance percentage with 80% university requirement benchmark line
@@ -187,8 +187,8 @@ export default function ReportsPage() {
               style={{
                 fontSize: "0.75rem",
                 fontWeight: 600,
-                color: "#818CF8",
-                backgroundColor: "rgba(99, 102, 241, 0.15)",
+                color: "var(--accent-blue)",
+                backgroundColor: "var(--bg-surface-recess)",
                 padding: "2px 8px",
                 borderRadius: "6px",
               }}
