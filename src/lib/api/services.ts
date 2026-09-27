@@ -15,11 +15,26 @@ async function must<T>(promise: Promise<{data:T|null; error:string|null; status:
   return res.data as T;
 }
 
+const memoCache = new Map<string, { promise: Promise<any>, time: number }>();
+function memoFetch<T>(url: string, ttlMs = 10000): Promise<T> {
+  const now = Date.now();
+  if (memoCache.has(url)) {
+    const cached = memoCache.get(url)!;
+    if (now - cached.time < ttlMs) return cached.promise;
+  }
+  const promise = must(apiFetch<T>(url)).catch(err => {
+    memoCache.delete(url);
+    throw err;
+  });
+  memoCache.set(url, { promise, time: now });
+  return promise;
+}
+
 async function hydrateOfferings(raw: any[]): Promise<CourseOffering[]> {
   const [courses, venues, lecturers] = await Promise.all([
-    must(apiFetch<any[]>(`${API_CONFIG.scheduling}/courses`)),
-    must(apiFetch<any[]>(`${API_CONFIG.scheduling}/venues`)),
-    must(apiFetch<any[]>(`${API_CONFIG.scheduling}/users/lecturers`)),
+    memoFetch<any[]>(`${API_CONFIG.scheduling}/courses`),
+    memoFetch<any[]>(`${API_CONFIG.scheduling}/venues`),
+    memoFetch<any[]>(`${API_CONFIG.scheduling}/users/lecturers`),
   ]);
   const cm = new Map(courses.map((c:any)=>[c.id,c]));
   const vm = new Map(venues.map((v:any)=>[v.id,v]));
@@ -35,7 +50,7 @@ async function hydrateOfferings(raw: any[]): Promise<CourseOffering[]> {
 }
 
 async function hydrateStudents(raw:any[]): Promise<Student[]> {
-  const departments = await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/departments`)).catch(()=>[] as any[]);
+  const departments = await memoFetch<any[]>(`${API_CONFIG.scheduling}/departments`).catch(()=>[] as any[]);
   const dm = new Map(departments.map((d:any)=>[d.id,d]));
   return (raw||[]).map((s:any)=>({...s, department_name: dm.get(s.department_id)?.name}));
 }
@@ -60,27 +75,27 @@ export const schedulingApi = {
     return {...p, employee_id: p.lecturer_code || p.employee_id, created_at:p.created_at};
   },
   getStudentProfile: async (): Promise<Student> => must(apiFetch<Student>(`${API_CONFIG.scheduling}/users/students/me`)),
-  getLecturerTimetable: async (): Promise<CourseOffering[]> => hydrateOfferings(await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/timetables/lecturer/me`))),
-  getStudentTimetable: async (): Promise<CourseOffering[]> => hydrateOfferings(await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/timetables/me`))),
-  getAllOfferings: async (): Promise<CourseOffering[]> => hydrateOfferings(await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/offerings`))),
+  getLecturerTimetable: async (): Promise<CourseOffering[]> => hydrateOfferings(await memoFetch<any[]>(`${API_CONFIG.scheduling}/timetables/lecturer/me`)),
+  getStudentTimetable: async (): Promise<CourseOffering[]> => hydrateOfferings(await memoFetch<any[]>(`${API_CONFIG.scheduling}/timetables/me`)),
+  getAllOfferings: async (): Promise<CourseOffering[]> => hydrateOfferings(await memoFetch<any[]>(`${API_CONFIG.scheduling}/offerings`)),
   getOfferingById: async (id:string): Promise<CourseOffering|null> => {
     const raw:any = await must(apiFetch(`${API_CONFIG.scheduling}/offerings/${id}`));
     const list = await hydrateOfferings([raw]);
     return list[0] || null;
   },
   getOfferingStudents: async (offeringId:string): Promise<Student[]> => hydrateStudents(await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/offerings/${offeringId}/students`))),
-  getCourses: async (): Promise<Course[]> => must(apiFetch<Course[]>(`${API_CONFIG.scheduling}/courses`)),
-  getVenues: async (): Promise<Venue[]> => must(apiFetch<Venue[]>(`${API_CONFIG.scheduling}/venues`)),
-  getDepartments: async (): Promise<Department[]> => must(apiFetch<Department[]>(`${API_CONFIG.scheduling}/departments`)),
+  getCourses: async (): Promise<Course[]> => memoFetch<Course[]>(`${API_CONFIG.scheduling}/courses`),
+  getVenues: async (): Promise<Venue[]> => memoFetch<Venue[]>(`${API_CONFIG.scheduling}/venues`),
+  getDepartments: async (): Promise<Department[]> => memoFetch<Department[]>(`${API_CONFIG.scheduling}/departments`),
   getAcademicYears: async (): Promise<AcademicYear[]> => {
-    const raw:any[] = await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/academic-years`));
+    const raw:any[] = await memoFetch<any[]>(`${API_CONFIG.scheduling}/academic-years`);
     return raw.map(y=>({...y, year_code: y.year_code || String(y.year_level), semester: y.semester || "", is_active: y.is_active ?? true}));
   },
-  getLecturers: async (): Promise<Lecturer[]> => (await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/users/lecturers`))).map((x:any)=>({...x,employee_id:x.lecturer_code||x.employee_id})),
-  getStudents: async (): Promise<Student[]> => hydrateStudents(await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/users/students`))),
+  getLecturers: async (): Promise<Lecturer[]> => (await memoFetch<any[]>(`${API_CONFIG.scheduling}/users/lecturers`)).map((x:any)=>({...x,employee_id:x.lecturer_code||x.employee_id})),
+  getStudents: async (): Promise<Student[]> => hydrateStudents(await memoFetch<any[]>(`${API_CONFIG.scheduling}/users/students`)),
   getUsers: async (role?:string,status?:string): Promise<UserWithProfile[]> => {
     const p = new URLSearchParams(); if(role && role!=="all") p.set("role",role); if(status && status!=="all") p.set("status",status);
-    const raw:any[] = await must(apiFetch<any[]>(`${API_CONFIG.scheduling}/users${p.toString()?`?${p}`:""}`));
+    const raw:any[] = await memoFetch<any[]>(`${API_CONFIG.scheduling}/users${p.toString()?`?${p}`:""}`);
     const [students, lecturers, departments] = await Promise.all([schedulingApi.getStudents(), schedulingApi.getLecturers(), schedulingApi.getDepartments()]);
     const sm=new Map(students.map(s=>[s.id,s])); const lm=new Map(lecturers.map(l=>[l.id,l])); const dm=new Map(departments.map(d=>[d.id,d]));
     return raw.map(u=>{
@@ -96,11 +111,11 @@ export const schedulingApi = {
 export const attendanceApi = {
   getSessions: async (offeringId?:string): Promise<LectureSession[]> => {
     const p = new URLSearchParams(); if(offeringId)p.set("offering_id",offeringId);
-    return hydrateSessions(await must(apiFetch<any[]>(`${API_CONFIG.attendance}/sessions${p.toString()?`?${p}`:""}`)));
+    return hydrateSessions(await memoFetch<any[]>(`${API_CONFIG.attendance}/sessions${p.toString()?`?${p}`:""}`));
   },
   getActiveScheduledSessions: async (offeringId?:string): Promise<LectureSession[]> => {
     const p = new URLSearchParams(); if(offeringId)p.set("offering_id",offeringId);
-    return hydrateSessions(await must(apiFetch<any[]>(`${API_CONFIG.attendance}/sessions/active${p.toString()?`?${p}`:""}`)));
+    return hydrateSessions(await memoFetch<any[]>(`${API_CONFIG.attendance}/sessions/active${p.toString()?`?${p}`:""}`));
   },
   getSessionById: async (id:string) => {
     const raw:any = await must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}`));
@@ -129,7 +144,7 @@ export const attendanceApi = {
   overrideRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${recordId}/override`,{method:"PATCH",body:JSON.stringify(data)})),
   manualMarkRecord: async (recordId:string, data:{status:string;override_reason:string}) => must(apiFetch<AttendanceRecord>(`${API_CONFIG.attendance}/records/${recordId}/manual-mark`,{method:"PATCH",body:JSON.stringify(data)})),
   getAttempts: async (recordId:string): Promise<AttendanceVerificationAttempt[]> => must(apiFetch<AttendanceVerificationAttempt[]>(`${API_CONFIG.attendance}/records/${recordId}/attempts`)),
-  getActiveSessions: async () => hydrateSessions(await must(apiFetch<any[]>(`${API_CONFIG.attendance}/sessions?status=ongoing`))),
+  getActiveSessions: async () => hydrateSessions(await memoFetch<any[]>(`${API_CONFIG.attendance}/sessions?status=ongoing`)),
 };
 export const sessionsApi=attendanceApi;
 
@@ -168,7 +183,7 @@ export const noticesApi = {
 export const adminApi = {
   getStats: async ():Promise<AdminDashboardStats> => {
     const [base, sessions, alerts] = await Promise.all([
-      must(apiFetch<any>(`${API_CONFIG.scheduling}/admin/stats`)),
+      memoFetch<any>(`${API_CONFIG.scheduling}/admin/stats`),
       attendanceApi.getActiveSessions(),
       alertsApi.getAlerts(),
     ]);
