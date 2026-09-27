@@ -118,6 +118,12 @@ export default function AdminCoursesPage() {
   const handleCreateOffering = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (offEnd && offStart && offEnd <= offStart) {
+        if (!confirm(`Warning: End time (${offEnd}) is earlier than or equal to start time (${offStart}). In 24-hour format, 12:00 is midday (noon), while midnight is 00:00. Do you want to proceed?`)) {
+          return;
+        }
+      }
+
       const selectedCourse = courses.find((c) => c.id === offCourseId);
       const selectedLec = users.find((u) => u.id === offLecturerId);
       const selectedVen = venues.find((v) => v.id === offVenueId);
