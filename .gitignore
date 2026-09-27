@@ -7,3 +7,6 @@ node_modules/
 AGENTS.md
 agents.md
 .agents/
+# Playwright
+playwright-report/
+test-results/

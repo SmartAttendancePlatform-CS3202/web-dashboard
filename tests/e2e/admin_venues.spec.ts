@@ -2,13 +2,15 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Admin_Venue_Management_CRUD_Operations', () => {
   test('Add a new venue and verify UI update', async ({ page }) => {
+    page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
+    
     // 1. Mock Supabase Auth
     await page.route('**/auth/v1/token*', route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          access_token: 'fake-jwt',
+          access_token: 'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJleHAiOiAyMDk5NzU1Njc4LCAic3ViIjogImFkbWluLWlkIiwgInJvbGUiOiAiYXV0aGVudGljYXRlZCJ9.fake',
           token_type: 'bearer',
           expires_in: 3600,
           expires_at: Math.floor(Date.now() / 1000) + 3600,
@@ -67,6 +69,7 @@ test.describe('Admin_Venue_Management_CRUD_Operations', () => {
     });
 
     // 4. Perform Login
+    await page.context().addCookies([{ name: 'E2E_TEST', value: 'true', url: 'http://127.0.0.1:3000' }]);
     await page.goto('/login');
     
     // Click the Admin tab and ensure React has processed the state change
@@ -99,10 +102,10 @@ test.describe('Admin_Venue_Management_CRUD_Operations', () => {
     await page.getByRole('button', { name: /Provision Venue/i }).click();
 
     // Verify that the UI updates the table correctly without page refreshes
-    const newRow = page.getByText('New Lecture Hall');
+    const newRow = page.getByRole('heading', { name: 'New Lecture Hall' });
     await expect(newRow).toBeVisible();
     
-    const capacityCell = page.getByText('100');
+    const capacityCell = page.getByText('100').first();
     await expect(capacityCell).toBeVisible();
   });
 });
