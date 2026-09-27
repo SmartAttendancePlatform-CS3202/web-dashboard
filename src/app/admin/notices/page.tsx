@@ -4,6 +4,8 @@ import { noticesApi, adminApi } from "@/lib/api/services";
 import { Notice, CourseOffering } from "@/types";
 import { BroadcastModalButton } from "@/components/admin/BroadcastModalButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminNoticesPage() {
   let notices: Notice[] = [];
   let offerings: CourseOffering[] = [];
