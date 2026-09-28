@@ -90,8 +90,8 @@ export default function AdminDepartmentsPage() {
 
   return (
     <AdminDashboardLayout
-      title="Academic Structure & Semesters"
-      subtitle="Configure university faculties, departments, active academic years, and semester schedules"
+      title="Departments"
+      subtitle="Configure faculties, departments, and semesters."
       actions={
         <div style={{ display: "flex", gap: "10px" }}>
           <button

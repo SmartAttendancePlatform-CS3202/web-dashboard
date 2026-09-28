@@ -89,48 +89,6 @@ export function AdminHeader({ title, subtitle, actions }: AdminHeaderProps) {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {/* Real-Time UTC System Clock */}
-        <div
-          className="font-mono tabular-nums"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 12px",
-            backgroundColor: "var(--bg-surface)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            fontSize: "0.75rem",
-            color: "var(--text-secondary)",
-            fontWeight: 600,
-          }}
-          title="System Clock"
-        >
-          <ClockIcon size={13} className="text-slate-400" />
-          <span>{timeString || "00:00:00 UTC"}</span>
-        </div>
-
-        {/* System Status */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "6px 12px",
-            fontSize: "0.76rem",
-            backgroundColor: "var(--bg-card)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-md)",
-            color: "var(--text-secondary)",
-            boxShadow: "var(--shadow-xs)",
-          }}
-          title="System Services Status"
-        >
-          <span className="pulse-dot-emerald" />
-          <span className="font-mono" style={{ fontSize: "0.72rem" }}>
-            System: <strong style={{ color: "var(--text-primary)" }}>{healthyCount}/3 Online</strong>
-          </span>
-        </div>
 
 
         {/* Extra Action Buttons */}

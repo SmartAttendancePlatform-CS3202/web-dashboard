@@ -147,8 +147,8 @@ export default function AdminVenuesPage() {
 
   return (
     <AdminDashboardLayout
-      title="Venues & Geofencing Command"
-      subtitle="Configure classroom coordinates, circle or square GPS boundaries, and supported verification policies"
+      title="Venues"
+      subtitle="Manage venues and locations."
       actions={
         <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
           <PlusIcon size={14} />
