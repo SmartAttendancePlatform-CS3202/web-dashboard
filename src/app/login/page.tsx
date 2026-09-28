@@ -129,7 +129,7 @@ export default function LoginPage() {
               letterSpacing: "-0.02em",
             }}
           >
-            Smart Attendance Portal
+            directX Portal
           </h1>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "4px" }}>
             Select your access role to proceed to the system
@@ -299,7 +299,7 @@ export default function LoginPage() {
         </form>
 
         <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center", marginTop: "20px" }}>
-          Smart Attendance Enterprise System • Secured by Supabase JWT & FastAPI RBAC
+          directX
         </p>
       </div>
     </div>

@@ -36,13 +36,13 @@ export function AdminSidebar() {
   };
 
   const navItems: NavItem[] = [
-    { name: "Executive Overview", href: "/admin", icon: HomeIcon },
-    { name: "Users & Role RBAC", href: "/admin/users", icon: UserCheckIcon, badge: "Directory" },
-    { name: "Departments & Semesters", href: "/admin/departments", icon: CalendarIcon },
-    { name: "Curriculum & Offerings", href: "/admin/courses", icon: BookOpenIcon, badge: "28" },
-    { name: "Venues & Geofences", href: "/admin/venues", icon: MapPinIcon },
-    { name: "Institutional Analytics", href: "/admin/reports", icon: BarChartIcon },
-    { name: "Campus Broadcasts", href: "/admin/notices", icon: BellIcon },
+    { name: "Dashboard", href: "/admin", icon: HomeIcon },
+    { name: "Users", href: "/admin/users", icon: UserCheckIcon, badge: "Directory" },
+    { name: "Departments", href: "/admin/departments", icon: CalendarIcon },
+    { name: "Courses", href: "/admin/courses", icon: BookOpenIcon, badge: "28" },
+    { name: "Venues", href: "/admin/venues", icon: MapPinIcon },
+    { name: "Reports", href: "/admin/reports", icon: BarChartIcon },
+    { name: "Notices", href: "/admin/notices", icon: BellIcon },
   ];
 
   return (
@@ -96,7 +96,7 @@ export function AdminSidebar() {
               letterSpacing: "-0.02em",
             }}
           >
-            Smart Attendance
+            directX
           </h2>
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
             <span
@@ -113,7 +113,7 @@ export function AdminSidebar() {
                 border: "1px solid rgba(79, 70, 229, 0.2)",
               }}
             >
-              Central Ops
+              Admin Mode
             </span>
           </div>
         </div>
@@ -136,7 +136,7 @@ export function AdminSidebar() {
             padding: "4px 12px 8px 12px",
           }}
         >
-          Operations Management
+          Menu
         </div>
 
         {navItems.map((item) => {

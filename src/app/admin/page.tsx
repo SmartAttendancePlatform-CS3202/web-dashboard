@@ -69,8 +69,8 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminDashboardLayout
-      title="Admin Dashboard"
-      subtitle="Overview of university attendance and system status."
+      title="Dashboard"
+      subtitle="Overview of system metrics."
       actions={
         <div style={{ display: "flex", gap: "10px" }}>
           <button onClick={handleExportLedger} className="btn-secondary" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>

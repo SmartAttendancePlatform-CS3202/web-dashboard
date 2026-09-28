@@ -134,8 +134,8 @@ export default function AdminUsersPage() {
 
   return (
     <AdminDashboardLayout
-      title="User Directory & RBAC Management"
-      subtitle="Institutional identity governance, role provisioning, and biometric registration status"
+      title="Users"
+      subtitle="Manage users and their roles."
     >
       {/* Toast alert */}
       {toastMessage && (

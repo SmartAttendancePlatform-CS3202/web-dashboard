@@ -92,8 +92,8 @@ export default function AdminReportsPage() {
 
   return (
     <AdminDashboardLayout
-      title="Institutional Analytics & Fraud Auditing"
-      subtitle="Cross-faculty attendance compliance, biometric threshold analytics, and AI spoofing detection logs"
+      title="Reports"
+      subtitle="View attendance and system reports."
       actions={
         <div style={{ display: "flex", gap: "10px" }}>
           <button onClick={handleExportCSV} className="btn-secondary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
