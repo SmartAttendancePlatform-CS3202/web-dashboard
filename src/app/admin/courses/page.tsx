@@ -210,8 +210,8 @@ export default function AdminCoursesPage() {
 
   return (
     <AdminDashboardLayout
-      title="Curriculum & Course Offerings"
-      subtitle="Manage university master course catalog, semester timetable offerings, and student enrollment rosters"
+      title="Courses"
+      subtitle="Manage courses, offerings, and enrollments."
       actions={
         <div style={{ display: "flex", gap: "10px" }}>
           <button

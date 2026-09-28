@@ -23,8 +23,8 @@ export default async function AdminNoticesPage() {
 
   return (
     <AdminDashboardLayout
-      title="Campus Broadcasts"
-      subtitle="Manage and dispatch emergency or standard university notices."
+      title="Notices"
+      subtitle="Manage announcements and notices."
       actions={<BroadcastModalButton offerings={offerings} />}
     >
 
