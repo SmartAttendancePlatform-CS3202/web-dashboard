@@ -31,21 +31,13 @@ function memoFetch<T>(url: string, ttlMs = 10000): Promise<T> {
 }
 
 async function hydrateOfferings(raw: any[]): Promise<CourseOffering[]> {
-  const [courses, venues, lecturers] = await Promise.all([
-    memoFetch<any[]>(`${API_CONFIG.scheduling}/courses`),
-    memoFetch<any[]>(`${API_CONFIG.scheduling}/venues`),
-    memoFetch<any[]>(`${API_CONFIG.scheduling}/users/lecturers`),
-  ]);
+  // Backend now provides course_code, course_name, venue_name, lecturer_name
+  // via eager loading. We only need to add `credits` which the backend schema omits.
+  const courses = await memoFetch<any[]>(`${API_CONFIG.scheduling}/courses`).catch(() => [] as any[]);
   const cm = new Map(courses.map((c:any)=>[c.id,c]));
-  const vm = new Map(venues.map((v:any)=>[v.id,v]));
-  const lm = new Map(lecturers.map((l:any)=>[l.id,l]));
   return (raw||[]).map((o:any)=>({
     ...o,
-    course_code: cm.get(o.course_id)?.course_code,
-    course_name: cm.get(o.course_id)?.name,
-    credits: cm.get(o.course_id)?.credits,
-    venue_name: vm.get(o.venue_id)?.name,
-    lecturer_name: lm.get(o.lecturer_id)?.display_name || lm.get(o.lecturer_id)?.email,
+    credits: o.credits ?? cm.get(o.course_id)?.credits,
   }));
 }
 
@@ -56,7 +48,8 @@ async function hydrateStudents(raw:any[]): Promise<Student[]> {
 }
 
 async function hydrateSessions(raw:any[]): Promise<LectureSession[]> {
-  const offerings = await schedulingApi.getAllOfferings().catch(()=>[] as CourseOffering[]);
+  // Fetch offerings directly (single API call — no more hydrateOfferings chain)
+  const offerings = await memoFetch<any[]>(`${API_CONFIG.scheduling}/offerings`).catch(()=>[] as any[]);
   const om = new Map(offerings.map((o:any)=>[o.id,o]));
   return (raw||[]).map((s:any)=>({
     ...s,
