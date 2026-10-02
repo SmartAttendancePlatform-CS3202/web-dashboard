@@ -144,7 +144,7 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
                 cy={p.y}
                 r={isBelow ? 6 : 5}
                 fill={isBelow ? "#E11D48" : "var(--accent-primary)"}
-                stroke="#FFFFFF"
+                stroke="var(--bg-card)"
                 strokeWidth="2"
               />
               {/* Date label at bottom */}
@@ -171,7 +171,7 @@ export function TrendChart({ data, height = 260 }: TrendChartProps) {
             left: `${hoverCoords.x}px`,
             top: `${hoverCoords.y - 65}px`,
             transform: "translateX(-50%)",
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "var(--bg-card)",
             border: "1px solid var(--border-medium)",
             boxShadow: "var(--shadow-command)",
             padding: "8px 12px",

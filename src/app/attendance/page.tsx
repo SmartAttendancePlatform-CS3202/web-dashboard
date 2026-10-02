@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
 import { attendanceApi, schedulingApi } from "@/lib/api/services";
@@ -114,10 +115,10 @@ function AttendanceHubContent() {
               className="input-control"
               style={{ width: "220px" }}
               value={selectedOfferingId}
-              onChange={(e) => setSelectedOfferingId(e.target.value)}
-            >
+              onChange={(e) => setSelectedOfferingId(e.target.value)}>
+              <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">All Courses</option>
               {offerings.map((off) => (
-                <option key={off.id} value={off.id} style={{ backgroundColor: "#111827" }}>
+                <option key={off.id} value={off.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                   {off.course_code}: {off.course_name}
                 </option>
               ))}
@@ -128,10 +129,10 @@ function AttendanceHubContent() {
               className="input-control"
               style={{ width: "200px" }}
               value={selectedSessionId}
-              onChange={(e) => setSelectedSessionId(e.target.value)}
-            >
+              onChange={(e) => setSelectedSessionId(e.target.value)}>
+              <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">All Sessions</option>
               {sessions.map((s) => (
-                <option key={s.id} value={s.id} style={{ backgroundColor: "#111827" }}>
+                <option key={s.id} value={s.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                   Session #{s.session_number} ({s.status.toUpperCase()})
                 </option>
               ))}
@@ -260,7 +261,7 @@ function AttendanceHubContent() {
                       </td>
 
                       <td>
-                        <Badge type="attendance" value={record.status} size="sm" />
+                        <Badge variant="outline" className={cn("uppercase text-[0.65rem] font-bold tracking-wider", record.status === "present" ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : record.status === "absent" ? "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800" : record.status === "late" ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800" : "bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800")}>{record.status}</Badge>
                       </td>
 
                       <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>

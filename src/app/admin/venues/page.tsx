@@ -147,8 +147,8 @@ export default function AdminVenuesPage() {
 
   return (
     <AdminDashboardLayout
-      title="Venues"
-      subtitle="Manage venues and locations."
+      title="Campus Venues"
+      subtitle="Manage and monitor classroom geofences and boundaries."
       actions={
         <button onClick={handleOpenCreate} className="btn-primary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
           <PlusIcon size={14} />

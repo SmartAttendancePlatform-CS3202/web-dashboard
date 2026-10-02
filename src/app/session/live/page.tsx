@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
 import { attendanceApi } from "@/lib/api/services";
@@ -176,7 +177,7 @@ function LiveSessionContent() {
           flexWrap: "wrap",
           gap: "16px",
           borderColor: "rgba(225, 29, 72, 0.25)",
-          background: "linear-gradient(135deg, rgba(225, 29, 72, 0.04) 0%, #FFFFFF 100%)",
+          background: "rgba(225, 29, 72, 0.04)",
           boxShadow: "var(--shadow-card)",
         }}
       >
@@ -221,7 +222,7 @@ function LiveSessionContent() {
             style={{
               borderColor: isStreamPaused ? "rgba(217, 119, 6, 0.4)" : "var(--border-subtle)",
               color: isStreamPaused ? "#D97706" : "var(--text-primary)",
-              backgroundColor: isStreamPaused ? "rgba(217, 119, 6, 0.06)" : "#FFFFFF",
+              backgroundColor: isStreamPaused ? "rgba(217, 119, 6, 0.06)" : undefined,
             }}
           >
             {isStreamPaused ? "▶ Resume Stream" : "⏸ Pause Stream"}
@@ -242,37 +243,7 @@ function LiveSessionContent() {
       {/* Verification Windows & Live Gauges */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px", marginBottom: "24px" }}>
         {/* First Check-In Window Card */}
-        {initialWindow && (
-        <div className="glass-card" style={{ padding: "20px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <ScanFaceIcon size={18} style={{ color: "var(--accent-primary)" }} />
-              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Student Check-in Window
-              </h4>
-            </div>
-            <span
-              style={{
-                fontSize: "0.72rem",
-                color: initialWindow.is_active ? "#D97706" : "#059669",
-                fontWeight: 700,
-                backgroundColor: initialWindow.is_active ? "rgba(217, 119, 6, 0.08)" : "rgba(5, 150, 105, 0.08)",
-                border: `1px solid ${initialWindow.is_active ? "rgba(217, 119, 6, 0.25)" : "rgba(5, 150, 105, 0.2)"}`,
-                padding: "2px 8px",
-                borderRadius: "var(--radius-full)",
-              }}
-            >
-              {initialWindow.is_active ? "ACTIVE NOW" : "COMPLETED"}
-            </span>
-          </div>
-
-          <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p>Open from 15 minutes before lecture start until scheduled lecture end</p>
-            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + Face Match</strong></p>
-            <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.first_check_in_at).length} / {totalEnrolled} Students checked in</p>
-          </div>
-        </div>
-        )}
+        {/* First Check-In Window Card Removed */}
 
         {/* Random Check-in Window Card */}
         {randomWindow ? (
@@ -281,7 +252,7 @@ function LiveSessionContent() {
           style={{
             padding: "20px",
             borderColor: "rgba(79, 70, 229, 0.3)",
-            background: "linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, #FFFFFF 100%)",
+            background: "rgba(79, 70, 229, 0.04)",
             boxShadow: "var(--shadow-card)",
           }}
         >
@@ -318,9 +289,7 @@ function LiveSessionContent() {
             <h4 style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>
               Random Geofence Check
             </h4>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textAlign: "center", margin: 0 }}>
-              Trigger a surprise location check to verify students are still in the venue.
-            </p>
+            {/* text removed */}
             <button 
               className="btn-primary" 
               onClick={handleLaunchRandom} 
@@ -493,7 +462,7 @@ function LiveSessionContent() {
                     </td>
 
                     <td>
-                      <Badge type="attendance" value={record.status} size="sm" />
+                      <Badge variant="outline" className={cn("uppercase text-[0.65rem] font-bold tracking-wider", record.status === "present" ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : record.status === "absent" ? "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800" : record.status === "late" ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800" : "bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800")}>{record.status}</Badge>
                     </td>
 
                     <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
