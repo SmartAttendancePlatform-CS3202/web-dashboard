@@ -142,6 +142,7 @@ export const attendanceApi = {
 export const sessionsApi=attendanceApi;
 
 export const reportsApi = {
+  getAllOfferingReports: async (): Promise<OfferingReport[]> => must(apiFetch(`${API_CONFIG.attendance}/reports/offerings`)),
   getOfferingReport: async (id:string): Promise<OfferingReport> => must(apiFetch(`${API_CONFIG.attendance}/reports/offerings/${id}`)),
   getOfferingTrends: async (id:string): Promise<TrendData> => must(apiFetch(`${API_CONFIG.attendance}/reports/offerings/${id}/trends`)),
   getWeeklyTrends: async (): Promise<WeeklyTrendItem[]> => must(apiFetch(`${API_CONFIG.attendance}/reports/trends/weekly`)),

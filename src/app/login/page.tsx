@@ -299,7 +299,7 @@ export default function LoginPage() {
         </form>
 
         <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center", marginTop: "20px" }}>
-          directX
+          
         </p>
       </div>
     </div>

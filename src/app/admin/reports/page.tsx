@@ -8,6 +8,8 @@ import {
   BarChartIcon,
   ShieldAlertIcon,
   DownloadIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@/components/ui/Icons";
 
 export default function AdminReportsPage() {
@@ -19,6 +21,13 @@ export default function AdminReportsPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
+
+  // Pagination states
+  const [fraudPage, setFraudPage] = useState(1);
+  const [atRiskPage, setAtRiskPage] = useState(1);
+  const [geoPage, setGeoPage] = useState(1);
+  const [coursePage, setCoursePage] = useState(1);
+  const PAGE_SIZE = 5;
 
   useEffect(() => {
     async function loadData() {
@@ -32,7 +41,7 @@ export default function AdminReportsPage() {
           schedulingApi.getStudents(),
           schedulingApi.getLecturers(),
         ]);
-        const reportResults = await Promise.all(offs.map((o) => reportsApi.getOfferingReport(o.id).catch(() => null)));
+        const reportResults = await reportsApi.getAllOfferingReports().catch(() => []);
         setDepartments(depts);
         setTrends(trs);
         setAttempts(atts);
@@ -88,12 +97,69 @@ export default function AdminReportsPage() {
     document.body.removeChild(link);
   };
 
-  const flaggedAttempts = attempts.filter((a) => a.is_flagged || a.status === "failed");
+  // flaggedAttempts removed
+
+  // Calculate At-Risk Students
+  const atRiskStudentsMap = new Map<string, {name: string, index: string, totalAbsences: number, courses: Set<string>}>();
+  offeringReports.forEach(report => {
+    report.absentee_list?.forEach(absentee => {
+       if (!atRiskStudentsMap.has(absentee.student_id)) {
+          atRiskStudentsMap.set(absentee.student_id, {
+             name: absentee.student_name || 'Unknown',
+             index: absentee.student_index || 'N/A',
+             totalAbsences: 0,
+             courses: new Set()
+          });
+       }
+       const st = atRiskStudentsMap.get(absentee.student_id)!;
+       st.totalAbsences += (absentee.consecutive_absences || 1);
+       st.courses.add(report.course_code || report.course_offering_id);
+    });
+  });
+  const atRiskStudentsFull = Array.from(atRiskStudentsMap.values())
+    .sort((a, b) => b.totalAbsences - a.totalAbsences);
+  
+  const atRiskStudents = atRiskStudentsFull.slice((atRiskPage - 1) * PAGE_SIZE, atRiskPage * PAGE_SIZE);
+  const totalAtRiskPages = Math.ceil(atRiskStudentsFull.length / PAGE_SIZE) || 1;
+
+  // Calculate Location Issues
+  const locationIssuesFull = attempts
+    .filter((a) => a.used_location_check && a.status === "failed");
+    
+  const locationIssues = locationIssuesFull.slice((geoPage - 1) * PAGE_SIZE, geoPage * PAGE_SIZE);
+  const totalGeoPages = Math.ceil(locationIssuesFull.length / PAGE_SIZE) || 1;
+
+  const flaggedAttemptsFull = attempts.filter((a) => a.is_flagged || a.status === "failed");
+  const flaggedAttemptsPaginated = flaggedAttemptsFull.slice((fraudPage - 1) * PAGE_SIZE, fraudPage * PAGE_SIZE);
+  const totalFraudPages = Math.ceil(flaggedAttemptsFull.length / PAGE_SIZE) || 1;
+
+  const offeringReportsPaginated = offeringReports.slice((coursePage - 1) * PAGE_SIZE, coursePage * PAGE_SIZE);
+  const totalCoursePages = Math.ceil(offeringReports.length / PAGE_SIZE) || 1;
+
+  const renderPagination = (current: number, total: number, setPage: (p: number) => void) => (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+      <button 
+        onClick={() => setPage(Math.max(1, current - 1))} 
+        disabled={current === 1}
+        className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >
+        <ChevronLeftIcon size={14} />
+      </button>
+      <span className="font-mono">{current} / {total}</span>
+      <button 
+        onClick={() => setPage(Math.min(total, current + 1))} 
+        disabled={current === total}
+        className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >
+        <ChevronRightIcon size={14} />
+      </button>
+    </div>
+  );
 
   return (
     <AdminDashboardLayout
-      title="Reports"
-      subtitle="View attendance and system reports."
+      title="Analytics & Reports"
+      subtitle="Comprehensive view of university-wide attendance, metrics, and security."
       actions={
         <div style={{ display: "flex", gap: "10px" }}>
           <button onClick={handleExportCSV} className="btn-secondary" style={{ padding: "8px 14px", fontSize: "0.85rem" }}>
@@ -137,6 +203,14 @@ export default function AdminReportsPage() {
           <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#F87171", marginTop: "4px" }}>{flaggedCount} Intercepted</h3>
           <p style={{ fontSize: "0.75rem", color: "#F87171", marginTop: "6px" }}>
             100% prevented from illicit sign-in
+          </p>
+        </div>
+
+        <div className="glass-card" style={{ padding: "20px" }}>
+          <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600 }}>At-Risk Students</p>
+          <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#F59E0B", marginTop: "4px" }}>{atRiskStudents.length} Flagged</h3>
+          <p style={{ fontSize: "0.75rem", color: "#F59E0B", marginTop: "6px" }}>
+            Require intervention / counseling
           </p>
         </div>
       </div>
@@ -209,16 +283,19 @@ export default function AdminReportsPage() {
                 AI Fraud Detection Intercepts
               </h3>
             </div>
-            <span style={{ fontSize: "0.72rem", color: "#F87171", fontWeight: 700 }}>Live Feed</span>
+            <div className="flex items-center gap-4">
+              <span style={{ fontSize: "0.72rem", color: "#F87171", fontWeight: 700 }}>Live Feed</span>
+              {renderPagination(fraudPage, totalFraudPages, setFraudPage)}
+            </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {flaggedAttempts.length === 0 ? (
+            {flaggedAttemptsFull.length === 0 ? (
               <div style={{ padding: "30px", textAlign: "center", color: "var(--text-muted)" }}>
                 No fraudulent attempts recorded today
               </div>
             ) : (
-              flaggedAttempts.map((attempt) => (
+              flaggedAttemptsPaginated.map((attempt) => (
                 <div
                   key={attempt.id}
                   style={{
@@ -298,6 +375,154 @@ export default function AdminReportsPage() {
               </span>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "28px" }}>
+        {/* At-Risk Students Report */}
+        <div className="glass-card" style={{ padding: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+            <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>
+              At-Risk Students (High Absenteeism)
+            </h3>
+            {renderPagination(atRiskPage, totalAtRiskPages, setAtRiskPage)}
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Student</th>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Index</th>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Missed Sessions</th>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Flagged Courses</th>
+                </tr>
+              </thead>
+              <tbody>
+                {atRiskStudents.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>
+                      No students currently flagged as at-risk.
+                    </td>
+                  </tr>
+                ) : atRiskStudents.map((st, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    <td style={{ padding: "10px 4px", fontWeight: 600, color: "var(--text-primary)" }}>{st.name}</td>
+                    <td style={{ padding: "10px 4px", fontFamily: "monospace", color: "var(--text-secondary)" }}>{st.index}</td>
+                    <td style={{ padding: "10px 4px" }}>
+                      <span style={{ padding: "2px 8px", borderRadius: "4px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#F87171", fontWeight: 700 }}>
+                        {st.totalAbsences} missed
+                      </span>
+                    </td>
+                    <td style={{ padding: "10px 4px", color: "var(--text-secondary)" }}>
+                      {Array.from(st.courses).join(", ")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Location & Geofence Diagnostics */}
+        <div className="glass-card" style={{ padding: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+            <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>
+              Geofence Verification Diagnostics
+            </h3>
+            <div className="flex items-center gap-4">
+              <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Recent Failures</span>
+              {renderPagination(geoPage, totalGeoPages, setGeoPage)}
+            </div>
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Timestamp</th>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Student ID</th>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Recorded Distance</th>
+                  <th style={{ padding: "10px 4px", fontWeight: 600 }}>Diagnostic</th>
+                </tr>
+              </thead>
+              <tbody>
+                {locationIssues.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>
+                      No recent geofence failures detected.
+                    </td>
+                  </tr>
+                ) : locationIssues.map((issue) => (
+                  <tr key={issue.id} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    <td style={{ padding: "10px 4px", color: "var(--text-secondary)" }}>
+                      {new Date(issue.attempted_at || issue.attempt_timestamp || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td style={{ padding: "10px 4px", color: "var(--text-primary)", fontWeight: 500 }}>
+                      {issue.student_index || "Unknown"}
+                    </td>
+                    <td style={{ padding: "10px 4px", fontFamily: "monospace", color: "#FBBF24" }}>
+                      {issue.distance_from_venue_meters ?? issue.distance_from_venue_m ?? "N/A"}m away
+                    </td>
+                    <td style={{ padding: "10px 4px", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                      Out of bounds
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Course Attendance Reports */}
+      <div className="glass-card" style={{ padding: "24px", marginTop: "28px" }}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--text-primary)" }}>
+            Course & Venue Attendance Analytics
+          </h3>
+          {renderPagination(coursePage, totalCoursePages, setCoursePage)}
+        </div>
+        
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}>
+                <th style={{ padding: "12px", fontWeight: 600 }}>Course / Module</th>
+                <th style={{ padding: "12px", fontWeight: 600 }}>Lecturer</th>
+                <th style={{ padding: "12px", fontWeight: 600 }}>Venue</th>
+                <th style={{ padding: "12px", fontWeight: 600 }}>Sessions</th>
+                <th style={{ padding: "12px", fontWeight: 600 }}>Attendance Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {offeringReports.length === 0 ? (
+                 <tr>
+                   <td colSpan={5} style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>
+                     No course reports available
+                   </td>
+                 </tr>
+              ) : offeringReportsPaginated.map((report) => (
+                <tr key={report.course_offering_id} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                  <td style={{ padding: "12px", fontWeight: 600, color: "var(--text-primary)" }}>
+                    {report.course_code || report.course_offering_id}
+                  </td>
+                  <td style={{ padding: "12px", color: "var(--text-secondary)" }}>
+                    {offerings.find(o => o.id === report.course_offering_id)?.lecturer_name || "N/A"}
+                  </td>
+                  <td style={{ padding: "12px", color: "var(--text-secondary)" }}>
+                    {offerings.find(o => o.id === report.course_offering_id)?.venue_name || "N/A"}
+                  </td>
+                  <td style={{ padding: "12px", color: "var(--text-primary)" }}>
+                    {report.total_sessions}
+                  </td>
+                  <td style={{ padding: "12px" }}>
+                    <span style={{ fontWeight: 700, color: report.attendance_percentage >= 80 ? "#34D399" : report.attendance_percentage >= 60 ? "#FBBF24" : "#F87171" }}>
+                      {report.attendance_percentage.toFixed(1)}%
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </AdminDashboardLayout>

@@ -210,8 +210,8 @@ export default function AdminCoursesPage() {
 
   return (
     <AdminDashboardLayout
-      title="Courses"
-      subtitle="Manage courses, offerings, and enrollments."
+      title="Course Management"
+      subtitle="Manage course directory and scheduled classes."
       actions={
         <div style={{ display: "flex", gap: "10px" }}>
           <button
@@ -270,7 +270,7 @@ export default function AdminCoursesPage() {
             cursor: "pointer",
           }}
         >
-          Active Semester Offerings ({offerings.length})
+          Scheduled Classes ({offerings.length})
         </button>
         <button
           onClick={() => setActiveTab("courses")}
@@ -285,7 +285,7 @@ export default function AdminCoursesPage() {
             cursor: "pointer",
           }}
         >
-          Master Course Catalog ({courses.length})
+          Course Directory ({courses.length})
         </button>
       </div>
 

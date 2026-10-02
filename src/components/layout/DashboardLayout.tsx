@@ -14,14 +14,14 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
   return (
     <RoleGuard allowedRoles={["lecturer", "admin"]}>
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "var(--bg-main)" }}>
+    <div className="flex min-h-screen bg-transparent">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <div className="flex-1 flex flex-col min-w-0">
         <Header title={title} subtitle={subtitle} />
-        <main style={{ padding: "32px", flex: 1, overflowY: "auto" }}>
+        <main className="flex-1 p-8 overflow-y-auto z-10">
           {children}
         </main>
       </div>
