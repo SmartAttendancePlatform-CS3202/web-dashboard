@@ -28,8 +28,6 @@ export default function HomePage() {
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [sessions, setSessions] = useState<LectureSession[]>([]);
   const [report, setReport] = useState<OfferingReport | null>(null);
-  const [trends, setTrends] = useState<TrendData | null>(null);
-  const [alerts, setAlerts] = useState<SystemAlert[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -39,11 +37,9 @@ export default function HomePage() {
         const offs = await schedulingApi.getLecturerTimetable();
         const activeOffId = offs.length > 0 ? offs[0].id : null;
 
-        const [sess, rep, tr, al, nots] = await Promise.all([
+        const [sess, rep, nots] = await Promise.all([
           attendanceApi.getSessions(),
           activeOffId ? reportsApi.getOfferingReport(activeOffId).catch(() => null) : Promise.resolve(null),
-          activeOffId ? reportsApi.getOfferingTrends(activeOffId).catch(() => null) : Promise.resolve(null),
-          alertsApi.getAlerts().catch(() => []),
           noticesApi.getNotices().catch(() => []),
         ]);
 
@@ -58,8 +54,6 @@ export default function HomePage() {
 
         setSessions(mySessions);
         setReport(rep as OfferingReport | null);
-        setTrends(tr as TrendData | null);
-        setAlerts(al);
         setNotices(myNotices);
       } catch (err) {
         console.error("Error loading dashboard metrics:", err);
