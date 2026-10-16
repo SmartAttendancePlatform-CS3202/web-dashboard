@@ -280,7 +280,7 @@ function LiveSessionContent() {
 
           <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
             <p>Prompting random location match on mobile devices</p>
-            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence Only</strong></p>
+            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + AI Face Verification</strong></p>
             <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.random_check_completed_at).length} / {totalEnrolled} Students verified</p>
           </div>
         </div>
@@ -462,7 +462,17 @@ function LiveSessionContent() {
                     </td>
 
                     <td>
-                      <Badge variant="outline" className={cn("uppercase text-[0.65rem] font-bold tracking-wider", record.status === "present" ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : record.status === "absent" ? "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800" : record.status === "late" ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800" : "bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800")}>{record.status}</Badge>
+                      {record.status === "present" ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">PRESENT</Badge>
+                      ) : record.status === "late" ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">LATE</Badge>
+                      ) : isFlagged ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">FLAGGED</Badge>
+                      ) : record.first_check_in_at && !record.random_check_completed_at ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-sky-50 text-sky-600 border-sky-200 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800">STEP 1/2 VERIFIED</Badge>
+                      ) : (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800">ABSENT</Badge>
+                      )}
                     </td>
 
                     <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
@@ -480,12 +490,18 @@ function LiveSessionContent() {
                       ) : record.status === "present" ? (
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#059669", fontSize: "0.75rem" }}>
                           <CheckCircleIcon size={14} />
-                          <span>Verified by mobile check-in</span>
+                          <span>Verified (Dual Verification Complete)</span>
                         </div>
                       ) : record.status === "late" ? (
-                        <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Late but valid check-in</span>
+                        <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Late verified check-in</span>
+                      ) : (
+                        record.first_check_in_at && !record.random_check_completed_at ? (
+                        <span style={{ color: "#0284C7", fontSize: "0.75rem", fontWeight: 600 }}>
+                          Initial Check-In Complete (Awaiting Random Check)
+                        </span>
                       ) : (
                         <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Not checked in yet</span>
+                      )
                       )}
                     </td>
 
