@@ -41,7 +41,7 @@ export function Sidebar() {
 
   const navItems: NavItem[] = [
     { name: "Overview", href: "/", icon: HomeIcon },
-    { name: "Active Session", href: "/session/live", icon: RadioIcon, isLive: true },
+    { name: "Active Session", href: "/session/live", icon: RadioIcon },
     { name: "Teaching Timetable", href: "/timetable", icon: CalendarIcon },
     { name: "Courses & Rosters", href: "/courses", icon: BookOpenIcon },
     { name: "Attendance Hub", href: "/attendance", icon: UserCheckIcon },
