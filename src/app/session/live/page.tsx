@@ -46,11 +46,20 @@ function LiveSessionContent() {
       async function openCurrentScheduledSession() {
         try {
           const active = await attendanceApi.getActiveScheduledSessions();
-          if (active.length > 0) {
-            router.replace(`/session/live?session_id=${active[0].id}`);
+          const now = Date.now();
+          const validActive = active.find((s) => {
+            if (s.status === "completed" || s.status === "cancelled") return false;
+            const sStart = new Date(s.scheduled_at).getTime();
+            const sEnd = sStart + (s.duration_mins || 60) * 60 * 1000;
+            return now >= (sStart - 15 * 60 * 1000) && now <= sEnd;
+          });
+
+          if (validActive) {
+            router.replace(`/session/live?session_id=${validActive.id}`);
             return;
           }
-          setEmptyMessage("No scheduled lecture is inside its attendance window right now.");
+          setSession(null);
+          setEmptyMessage("No active lecture session right now.");
         } catch (err: unknown) {
           setEmptyMessage(err instanceof Error ? err.message : "Could not find an active scheduled lecture session.");
         } finally {
@@ -68,13 +77,44 @@ function LiveSessionContent() {
           attendanceApi.getAttendanceRecords(sessionId),
           attendanceApi.getSessionWindows(sessionId).catch(() => []),
         ]);
-        if (sess) setSession(sess);
-        if (sess && !hasSynced && recs && recs.length === 0) {
-          setHasSynced(true);
-          attendanceApi.syncSessionRoster(sessionId).then(() => attendanceApi.getAttendanceRecords(sessionId).then(setRecords)).catch(console.error);
+        if (sess) {
+          const now = Date.now();
+          const start = new Date(sess.scheduled_at).getTime();
+          const end = start + (sess.duration_mins || 60) * 60 * 1000;
+          const startMinus15 = start - 15 * 60 * 1000;
+          const isCurrentInThisTime = (sess.status === "ongoing" || sess.status === "scheduled") &&
+            now >= startMinus15 && now <= end;
+
+          if (!isCurrentInThisTime) {
+            const active = await attendanceApi.getActiveScheduledSessions().catch(() => []);
+            const validActive = active.find((s) => {
+              if (s.status === "completed" || s.status === "cancelled") return false;
+              const sStart = new Date(s.scheduled_at).getTime();
+              const sEnd = sStart + (s.duration_mins || 60) * 60 * 1000;
+              return now >= (sStart - 15 * 60 * 1000) && now <= sEnd;
+            });
+
+            if (validActive && validActive.id !== sessionId) {
+              router.replace(`/session/live?session_id=${validActive.id}`);
+              return;
+            } else {
+              setSession(null);
+              setEmptyMessage("No active lecture session right now.");
+              return;
+            }
+          }
+
+          setSession(sess);
+          if (!hasSynced && recs && recs.length === 0) {
+            setHasSynced(true);
+            attendanceApi.syncSessionRoster(sessionId).then(() => attendanceApi.getAttendanceRecords(sessionId).then(setRecords)).catch(console.error);
+          }
+          if (recs) setRecords(recs);
+          if (wins) setWindows(wins);
+        } else {
+          setSession(null);
+          setEmptyMessage("Session not found or attendance window closed.");
         }
-        if (recs) setRecords(recs);
-        if (wins) setWindows(wins);
       } catch (err) {
         console.error("Live polling error:", err);
       } finally {
@@ -170,14 +210,32 @@ function LiveSessionContent() {
   const initialWindow = windows.find((w) => w.window_type === "check_in" || w.window_type === "WindowType.check_in");
   const randomWindow = windows.find((w) => w.window_type === "random_check" || w.window_type === "WindowType.random_check");
 
-  if (!sessionId) {
+  if (!session || !sessionId) {
     return (
       <DashboardLayout
         title="Active Session"
-        subtitle="Scheduled attendance sessions open automatically 15 minutes before lecture start."
+        subtitle="Live attendance sessions open automatically during scheduled lecture hours."
       >
-        <div className="glass-card" style={{ padding: "36px", textAlign: "center", color: "var(--text-secondary)" }}>
-          {loading ? "Looking for your active scheduled lecture..." : emptyMessage}
+        <div className="glass-card" style={{ padding: "48px 24px", textAlign: "center" }}>
+          <div style={{
+            width: "56px",
+            height: "56px",
+            borderRadius: "50%",
+            backgroundColor: "rgba(100, 116, 139, 0.1)",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 16px",
+            color: "var(--text-muted)",
+          }}>
+            <RadioIcon size={28} />
+          </div>
+          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px" }}>
+            {loading ? "Checking for Active Sessions..." : "No Active Session Right Now"}
+          </h3>
+          <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", maxWidth: "480px", margin: "0 auto" }}>
+            {loading ? "Verifying current timetable schedules..." : emptyMessage || "There are no scheduled lecture sessions active at this time."}
+          </p>
         </div>
       </DashboardLayout>
     );

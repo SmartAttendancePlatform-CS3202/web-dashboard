@@ -66,11 +66,11 @@ export default function HomePage() {
 
   const now = new Date();
   const liveSession = sessions.find((s) => {
-    if (s.status === "ongoing") return true;
+    if (s.status === "completed" || s.status === "cancelled") return false;
     const start = new Date(s.scheduled_at);
     const end = new Date(start.getTime() + s.duration_mins * 60000);
     const startMinus15 = new Date(start.getTime() - 15 * 60000);
-    return now >= startMinus15 && now <= end;
+    return (s.status === "ongoing" || s.status === "scheduled") && now >= startMinus15 && now <= end;
   });
   const totalEnrolledStudents = offerings.reduce((sum, o) => sum + (o.enrolled_count || 0), 0);
   
