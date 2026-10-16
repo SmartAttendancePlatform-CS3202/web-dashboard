@@ -12,7 +12,6 @@ import {
   UserCheckIcon,
   CalendarIcon,
   ShieldAlertIcon,
-  RadioIcon,
   PlayIcon,
   ClockIcon,
   MapPinIcon,
@@ -109,40 +108,7 @@ export default function HomePage() {
       title={`Welcome back, ${lecturerProfile?.display_name || "Doctor"}`}
       subtitle="Overview of your classes and attendance."
     >
-      {/* Live Session Alert Banner if active */}
-      {liveSession && (
-        <div className="mb-6 p-5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 shadow-sm flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-red-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-          
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="w-11 h-11 rounded-xl bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
-              <RadioIcon size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                </span>
-                <span className="text-[0.85rem] font-bold text-red-700 dark:text-red-400 uppercase tracking-wide">
-                  Live Session Happening Now
-                </span>
-              </div>
-              <h4 className="text-[1.1rem] font-bold text-slate-900 dark:text-white leading-tight">
-                {liveSession.course_code}: {liveSession.course_name} (Session #{liveSession.session_number})
-              </h4>
-              <p className="text-[0.8rem] text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
-                {liveSession.venue_name} • {liveSession.present_count} / {liveSession.total_enrolled} Checked In
-              </p>
-            </div>
-          </div>
-
-          <Link href="/session/live" className="relative z-10 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-5 py-2.5 rounded-lg shadow-md shadow-red-600/20 transition-all hover:scale-105 active:scale-95">
-            <span>Join Live Session</span>
-            <ChevronRightIcon size={16} />
-          </Link>
-        </div>
-      )}
+      {/* KPI Stats Grid */}
 
       {/* KPI Stats Grid */}
       {/* KPI Stats Grid */}
