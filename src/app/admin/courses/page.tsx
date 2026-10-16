@@ -18,6 +18,7 @@ import {
   PlusIcon,
   CheckCircleIcon,
   TrashIcon,
+  AlertTriangleIcon,
 } from "@/components/ui/Icons";
 
 export default function AdminCoursesPage() {
@@ -57,6 +58,7 @@ export default function AdminCoursesPage() {
   const [offEnd, setOffEnd] = useState("11:00");
   const [offLateMin, setOffLateMin] = useState(15);
   const [offRandomCheck, setOffRandomCheck] = useState(true);
+  const [offeringError, setOfferingError] = useState<string | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -117,11 +119,11 @@ export default function AdminCoursesPage() {
 
   const handleCreateOffering = async (e: React.FormEvent) => {
     e.preventDefault();
+    setOfferingError(null);
     try {
       if (offEnd && offStart && offEnd <= offStart) {
-        if (!confirm(`Warning: End time (${offEnd}) is earlier than or equal to start time (${offStart}). In 24-hour format, 12:00 is midday (noon), while midnight is 00:00. Do you want to proceed?`)) {
-          return;
-        }
+        setOfferingError(`End time (${offEnd}) must be later than start time (${offStart}). In 24-hour format, please enter valid sequential times.`);
+        return;
       }
 
       const selectedCourse = courses.find((c) => c.id === offCourseId);
@@ -156,10 +158,13 @@ export default function AdminCoursesPage() {
 
       setOfferings((prev) => [...prev, created]);
       setShowOfferingModal(false);
+      setOfferingError(null);
       setToastMessage(`Course offering scheduled for ${created.course_code}.`);
       setTimeout(() => setToastMessage(null), 4000);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to schedule offering:", err);
+      const msg = err instanceof Error ? err.message : "Failed to schedule offering";
+      setOfferingError(msg);
     }
   };
 
@@ -223,7 +228,10 @@ export default function AdminCoursesPage() {
             <span>New Master Course</span>
           </button>
           <button
-            onClick={() => setShowOfferingModal(true)}
+            onClick={() => {
+              setOfferingError(null);
+              setShowOfferingModal(true);
+            }}
             className="btn-primary"
             style={{ padding: "8px 14px", fontSize: "0.85rem" }}
           >
@@ -624,6 +632,25 @@ export default function AdminCoursesPage() {
             </div>
 
             <form onSubmit={handleCreateOffering} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              {offeringError && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "8px",
+                    backgroundColor: "rgba(225, 29, 72, 0.1)",
+                    border: "1px solid rgba(225, 29, 72, 0.3)",
+                    color: "#E11D48",
+                    fontSize: "0.85rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <AlertTriangleIcon size={18} style={{ flexShrink: 0 }} />
+                  <span>{offeringError}</span>
+                </div>
+              )}
+
               <div>
                 <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
                   Select Master Course
