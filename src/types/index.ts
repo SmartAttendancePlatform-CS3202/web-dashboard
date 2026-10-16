@@ -6,7 +6,7 @@ export type VerificationMethod = "gps_geofence" | "wifi_ap";
 export type GeofenceShape = "circle" | "square" | "polygon";
 export type WindowType = "check_in" | "random_check";
 export type AttemptStatus = "success" | "failed";
-export type AttendanceStatus = "present" | "late" | "absent" | "flagged_proxy";
+export type AttendanceStatus = "present" | "late" | "absent" | "flagged_proxy" | "initial_verified";
 export type NoticeUrgency = "low" | "normal" | "high" | "urgent";
 export type AlertType = "proxy_flagged" | "verification_failure_spike" | "system" | "other";
 
