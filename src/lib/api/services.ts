@@ -123,6 +123,7 @@ export const attendanceApi = {
     return (await hydrateSessions([raw]))[0] || null;
   },
   triggerRandomWindow: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/windows/random`,{method:"POST"})),
+  closeRandomWindow: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/windows/random/close`,{method:"POST"})),
   getSessionWindows: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/windows`)),
   getSessionLiveStatus: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/live`)),
   syncSessionRoster: async (id:string) => must(apiFetch(`${API_CONFIG.attendance}/sessions/${id}/sync-roster`,{method:"POST"})),

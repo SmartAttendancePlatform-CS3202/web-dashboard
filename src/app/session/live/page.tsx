@@ -33,6 +33,7 @@ function LiveSessionContent() {
   const [selectedRecordForDrawer, setSelectedRecordForDrawer] = useState<AttendanceRecord | null>(null);
   const [isEnding, setIsEnding] = useState<boolean>(false);
   const [isTriggeringRandom, setIsTriggeringRandom] = useState<boolean>(false);
+  const [isClosingRandom, setIsClosingRandom] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [emptyMessage, setEmptyMessage] = useState<string>("");
@@ -101,6 +102,26 @@ function LiveSessionContent() {
       alert(err instanceof Error ? err.message : "Failed to launch random window.");
     } finally {
       setIsTriggeringRandom(false);
+    }
+  };
+
+  const handleCloseRandom = async () => {
+    if (!confirm("Are you sure you want to end this random location check window now?")) {
+      return;
+    }
+    setIsClosingRandom(true);
+    try {
+      await attendanceApi.closeRandomWindow(sessionId);
+      const wins = await attendanceApi.getSessionWindows(sessionId);
+      if (wins) {
+        setWindows(wins);
+      }
+      const updatedRecords = await attendanceApi.getAttendanceRecords(sessionId);
+      setRecords(updatedRecords);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to end random check window.");
+    } finally {
+      setIsClosingRandom(false);
     }
   };
 
@@ -283,6 +304,33 @@ function LiveSessionContent() {
             <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + AI Face Verification</strong></p>
             <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.random_check_completed_at).length} / {totalEnrolled} Students verified</p>
           </div>
+
+          {randomWindow.is_active && (
+            <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid rgba(79, 70, 229, 0.15)", display: "flex", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={handleCloseRandom}
+                disabled={isClosingRandom}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "6px 14px",
+                  fontSize: "0.82rem",
+                  fontWeight: 600,
+                  color: "#DC2626",
+                  backgroundColor: "rgba(220, 38, 38, 0.08)",
+                  border: "1px solid rgba(220, 38, 38, 0.25)",
+                  borderRadius: "8px",
+                  cursor: isClosingRandom ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <StopCircleIcon size={15} />
+                {isClosingRandom ? "Ending..." : "End Random Session"}
+              </button>
+            </div>
+          )}
         </div>
         ) : (
           <div className="glass-card" style={{ padding: "20px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "12px", borderStyle: "dashed" }}>
