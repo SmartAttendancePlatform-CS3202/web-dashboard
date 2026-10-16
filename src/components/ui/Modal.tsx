@@ -43,82 +43,40 @@ export function Modal({
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(8px)",
-      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="glass-card"
+        className="flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden"
         style={{
           width: "100%",
           maxWidth: widthPx,
           maxHeight: "90vh",
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: "#FFFFFF",
-          border: "1px solid var(--border-subtle)",
-          borderRadius: "var(--radius-xl)",
-          boxShadow: "var(--shadow-command)",
-          overflow: "hidden",
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div
-          style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid var(--border-subtle)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
+        <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/50">
           <div>
-            <h3
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.2rem",
-                fontWeight: 700,
-                color: "var(--text-primary)",
-              }}
-            >
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
               {title}
             </h3>
             {subtitle && (
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginTop: "2px" }}>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 {subtitle}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "8px",
-              padding: "6px",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
-            <XIcon size={16} />
+            <XIcon size={18} />
           </button>
         </div>
 
         {/* Content Body */}
-        <div style={{ padding: "24px", overflowY: "auto", flex: 1 }}>
+        <div className="p-6 overflow-y-auto flex-1">
           {children}
         </div>
       </div>

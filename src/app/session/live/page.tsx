@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { OverrideModal } from "@/components/attendance/OverrideModal";
 import { AttemptDrawer } from "@/components/attendance/AttemptDrawer";
 import { attendanceApi } from "@/lib/api/services";
@@ -178,7 +179,7 @@ function LiveSessionContent() {
           flexWrap: "wrap",
           gap: "16px",
           borderColor: "rgba(225, 29, 72, 0.25)",
-          background: "linear-gradient(135deg, rgba(225, 29, 72, 0.04) 0%, #FFFFFF 100%)",
+          background: "rgba(225, 29, 72, 0.04)",
           boxShadow: "var(--shadow-card)",
         }}
       >
@@ -223,7 +224,7 @@ function LiveSessionContent() {
             style={{
               borderColor: isStreamPaused ? "rgba(217, 119, 6, 0.4)" : "var(--border-subtle)",
               color: isStreamPaused ? "#D97706" : "var(--text-primary)",
-              backgroundColor: isStreamPaused ? "rgba(217, 119, 6, 0.06)" : "#FFFFFF",
+              backgroundColor: isStreamPaused ? "rgba(217, 119, 6, 0.06)" : undefined,
             }}
           >
             {isStreamPaused ? "▶ Resume Stream" : "⏸ Pause Stream"}
@@ -244,37 +245,7 @@ function LiveSessionContent() {
       {/* Verification Windows & Live Gauges */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px", marginBottom: "24px" }}>
         {/* First Check-In Window Card */}
-        {initialWindow && (
-        <div className="glass-card" style={{ padding: "20px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <ScanFaceIcon size={18} style={{ color: "var(--accent-primary)" }} />
-              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                Student Check-in Window
-              </h4>
-            </div>
-            <span
-              style={{
-                fontSize: "0.72rem",
-                color: initialWindow.is_active ? "#D97706" : "#059669",
-                fontWeight: 700,
-                backgroundColor: initialWindow.is_active ? "rgba(217, 119, 6, 0.08)" : "rgba(5, 150, 105, 0.08)",
-                border: `1px solid ${initialWindow.is_active ? "rgba(217, 119, 6, 0.25)" : "rgba(5, 150, 105, 0.2)"}`,
-                padding: "2px 8px",
-                borderRadius: "var(--radius-full)",
-              }}
-            >
-              {initialWindow.is_active ? "ACTIVE NOW" : "COMPLETED"}
-            </span>
-          </div>
-
-          <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p>Open from 15 minutes before lecture start until scheduled lecture end</p>
-            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + Face Match</strong></p>
-            <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.first_check_in_at).length} / {totalEnrolled} Students checked in</p>
-          </div>
-        </div>
-        )}
+        {/* First Check-In Window Card Removed */}
 
         {/* Random Check-in Window Card */}
         {randomWindow ? (
@@ -283,7 +254,7 @@ function LiveSessionContent() {
           style={{
             padding: "20px",
             borderColor: "rgba(79, 70, 229, 0.3)",
-            background: "linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, #FFFFFF 100%)",
+            background: "rgba(79, 70, 229, 0.04)",
             boxShadow: "var(--shadow-card)",
           }}
         >
@@ -311,7 +282,7 @@ function LiveSessionContent() {
 
           <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "4px" }}>
             <p>Prompting random location match on mobile devices</p>
-            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence Only</strong></p>
+            <p>Verification Method: <strong style={{ color: "var(--text-primary)" }}>GPS Geofence + AI Face Verification</strong></p>
             <p style={{ color: "#059669", fontWeight: 600 }}>{records.filter(r => r.random_check_completed_at).length} / {totalEnrolled} Students verified</p>
           </div>
         </div>
@@ -320,9 +291,7 @@ function LiveSessionContent() {
             <h4 style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>
               Random Geofence Check
             </h4>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textAlign: "center", margin: 0 }}>
-              Trigger a surprise location check to verify students are still in the venue.
-            </p>
+            {/* text removed */}
             <button 
               className="btn-primary" 
               onClick={handleLaunchRandom} 
@@ -497,11 +466,17 @@ function LiveSessionContent() {
                     </td>
 
                     <td>
-                      <Badge 
-                        type="attendance" 
-                        value={record.first_check_in_at && record.status === "absent" ? "initial_verified" : record.status} 
-                        size="sm" 
-                      />
+                      {record.status === "present" ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">PRESENT</Badge>
+                      ) : record.status === "late" ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">LATE</Badge>
+                      ) : isFlagged ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">FLAGGED</Badge>
+                      ) : (record.first_check_in_at && record.status === "absent") || record.status === "initial_verified" || (record.first_check_in_at && !record.random_check_completed_at) ? (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-sky-50 text-sky-600 border-sky-200 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800">STEP 1/2 VERIFIED</Badge>
+                      ) : (
+                        <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800">ABSENT</Badge>
+                      )}
                     </td>
 
                     <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
@@ -519,14 +494,14 @@ function LiveSessionContent() {
                       ) : record.status === "present" ? (
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#059669", fontSize: "0.75rem" }}>
                           <CheckCircleIcon size={14} />
-                          <span>Verified by mobile check-in</span>
+                          <span>Verified (Dual Verification Complete)</span>
                         </div>
                       ) : record.status === "late" ? (
-                        <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Late but valid check-in</span>
-                      ) : record.first_check_in_at ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#0284C7", fontSize: "0.75rem" }}>
+                        <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Late verified check-in</span>
+                      ) : record.first_check_in_at && !record.random_check_completed_at ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#0284C7", fontSize: "0.75rem", fontWeight: 600 }}>
                           <CheckCircleIcon size={14} />
-                          <span>Initial verification done (Face + GPS)</span>
+                          <span>Initial Check-In Complete (Face + GPS - Awaiting Random Check)</span>
                         </div>
                       ) : record.random_check_completed_at ? (
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#4F46E5", fontSize: "0.75rem" }}>

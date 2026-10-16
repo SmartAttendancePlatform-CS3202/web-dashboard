@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/Icons";
 import { useAuth } from "@/lib/context/AuthContext";
 import { getUserDisplayName, getUserSubtitle, getUserAvatarInitial } from "@/lib/userUtils";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   name: string;
@@ -45,77 +47,29 @@ export function Sidebar() {
     { name: "Attendance Hub", href: "/attendance", icon: UserCheckIcon },
     { name: "Reports & Analytics", href: "/reports", icon: BarChartIcon },
     { name: "Notices Broadcast", href: "/notices", icon: BellIcon },
-    { name: "Security Alerts", href: "/alerts", icon: ShieldAlertIcon, badge: "2" },
+    // { name: "Security Alerts", href: "/alerts", icon: ShieldAlertIcon, badge: "2" },
   ];
 
   return (
-    <aside
-      className="no-print"
-      style={{
-        width: "260px",
-        height: "100vh",
-        backgroundColor: "var(--bg-sidebar)",
-        borderRight: "1px solid var(--border-subtle)",
-        display: "flex",
-        flexDirection: "column",
-        position: "sticky",
-        top: 0,
-        flexShrink: 0,
-        zIndex: 40,
-      }}
-    >
+    <aside className="no-print w-64 h-screen sticky top-0 flex-shrink-0 flex flex-col bg-slate-900 border-r border-slate-800 z-40">
       {/* Brand Header */}
-      <div
-        style={{
-          padding: "18px 20px",
-          borderBottom: "1px solid var(--border-subtle)",
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-        }}
-      >
-        <div
-          style={{
-            width: "38px",
-            height: "38px",
-            borderRadius: "10px",
-            background: "linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(79, 70, 229, 0.25)",
-            flexShrink: 0,
-          }}
-        >
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-800">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
           <RadioIcon size={20} className="text-white" />
         </div>
         <div>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "0.98rem",
-              fontWeight: 800,
-              color: "var(--text-primary)",
-              letterSpacing: "-0.02em",
-              lineHeight: 1.1,
-            }}
-          >
-            SMART<span style={{ color: "var(--accent-primary)" }}>ATTEND</span>
+          <h1 className="text-lg font-extrabold text-white tracking-tight leading-tight">
+            Attend<span className="text-indigo-400">X</span>
           </h1>
-          <p style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 600, letterSpacing: "0.04em", marginTop: "2px" }}>
-            FACULTY COMMAND
+          <p className="text-[0.68rem] text-slate-400 font-bold tracking-wider mt-0.5 uppercase">
+            Faculty Command
           </p>
         </div>
       </div>
 
       {/* Navigation Links */}
-      <nav style={{ padding: "16px 12px", flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "3px" }}>
-        <p
-          className="micro-label"
-          style={{
-            padding: "4px 12px 8px 12px",
-          }}
-        >
+      <nav className="flex-1 px-3 py-4 overflow-y-auto flex flex-col gap-1">
+        <p className="text-[0.7rem] font-bold tracking-widest uppercase text-slate-400 px-3 pb-2">
           Operations
         </p>
 
@@ -127,47 +81,33 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "9px 12px",
-                borderRadius: "var(--radius-md)",
-                fontSize: "0.85rem",
-                fontWeight: isActive ? 700 : 500,
-                color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
-                backgroundColor: isActive ? "var(--bg-surface)" : "transparent",
-                border: isActive ? "1px solid var(--border-medium)" : "1px solid transparent",
-                textDecoration: "none",
-                transition: "all 0.15s ease",
-              }}
+              className={cn(
+                "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-200",
+                isActive 
+                  ? "bg-slate-800 text-white shadow-sm border border-slate-700 font-bold" 
+                  : "text-slate-400 hover:bg-slate-800/50 hover:text-white font-medium"
+              )}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ color: isActive ? "var(--accent-primary)" : "var(--text-muted)" }}>
-                  <Icon size={17} />
+              <div className="flex items-center gap-2.5">
+                <span className={isActive ? "text-indigo-400" : "text-slate-500"}>
+                  <Icon size={18} />
                 </span>
                 <span>{item.name}</span>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                {item.isLive && <span className="pulse-dot-live" />}
+              <div className="flex items-center gap-2">
+                {item.isLive && (
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                )}
                 {item.badge && (
-                  <span
-                    className="font-mono tabular-nums"
-                    style={{
-                      fontSize: "0.68rem",
-                      fontWeight: 700,
-                      backgroundColor: "rgba(225, 29, 72, 0.08)",
-                      color: "#E11D48",
-                      border: "1px solid rgba(225, 29, 72, 0.25)",
-                      padding: "2px 6px",
-                      borderRadius: "var(--radius-full)",
-                    }}
-                  >
+                  <span className="font-mono text-[0.68rem] font-bold bg-red-950/30 text-red-500 border border-red-900/50 px-1.5 py-0.5 rounded-full">
                     {item.badge}
                   </span>
                 )}
-                {isActive && <ChevronRightIcon size={14} className="text-indigo-600" />}
+                {isActive && <ChevronRightIcon size={14} className="text-indigo-400" />}
               </div>
             </Link>
           );
@@ -175,109 +115,43 @@ export function Sidebar() {
       </nav>
 
       {/* Lecturer Profile / Auth Footer */}
-      <div
-        style={{
-          padding: "12px 16px",
-          borderTop: "1px solid var(--border-subtle)",
-          backgroundColor: "var(--bg-surface)",
-        }}
-      >
+      <div className="p-4 border-t border-slate-800 bg-slate-950/50">
         {user ? (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "8px",
-                  background: "linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: "0.75rem",
-                  color: "#FFFFFF",
-                  flexShrink: 0,
-                }}
-              >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center font-extrabold text-xs text-white shrink-0">
                 {getUserAvatarInitial(user, lecturerProfile)}
               </div>
-              <div style={{ minWidth: 0 }}>
-                <p
-                  style={{
-                    fontSize: "0.78rem",
-                    fontWeight: 700,
-                    color: "var(--text-primary)",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
+              <div className="min-w-0">
+                <p className="text-[0.78rem] font-bold text-white truncate">
                   {getUserDisplayName(user, lecturerProfile)}
                 </p>
-                <p className="font-mono" style={{ fontSize: "0.68rem", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <p className="font-mono text-[0.68rem] text-slate-400 truncate">
                   {getUserSubtitle(user, lecturerProfile)}
                 </p>
               </div>
             </div>
 
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleLogout}
               title="Sign Out"
-              style={{
-                background: "transparent",
-                border: "1px solid var(--border-subtle)",
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                padding: "6px 10px",
-                borderRadius: "6px",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#E11D48";
-                e.currentTarget.style.backgroundColor = "rgba(225, 29, 72, 0.1)";
-                e.currentTarget.style.borderColor = "rgba(225, 29, 72, 0.3)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--text-secondary)";
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.borderColor = "var(--border-subtle)";
-              }}
+              className="h-8 px-2 text-slate-400 border-slate-700 bg-slate-800 hover:text-red-400 hover:bg-red-950/30 hover:border-red-900"
             >
-              <LogOutIcon size={15} />
+              <LogOutIcon size={14} className="mr-1" />
               <span>Sign Out</span>
-            </button>
+            </Button>
           </div>
         ) : (
-          <Link
-            href="/login"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              width: "100%",
-              padding: "9px 12px",
-              borderRadius: "var(--radius-md)",
-              backgroundColor: "var(--accent-primary)",
-              color: "#FFFFFF",
-              fontWeight: 700,
-              fontSize: "0.82rem",
-              textDecoration: "none",
-              boxShadow: "0 2px 8px rgba(79, 70, 229, 0.25)",
-            }}
-          >
-            <LogInIcon size={16} />
-            <span>Sign In</span>
-          </Link>
+          <Button asChild className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20">
+            <Link href="/login">
+              <LogInIcon size={16} className="mr-2" />
+              Sign In
+            </Link>
+          </Button>
         )}
       </div>
     </aside>
   );
 }
-

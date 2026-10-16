@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { noticesApi, schedulingApi } from "@/lib/api/services";
 import { Notice, CourseOffering, NoticeUrgency } from "@/types";
 import { BellIcon, SendIcon, UsersIcon } from "@/components/ui/Icons";
@@ -114,7 +115,7 @@ export default function NoticesPage() {
                       padding: "8px 4px",
                       borderRadius: "6px",
                       border: urgency === urg ? "2px solid var(--accent-primary)" : "1px solid var(--border-subtle)",
-                      backgroundColor: urgency === urg ? "var(--bg-surface-recess)" : "var(--bg-surface)",
+                      backgroundColor: urgency === urg ? "var(--accent-primary)" : "var(--bg-surface)",
                       color: urgency === urg ? "#FFFFFF" : "var(--text-secondary)",
                       fontSize: "0.75rem",
                       fontWeight: urgency === urg ? 700 : 500,
@@ -211,7 +212,14 @@ export default function NoticesPage() {
                       {new Date(n.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <Badge type="urgency" value={n.urgency} size="sm" />
+                  <Badge variant="outline" className={cn(
+                    "uppercase text-[0.65rem] font-bold tracking-wider",
+                    n.urgency === "urgent" ? "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800" :
+                    n.urgency === "high" ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800" :
+                    "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800"
+                  )}>
+                    {n.urgency}
+                  </Badge>
                 </div>
 
                 <h4 style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: "4px" }}>

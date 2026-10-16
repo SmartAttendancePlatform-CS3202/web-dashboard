@@ -106,8 +106,19 @@ export default function AdminUsersPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await adminApi.registerStudent(newStudent);
-      setToastMessage(`Successfully registered student ${newStudent.email}`);
+      // Format payload depending on role
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const payload: any = { ...newStudent };
+      if (payload.role === "lecturer" || payload.role === "admin") {
+        payload.employee_id = payload.student_index_no;
+        delete payload.student_index_no;
+        if (!payload.department_id && payload.role === "admin") {
+          delete payload.department_id;
+        }
+      }
+      
+      await adminApi.registerStudent(payload);
+      setToastMessage(`Successfully registered user ${newStudent.email}`);
       setTimeout(() => setToastMessage(null), 4000);
       setIsAddingStudent(false);
       // Reload users
@@ -134,8 +145,8 @@ export default function AdminUsersPage() {
 
   return (
     <AdminDashboardLayout
-      title="Users"
-      subtitle="Manage users and their roles."
+      title="User Management"
+      subtitle="Directory of students, lecturers, and system administrators."
     >
       {/* Toast alert */}
       {toastMessage && (
@@ -234,7 +245,7 @@ export default function AdminUsersPage() {
           </select>
         </div>
         
-        {/* Add Student Button */}
+        {/* Add User Button */}
         <div>
           <button 
             onClick={() => {
@@ -252,13 +263,15 @@ export default function AdminUsersPage() {
                 nic: "",
                 contact_number: "",
                 address: "",
-              });
+                role: "student",
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              } as any);
               setIsAddingStudent(true);
             }}
             className="btn-primary"
             style={{ padding: "8px 16px", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "6px" }}
           >
-            <span style={{ fontSize: "1.1rem" }}>+</span> Add Student
+            <span style={{ fontSize: "1.1rem" }}>+</span> Add User
           </button>
         </div>
       </div>
@@ -332,7 +345,7 @@ export default function AdminUsersPage() {
 
                     <td>
                       <span style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                        {u.identifier || "N/A"}
+                        {u.identifier || "Unassigned"}
                       </span>
                     </td>
 
@@ -370,7 +383,7 @@ export default function AdminUsersPage() {
                     </td>
 
                     <td>
-                      {isStudent || isLecturer ? (
+                      {isStudent ? (
                         u.has_face_enrolled !== false ? (
                           <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#34D399", fontSize: "0.78rem" }}>
                             <CheckCircleIcon size={14} />
@@ -383,7 +396,7 @@ export default function AdminUsersPage() {
                           </div>
                         )
                       ) : (
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>N/A (Console Admin)</span>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Not Applicable</span>
                       )}
                     </td>
 
@@ -565,234 +578,231 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Add Student Modal */}
+            {/* Add User Modal */}
       {isAddingStudent && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(6px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100,
-            padding: "20px",
-          }}
-        >
-          <div
-            className="glass-card"
-            style={{
-              width: "100%",
-              maxWidth: "700px",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              padding: "28px",
-              borderRadius: "var(--radius-lg)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <ShieldAlertIcon size={20} className="text-cyan" />
-                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)" }}>
-                  Register New Student
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800 shrink-0">
+              <div className="flex items-center gap-3">
+                <ShieldAlertIcon size={20} className="text-cyan-500" />
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  Register New User
                 </h3>
               </div>
               <button
                 onClick={() => setIsAddingStudent(false)}
-                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleRegisterStudent} style={{ display: "flex", flexDirection: "column", gap: "16px" }} autoComplete="off">
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Email</label>
-                  <input
-                    type="email"
-                    className="input-control"
-                    value={newStudent.email}
-                    onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
-                    required
-                    autoComplete="new-email"
-                    name="new_student_email"
-                  />
+            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+              <form onSubmit={handleRegisterStudent} className="flex flex-col gap-4" autoComplete="off">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Email</label>
+                    <input
+                      type="email"
+                      className="input-control"
+                      value={newStudent.email}
+                      onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
+                      required
+                      autoComplete="new-email"
+                      name="new_user_email"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Password</label>
+                    <input
+                      type="password"
+                      className="input-control"
+                      value={newStudent.password}
+                      onChange={(e) => setNewStudent({...newStudent, password: e.target.value})}
+                      required
+                      minLength={6}
+                      autoComplete="new-password"
+                      name="new_user_password"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Password</label>
-                  <input
-                    type="password"
-                    className="input-control"
-                    value={newStudent.password}
-                    onChange={(e) => setNewStudent({...newStudent, password: e.target.value})}
-                    required
-                    minLength={6}
-                    autoComplete="new-password"
-                    name="new_student_password"
-                  />
-                </div>
-              </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Student Index No</label>
-                  <input
-                    type="text"
-                    className="input-control"
-                    value={newStudent.student_index_no}
-                    onChange={(e) => setNewStudent({...newStudent, student_index_no: e.target.value})}
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Role</label>
+                    <select
+                      className="input-control"
+                      value={(newStudent as {role?: string}).role || "student"}
+                      onChange={(e) => setNewStudent({...newStudent, role: e.target.value} as unknown as typeof newStudent)}
+                      required
+                    >
+                      <option value="student">Student</option>
+                      <option value="lecturer">Lecturer</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+                      {((newStudent as {role?: string}).role === "lecturer" || (newStudent as {role?: string}).role === "admin") ? "Employee ID" : "Student Index No"}
+                    </label>
+                    <input
+                      type="text"
+                      className="input-control"
+                      value={newStudent.student_index_no}
+                      onChange={(e) => setNewStudent({...newStudent, student_index_no: e.target.value})}
+                      required
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>NIC (Optional)</label>
-                  <input
-                    type="text"
-                    className="input-control"
-                    value={newStudent.nic}
-                    onChange={(e) => setNewStudent({...newStudent, nic: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Date of Birth</label>
-                  <input
-                    type="date"
-                    className="input-control"
-                    value={newStudent.date_of_birth}
-                    onChange={(e) => setNewStudent({...newStudent, date_of_birth: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Full Name</label>
-                <input
-                  type="text"
-                  className="input-control"
-                  value={newStudent.full_name}
-                  onChange={(e) => setNewStudent({...newStudent, full_name: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Name with Initials</label>
-                  <input
-                    type="text"
-                    className="input-control"
-                    value={newStudent.name_with_initials}
-                    onChange={(e) => setNewStudent({...newStudent, name_with_initials: e.target.value})}
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">NIC (Optional)</label>
+                    <input
+                      type="text"
+                      className="input-control"
+                      value={newStudent.nic}
+                      onChange={(e) => setNewStudent({...newStudent, nic: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Date of Birth</label>
+                    <input
+                      type="date"
+                      className="input-control"
+                      value={newStudent.date_of_birth}
+                      onChange={(e) => setNewStudent({...newStudent, date_of_birth: e.target.value})}
+                      required
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Display Name</label>
-                  <input
-                    type="text"
-                    className="input-control"
-                    value={newStudent.display_name}
-                    onChange={(e) => setNewStudent({...newStudent, display_name: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Gender</label>
-                  <select
+                  <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Full Name</label>
+                  <input
+                    type="text"
                     className="input-control"
-                    value={newStudent.gender}
-                    onChange={(e) => setNewStudent({...newStudent, gender: e.target.value})}
+                    value={newStudent.full_name}
+                    onChange={(e) => setNewStudent({...newStudent, full_name: e.target.value})}
                     required
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Name with Initials</label>
+                    <input
+                      type="text"
+                      className="input-control"
+                      value={newStudent.name_with_initials}
+                      onChange={(e) => setNewStudent({...newStudent, name_with_initials: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Display Name</label>
+                    <input
+                      type="text"
+                      className="input-control"
+                      value={newStudent.display_name}
+                      onChange={(e) => setNewStudent({...newStudent, display_name: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Gender</label>
+                    <select
+                      className="input-control"
+                      value={newStudent.gender}
+                      onChange={(e) => setNewStudent({...newStudent, gender: e.target.value})}
+                      required
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Contact Number</label>
+                    <input
+                      type="text"
+                      className="input-control"
+                      value={newStudent.contact_number}
+                      onChange={(e) => setNewStudent({...newStudent, contact_number: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Address</label>
+                  <input
+                    type="text"
+                    className="input-control"
+                    value={newStudent.address}
+                    onChange={(e) => setNewStudent({...newStudent, address: e.target.value})}
+                  />
+                </div>
+
+                {((newStudent as {role?: string}).role === "student" || (newStudent as {role?: string}).role === "lecturer") && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Academic Department</label>
+                      <select
+                        className="input-control"
+                        value={newStudent.department_id}
+                        onChange={(e) => setNewStudent({...newStudent, department_id: e.target.value})}
+                        required
+                      >
+                        <option value="" disabled>Select Department</option>
+                        {departments.map((dept) => (
+                          <option key={dept.id} value={dept.id}>
+                            {dept.code} - {dept.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {(!(newStudent as {role?: string}).role || (newStudent as {role?: string}).role === "student") && (
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Academic Year</label>
+                        <select
+                          className="input-control"
+                          value={newStudent.academic_year_id}
+                          onChange={(e) => setNewStudent({...newStudent, academic_year_id: e.target.value})}
+                          required
+                        >
+                          <option value="" disabled>Select Year</option>
+                          {academicYears.map((yr) => (
+                            <option key={yr.id} value={yr.id}>
+                              {yr.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-800 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingStudent(false)}
+                    className="btn-secondary flex-1 py-2.5"
                   >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Contact Number</label>
-                  <input
-                    type="text"
-                    className="input-control"
-                    value={newStudent.contact_number}
-                    onChange={(e) => setNewStudent({...newStudent, contact_number: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Address</label>
-                <input
-                  type="text"
-                  className="input-control"
-                  value={newStudent.address}
-                  onChange={(e) => setNewStudent({...newStudent, address: e.target.value})}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Academic Department</label>
-                  <select
-                    className="input-control"
-                    value={newStudent.department_id}
-                    onChange={(e) => setNewStudent({...newStudent, department_id: e.target.value})}
-                    required
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary flex-1 py-2.5"
+                    disabled={isSaving}
                   >
-                    <option value="" disabled>Select Department</option>
-                    {departments.map((dept) => (
-                      <option key={dept.id} value={dept.id}>
-                        {dept.code} - {dept.name}
-                      </option>
-                    ))}
-                  </select>
+                    {isSaving ? "Registering..." : "Register User"}
+                  </button>
                 </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "6px" }}>Academic Year</label>
-                  <select
-                    className="input-control"
-                    value={newStudent.academic_year_id}
-                    onChange={(e) => setNewStudent({...newStudent, academic_year_id: e.target.value})}
-                    required
-                  >
-                    <option value="" disabled>Select Year</option>
-                    {academicYears.map((yr) => (
-                      <option key={yr.id} value={yr.id}>
-                        {yr.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-                <button
-                  type="button"
-                  onClick={() => setIsAddingStudent(false)}
-                  className="btn-secondary"
-                  style={{ flex: 1, justifyContent: "center" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ flex: 1, justifyContent: "center" }}
-                  disabled={isSaving}
-                >
-                  {isSaving ? "Registering..." : "Register Student"}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}

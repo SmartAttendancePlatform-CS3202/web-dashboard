@@ -13,6 +13,9 @@ import {
 export default function AdminDepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
+  const [courseCounts, setCourseCounts] = useState<Record<string, number>>({});
+  const [lecturerCounts, setLecturerCounts] = useState<Record<string, number>>({});
+  const [studentCounts, setStudentCounts] = useState<Record<string, number>>({});
 
   // Department Modal State
   const [showDeptModal, setShowDeptModal] = useState(false);
@@ -33,12 +36,31 @@ export default function AdminDepartmentsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [depts, years] = await Promise.all([
+        const [depts, years, courses, users] = await Promise.all([
           adminApi.getDepartments(),
           adminApi.getAcademicYears(),
+          adminApi.getCourses(),
+          adminApi.getUsers(),
         ]);
         setDepartments(depts);
         setAcademicYears(years);
+
+        const cCounts: Record<string, number> = {};
+        courses.forEach(c => {
+           if (c.department_id) cCounts[c.department_id] = (cCounts[c.department_id] || 0) + 1;
+        });
+        setCourseCounts(cCounts);
+
+        const lCounts: Record<string, number> = {};
+        const sCounts: Record<string, number> = {};
+        users.forEach(u => {
+           if (u.department_id) {
+               if (u.role === 'lecturer') lCounts[u.department_id] = (lCounts[u.department_id] || 0) + 1;
+               if (u.role === 'student') sCounts[u.department_id] = (sCounts[u.department_id] || 0) + 1;
+           }
+        });
+        setLecturerCounts(lCounts);
+        setStudentCounts(sCounts);
       } catch (err) {
         console.error("Error loading departments data:", err);
       }
@@ -90,8 +112,8 @@ export default function AdminDepartmentsPage() {
 
   return (
     <AdminDashboardLayout
-      title="Departments"
-      subtitle="Configure faculties, departments, and semesters."
+      title="Academic Departments"
+      subtitle="Configure faculties, departments, and academic terms."
       actions={
         <div style={{ display: "flex", gap: "10px" }}>
           <button
@@ -264,15 +286,15 @@ export default function AdminDepartmentsPage() {
             >
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Courses</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#22D3EE" }}>{dept.course_count ?? 0}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#22D3EE" }}>{courseCounts[dept.id] || 0}</p>
               </div>
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Lecturers</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--accent-blue)" }}>{dept.lecturer_count ?? 0}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--accent-blue)" }}>{lecturerCounts[dept.id] || 0}</p>
               </div>
               <div>
                 <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Students</p>
-                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#34D399" }}>{dept.student_count ?? 0}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#34D399" }}>{studentCounts[dept.id] || 0}</p>
               </div>
             </div>
           </div>

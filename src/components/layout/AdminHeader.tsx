@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 
-import { adminApi } from "@/lib/api/services";
-import { MicroserviceStatus } from "@/types";
 import { ShieldAlertIcon, ClockIcon } from "@/components/ui/Icons";
+import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface AdminHeaderProps {
   title: string;
@@ -13,12 +13,9 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ title, subtitle, actions }: AdminHeaderProps) {
-  const [services, setServices] = useState<MicroserviceStatus[]>([]);
   const [timeString, setTimeString] = useState<string>("");
 
   useEffect(() => {
-    adminApi.getMicroservicesHealth().then((res) => setServices(res));
-
     const updateClock = () => {
       const now = new Date();
       setTimeString(
@@ -30,66 +27,31 @@ export function AdminHeader({ title, subtitle, actions }: AdminHeaderProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const healthyCount = services.filter((s) => s.status === "healthy").length;
-
   return (
-    <header
-      className="no-print"
-      style={{
-        padding: "16px 32px",
-        backgroundColor: "var(--bg-header)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        borderBottom: "1px solid var(--border-subtle)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "sticky",
-        top: 0,
-        zIndex: 30,
-      }}
-    >
+    <header className="no-print px-8 py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 z-30">
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.35rem",
-              fontWeight: 800,
-              color: "var(--text-primary)",
-              letterSpacing: "-0.02em",
-            }}
-          >
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight drop-shadow-sm">
             {title}
           </h1>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              padding: "2px 8px",
-              borderRadius: "var(--radius-full)",
-              fontSize: "0.68rem",
-              fontWeight: 700,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              backgroundColor: "rgba(79, 70, 229, 0.08)",
-              border: "1px solid rgba(79, 70, 229, 0.2)",
-              color: "var(--accent-primary)",
-            }}
-          >
-            <ShieldAlertIcon size={11} /> Admin Mode
-          </span>
+          <Badge variant="outline" className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 px-2 py-0.5 rounded-full flex items-center gap-1.5 uppercase tracking-wider text-[0.65rem] font-bold">
+            <ShieldAlertIcon size={12} /> Admin Mode
+          </Badge>
         </div>
         {subtitle && (
-          <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", marginTop: "2px" }}>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
             {subtitle}
           </p>
         )}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-600 dark:text-slate-300 shadow-inner">
+          <ClockIcon size={14} className="text-cyan-600 dark:text-cyan-400" />
+          <span className="font-mono tracking-wider">{timeString}</span>
+        </div>
 
+        <ThemeToggle />
 
         {/* Extra Action Buttons */}
         {actions}

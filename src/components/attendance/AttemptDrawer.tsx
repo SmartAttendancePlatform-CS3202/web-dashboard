@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { AttendanceRecord, AttendanceVerificationAttempt } from "@/types";
 import { attendanceApi } from "@/lib/api/services";
-import { Badge } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { XIcon, MapPinIcon, WifiIcon, ScanFaceIcon, AlertTriangleIcon, CheckCircleIcon } from "@/components/ui/Icons";
 
 interface AttemptDrawerProps {
@@ -57,36 +58,17 @@ export function AttemptDrawer({
       onClick={onClose}
     >
       <div
-        style={{
-          width: "100%",
-          maxWidth: "480px",
-          height: "100%",
-          backgroundColor: "#FFFFFF",
-          borderLeft: "1px solid var(--border-subtle)",
-          boxShadow: "var(--shadow-command)",
-          display: "flex",
-          flexDirection: "column",
-          overflowY: "auto",
-        }}
+        className="w-full max-w-[480px] h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-xl flex flex-col overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div
-          style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid var(--border-subtle)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            background: "#FFFFFF",
-          }}
-        >
+        <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/50">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>
                 Verification Diagnostics
               </h3>
-              <Badge type="attendance" value={record.status} size="sm" />
+              <Badge variant="outline" className={cn("uppercase text-[0.65rem] font-bold tracking-wider", record.status === "present" ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800" : record.status === "absent" ? "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800" : record.status === "late" ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800" : "bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800")}>{record.status}</Badge>
             </div>
             <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "2px" }}>
               {record.student_name} • {record.student_index}
@@ -248,15 +230,7 @@ export function AttemptDrawer({
         </div>
 
         {/* Footer Action */}
-        <div
-          style={{
-            padding: "16px 24px",
-            borderTop: "1px solid var(--border-subtle)",
-            display: "flex",
-            gap: "10px",
-            background: "#FFFFFF",
-          }}
-        >
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex gap-2.5 bg-slate-50/50 dark:bg-slate-950/50">
           <button
             type="button"
             className="btn-primary"
