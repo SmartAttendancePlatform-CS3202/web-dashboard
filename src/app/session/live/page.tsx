@@ -162,8 +162,10 @@ function LiveSessionContent() {
   const presentCount = records.filter((r) => r.status === "present").length;
   const lateCount = records.filter((r) => r.status === "late").length;
   const flaggedCount = records.filter((r) => r.status === "flagged_proxy").length;
-  const absentCount = totalEnrolled - (presentCount + lateCount + flaggedCount);
-  const attendanceRate = totalEnrolled > 0 ? ((presentCount + lateCount) / totalEnrolled) * 100 : 0;
+  const initialVerifiedCount = records.filter((r) => r.first_check_in_at && r.status !== "present" && r.status !== "late").length;
+  const absentCount = Math.max(0, totalEnrolled - (presentCount + lateCount + flaggedCount + initialVerifiedCount));
+  const checkedInTotal = presentCount + lateCount + initialVerifiedCount;
+  const attendanceRate = totalEnrolled > 0 ? (checkedInTotal / totalEnrolled) * 100 : 0;
 
   const initialWindow = windows.find((w) => w.window_type === "check_in" || w.window_type === "WindowType.check_in");
   const randomWindow = windows.find((w) => w.window_type === "random_check" || w.window_type === "WindowType.random_check");
@@ -365,13 +367,15 @@ function LiveSessionContent() {
             {/* Segmented Progress Bar */}
             <div style={{ width: "100%", height: "8px", backgroundColor: "#E2E8F0", borderRadius: "9999px", overflow: "hidden", display: "flex", margin: "8px 0" }}>
               <div style={{ width: `${(presentCount / totalEnrolled) * 100}%`, backgroundColor: "#059669" }} title="Present" />
+              <div style={{ width: `${(initialVerifiedCount / totalEnrolled) * 100}%`, backgroundColor: "#0284C7" }} title="Initial Verified" />
               <div style={{ width: `${(lateCount / totalEnrolled) * 100}%`, backgroundColor: "#D97706" }} title="Late" />
               <div style={{ width: `${(flaggedCount / totalEnrolled) * 100}%`, backgroundColor: "#BE185D" }} title="Flagged" />
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--text-secondary)", flexWrap: "wrap", gap: "8px" }}>
             <span style={{ color: "#059669", fontWeight: 600 }}>● Present: {presentCount}</span>
+            <span style={{ color: "#0284C7", fontWeight: 600 }}>● Initial Verified: {initialVerifiedCount}</span>
             <span style={{ color: "#D97706", fontWeight: 600 }}>● Late: {lateCount}</span>
             <span style={{ color: "#BE185D", fontWeight: 600 }}>● Flagged: {flaggedCount}</span>
             <span style={{ color: "#64748B", fontWeight: 600 }}>● Absent: {absentCount}</span>
@@ -516,7 +520,7 @@ function LiveSessionContent() {
                         <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">LATE</Badge>
                       ) : isFlagged ? (
                         <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">FLAGGED</Badge>
-                      ) : record.first_check_in_at && !record.random_check_completed_at ? (
+                      ) : (record.first_check_in_at && record.status === "absent") || record.status === "initial_verified" || (record.first_check_in_at && !record.random_check_completed_at) ? (
                         <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-sky-50 text-sky-600 border-sky-200 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800">STEP 1/2 VERIFIED</Badge>
                       ) : (
                         <Badge variant="outline" className="uppercase text-[0.65rem] font-bold tracking-wider bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800">ABSENT</Badge>
@@ -542,14 +546,18 @@ function LiveSessionContent() {
                         </div>
                       ) : record.status === "late" ? (
                         <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Late verified check-in</span>
-                      ) : (
-                        record.first_check_in_at && !record.random_check_completed_at ? (
-                        <span style={{ color: "#0284C7", fontSize: "0.75rem", fontWeight: 600 }}>
-                          Initial Check-In Complete (Awaiting Random Check)
-                        </span>
+                      ) : record.first_check_in_at && !record.random_check_completed_at ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#0284C7", fontSize: "0.75rem", fontWeight: 600 }}>
+                          <CheckCircleIcon size={14} />
+                          <span>Initial Check-In Complete (Face + GPS - Awaiting Random Check)</span>
+                        </div>
+                      ) : record.random_check_completed_at ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#4F46E5", fontSize: "0.75rem" }}>
+                          <CheckCircleIcon size={14} />
+                          <span>Random check done (GPS)</span>
+                        </div>
                       ) : (
                         <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Not checked in yet</span>
-                      )
                       )}
                     </td>
 
