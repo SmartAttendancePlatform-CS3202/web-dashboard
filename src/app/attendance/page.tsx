@@ -260,7 +260,11 @@ function AttendanceHubContent() {
                       </td>
 
                       <td>
-                        <Badge type="attendance" value={record.status} size="sm" />
+                        <Badge 
+                          type="attendance" 
+                          value={record.first_check_in_at && record.status === "absent" ? "initial_verified" : record.status} 
+                          size="sm" 
+                        />
                       </td>
 
                       <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>

@@ -33,6 +33,12 @@ export function Badge({ type, value, className = "", size = "md" }: BadgeProps) 
         border = "rgba(217, 119, 6, 0.25)";
         label = "Late Arrival";
         break;
+      case "initial_verified":
+        bg = "rgba(14, 165, 233, 0.08)";
+        color = "#0284C7";
+        border = "rgba(14, 165, 233, 0.25)";
+        label = "Initial Verified";
+        break;
       case "absent":
         bg = "rgba(225, 29, 72, 0.08)";
         color = "#E11D48";

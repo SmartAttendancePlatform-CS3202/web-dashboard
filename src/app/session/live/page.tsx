@@ -140,8 +140,10 @@ function LiveSessionContent() {
   const presentCount = records.filter((r) => r.status === "present").length;
   const lateCount = records.filter((r) => r.status === "late").length;
   const flaggedCount = records.filter((r) => r.status === "flagged_proxy").length;
-  const absentCount = totalEnrolled - (presentCount + lateCount + flaggedCount);
-  const attendanceRate = totalEnrolled > 0 ? ((presentCount + lateCount) / totalEnrolled) * 100 : 0;
+  const initialVerifiedCount = records.filter((r) => r.first_check_in_at && r.status !== "present" && r.status !== "late").length;
+  const absentCount = Math.max(0, totalEnrolled - (presentCount + lateCount + flaggedCount + initialVerifiedCount));
+  const checkedInTotal = presentCount + lateCount + initialVerifiedCount;
+  const attendanceRate = totalEnrolled > 0 ? (checkedInTotal / totalEnrolled) * 100 : 0;
 
   const initialWindow = windows.find((w) => w.window_type === "check_in" || w.window_type === "WindowType.check_in");
   const randomWindow = windows.find((w) => w.window_type === "random_check" || w.window_type === "WindowType.random_check");
@@ -348,13 +350,15 @@ function LiveSessionContent() {
             {/* Segmented Progress Bar */}
             <div style={{ width: "100%", height: "8px", backgroundColor: "#E2E8F0", borderRadius: "9999px", overflow: "hidden", display: "flex", margin: "8px 0" }}>
               <div style={{ width: `${(presentCount / totalEnrolled) * 100}%`, backgroundColor: "#059669" }} title="Present" />
+              <div style={{ width: `${(initialVerifiedCount / totalEnrolled) * 100}%`, backgroundColor: "#0284C7" }} title="Initial Verified" />
               <div style={{ width: `${(lateCount / totalEnrolled) * 100}%`, backgroundColor: "#D97706" }} title="Late" />
               <div style={{ width: `${(flaggedCount / totalEnrolled) * 100}%`, backgroundColor: "#BE185D" }} title="Flagged" />
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "var(--text-secondary)", flexWrap: "wrap", gap: "8px" }}>
             <span style={{ color: "#059669", fontWeight: 600 }}>● Present: {presentCount}</span>
+            <span style={{ color: "#0284C7", fontWeight: 600 }}>● Initial Verified: {initialVerifiedCount}</span>
             <span style={{ color: "#D97706", fontWeight: 600 }}>● Late: {lateCount}</span>
             <span style={{ color: "#BE185D", fontWeight: 600 }}>● Flagged: {flaggedCount}</span>
             <span style={{ color: "#64748B", fontWeight: 600 }}>● Absent: {absentCount}</span>
@@ -493,7 +497,11 @@ function LiveSessionContent() {
                     </td>
 
                     <td>
-                      <Badge type="attendance" value={record.status} size="sm" />
+                      <Badge 
+                        type="attendance" 
+                        value={record.first_check_in_at && record.status === "absent" ? "initial_verified" : record.status} 
+                        size="sm" 
+                      />
                     </td>
 
                     <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
@@ -515,6 +523,16 @@ function LiveSessionContent() {
                         </div>
                       ) : record.status === "late" ? (
                         <span style={{ color: "#D97706", fontSize: "0.75rem" }}>Late but valid check-in</span>
+                      ) : record.first_check_in_at ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#0284C7", fontSize: "0.75rem" }}>
+                          <CheckCircleIcon size={14} />
+                          <span>Initial verification done (Face + GPS)</span>
+                        </div>
+                      ) : record.random_check_completed_at ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#4F46E5", fontSize: "0.75rem" }}>
+                          <CheckCircleIcon size={14} />
+                          <span>Random check done (GPS)</span>
+                        </div>
                       ) : (
                         <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Not checked in yet</span>
                       )}
